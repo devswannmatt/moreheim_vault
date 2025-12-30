@@ -1,0 +1,60 @@
+<div class="section">
+<h3>Warbands</h3>
+
+<div class="row">
+    <div class="col-8 col-md-8">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Warbands</span>
+                <p>Manage warbands in your campaigns.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-4 col-md-4">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Create Warband</span>
+                <form id="create-warband-form" method="POST" action="/warbands/create">
+                    <div class="input-field">
+                        <input id="name" name="name" type="text" required>
+                        <label for="name">Name</label>
+                    </div>
+                    <div class="input-field">
+                        <select id="player" name="player" required>
+                            <option value="" disabled selected>Choose player</option>
+                            {{#each players}}
+                                <option value="{{this._id}}">{{this.name}}</option>
+                            {{/each}}
+                        </select>
+                        <label for="player">Player</label>
+                    </div>
+                    <button class="btn waves-effect waves-light" type="submit">Create Warband</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="striped responsive-table" id="items-table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Player</th>
+        <th>Data</th>
+        <th>Created</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each warbands}}
+        <tr>
+            <td><a href="/warbands/warband/{{this._id}}">{{this._id}}</a></td>
+            <td>{{#if this.player}}{{this.player.name}}{{else}}(no player){{/if}} (<a href="/players/player/{{this.player._id}}">{{this.player._id}}</a>)</td>
+            <td>{{this}}</td>
+            <td>{{this.createdAt}}</td>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>
+</div>
+
+<script src="/js/players.js"></script>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{{title}}</title>
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <nav>
+      <div class="nav-wrapper blue darken-2">
+        <a href="/" class="brand-logo" style="padding-left:12px">Moreheim Vault</a>
+        <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li><a href="/">Home</a></li>
+          <li><a href="/dashboard">Dashboard</a></li>
+          <li><a href="/items">Items</a></li>
+          <li><a href="/campaigns">Campaigns</a></li>
+          <li><a href="/warbands">Warbands</a></li>
+          <li><a href="/players">Players</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <ul class="sidenav" id="mobile-demo">
+      <li><a href="/">Home</a></li>
+      <li><a href="/dashboard">Dashboard</a></li>
+      <li><a href="/items">Items</a></li>
+      <li><a href="/campaigns">Campaigns</a></li>
+      <li><a href="/warbands">Warbands</a></li>
+      <li><a href="/players">Players</a></li>
+    </ul>
+    <div class="container">
+    {{{body}}}
+    </div>
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // init sidenav
+        var sidenavElems = document.querySelectorAll('.sidenav');
+        if (window.M && M.Sidenav && sidenavElems.length) M.Sidenav.init(sidenavElems);
+
+        // init selects (Materialize replaces select with styled dropdown)
+        var selectElems = document.querySelectorAll('select');
+        if (window.M && M.FormSelect && selectElems.length) M.FormSelect.init(selectElems);
+
+        // init modal, tooltip, etc. (if present)
+        var modalElems = document.querySelectorAll('.modal');
+        if (window.M && M.Modal && modalElems.length) M.Modal.init(modalElems);
+      });
+    </script>
+    {{{scripts}}}
+  </body>
+</html>
