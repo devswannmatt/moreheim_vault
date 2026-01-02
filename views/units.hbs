@@ -1,0 +1,119 @@
+<div class="section">
+<h3>Units</h3>
+
+<div class="row">
+    <div class="col-8 col-md-8">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Units</span>
+                <p>Manage units in your campaigns.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-4 col-md-4">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Create Unit</span>
+                <form id="create-unit-form" method="POST" action="/units/create">
+                    <div class="input-field">
+                        <input id="name" name="name" type="text" required>
+                        <label for="name">Name</label>
+                    </div>
+                    <div class="input-field">
+                        <input id="description" name="description" type="text">
+                        <label for="description">Description</label>
+                    </div>
+                    <div class="input-field">
+                        <input id="experience" name="experience" type="number" value="0" required>
+                        <label for="experience">Experience</label>
+                    </div>
+                    <div class="input-field">
+                        <input id="gold" name="gold" type="number" value="0" required>
+                        <label for="gold">Gold</label>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s1">
+                            <input id="m" name="m" type="number" value="0" required>
+                            <label for="m">M</label>
+                        </div>
+                        <div class="input-field col s1">
+                            <input id="ws" name="ws" type="number" value="0" required>
+                            <label for="ws">WS</label>
+                        </div>
+                        <div class="input-field col s1">
+                            <input id="bs" name="bs" type="number" value="0" required>
+                            <label for="bs">BS</label>
+                        </div>
+                        <div class="input-field col s1">
+                            <input id="s" name="s" type="number" value="0" required>
+                            <label for="s">S</label>
+                        </div>
+                        <div class="input-field col s1">
+                            <input id="t" name="t" type="number" value="0" required>
+                            <label for="t">T</label>
+                        </div>
+                        <div class="input-field col s1">
+                            <input id="w" name="w" type="number" value="0" required>
+                            <label for="w">W</label>
+                        </div>
+                        <div class="input-field col s1">
+                            <input id="i" name="i" type="number" value="0" required>
+                            <label for="i">I</label>
+                        </div>
+                        <div class="input-field col s1">
+                            <input id="a" name="a" type="number" value="0" required>
+                            <label for="a">A</label>
+                        </div>
+                        <div class="input-field col s1">
+                            <input id="ld" name="ld" type="number" value="0" required>
+                            <label for="ld">LD</label>
+                        </div>
+                    </div>
+                    <button class="btn waves-effect waves-light" type="submit">Create Unit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="striped responsive-table" id="items-table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Experience</th>
+        <th>Gold</th>
+        <th>M</th>
+        <th>WS</th>
+        <th>BS</th>
+        <th>S</th>
+        <th>T</th>
+        <th>W</th>
+        <th>I</th>
+        <th>A</th>
+        <th>LD</th>
+        <th>Created</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each units}}
+        <tr>
+            <td><a href="/units/unit/{{this._id}}">{{this.name}}</a></td>
+            <td>{{this.experience}}</td>
+            <td>{{this.gold}}</td>
+            <td>{{this.m}}</td>
+            <td>{{this.ws}}</td>
+            <td>{{this.bs}}</td>
+            <td>{{this.s}}</td>
+            <td>{{this.t}}</td>
+            <td>{{this.w}}</td>
+            <td>{{this.i}}</td>
+            <td>{{this.a}}</td>
+            <td>{{this.ld}}</td>
+            <td>{{formatDateTime this.createdAt}}</td>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>
+</div>
+
+<script src="/js/players.js"></script>

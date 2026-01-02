@@ -6,7 +6,7 @@ const COLLECTION = 'players';
 const playerSchema = new mongoose.Schema({
   name: { type: String, required: true },
   meta: { type: mongoose.Schema.Types.Mixed, default: {} },
-  warbands: { type: [mongoose.Schema.Types.ObjectId], default: [] }
+  rosters: { type: [mongoose.Schema.Types.ObjectId], default: [] }
 }, { timestamps: true, collection: COLLECTION });
 
 const Player = mongoose.models.Player || mongoose.model('Player', playerSchema);

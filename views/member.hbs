@@ -10,7 +10,7 @@
                                 <i class="ra ra-double-team" style="font-size:28px; color:#1565c0"></i>
                             </div>
                             <div style="margin-top:8px; text-align:center">
-                                <div class="grey-text text-darken-1">{{member.player.name}}</div>
+                                <div class="grey-text text-darken-1">{{member.roster.name}}</div>
                             </div>
                         </div>
                         <div class="col s9">
@@ -21,16 +21,45 @@
                                         <label for="name" class="active">Name</label>
                                     </div>
                                 </span>
-
-                                <div class="input-field">
-                                    <textarea id="description" name="description" class="materialize-textarea" rows="2"
-                                        style="min-height:48px">{{member.description}}</textarea>
-                                    <label for="description" class="active">Description</label>
+                                <div class="row">
+                                    <div class="col s2">
+                                        <div class="input-field">
+                                            <input id="qty" name="qty" type="number" value="{{member.qty}}" min="1" required>
+                                            <label for="qty" class="active">Quantity</label>
+                                        </div>
+                                    </div>
+                                    <div class="col s10">
+                                        <div class="input-field">
+                                            <select id="unit" name="unit" required>
+                                                {{#each units}}
+                                                    <option value="{{this._id}}" {{#ifCond this._id '==' ../member.unit._id}}selected{{/ifCond}}>{{this.name}}</option>
+                                                {{/each}}
+                                            </select>
+                                            <label for="unit" class="active">Unit</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="row" style="margin-bottom:0">
+                        <div class="col s12">
+                            <div class="input-field">
+                                <select id="roster" name="roster" required>
+                                    {{#each rosters}}
+                                        <option value="{{this._id}}" {{#ifCond this._id '==' ../member.roster._id}}selected{{/ifCond}}>{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                                <label for="roster" class="active">Roster</label>
+                            </div>
+                        </div>
+                        <div class="col s12">
+                            <div class="input-field">
+                                <textarea id="description" name="description" class="materialize-textarea" rows="2"
+                                    style="min-height:48px">{{member.description}}</textarea>
+                                <label for="description" class="active">Description</label>
+                            </div>
+                        </div>
                         <div class="col s6">
                             <div class="input-field">
                                 <input id="rating" name="rating" type="number" value="{{member.rating}}" required>
@@ -56,7 +85,6 @@
                 <div class="card-action blue lighten-5">
                     <div class="row" style="margin-bottom:0">
                         <div class="col s6">
-                            <a class="btn-small blue" href="/members/member/{{member._id}}/members">Members</a>
                             <a class="btn-small blue" href="/members/member/{{member._id}}/inventory">Inventory</a>
                         </div>
                         <div class="col s6 right-align">
@@ -72,7 +100,7 @@
                         </div>
                     </div>
                 </div>
+            </form>
         </div>
-        </form>
     </div>
 </div>

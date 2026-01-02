@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { getDb } = require('../db');
 
 const COLLECTION = 'members';
 
@@ -7,8 +6,9 @@ const COLLECTION = 'members';
 const memberSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, default: '' },
-  warband: { type: mongoose.Schema.Types.ObjectId, ref: 'Warband', required: true },
+  roster: { type: mongoose.Schema.Types.ObjectId, ref: 'Roster', required: true },
   unit: { type: mongoose.Schema.Types.ObjectId, ref: 'Unit', required: true },
+  qty: { type: Number, default: 1 },
   experience: { type: Number, default: 0 },
   gold: { type: Number, default: 0 }
 }, { timestamps: true, collection: COLLECTION });
@@ -21,7 +21,7 @@ function createMember(data) {
 }
 
 function getMemberById(id) {
-  return Member.findById(id).populate('player').lean().exec();
+  return Member.findById(id).populate('roster').populate('unit').lean().exec();
 }
 
 function updateMember(id, patch = {}) {
@@ -30,7 +30,7 @@ function updateMember(id, patch = {}) {
 }
 
 function findMembers(filter = {}, options = {}) {
-  return Member.find(filter, null, options).populate('player').lean().exec();
+  return Member.find(filter, null, options).populate('roster').populate('unit').lean().exec();
 }
 
 module.exports = { createMember, getMemberById, updateMember, findMembers, COLLECTION };

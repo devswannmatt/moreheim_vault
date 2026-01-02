@@ -44,9 +44,11 @@ app.get('/dashboard', (req, res) => {
 });
 
 app.use('/items', require('./routes/items'));
-app.use('/warbands', require('./routes/warbands'));
+app.use('/rosters', require('./routes/rosters'));
 app.use('/campaigns', require('./routes/campaigns'));
 app.use('/players', require('./routes/players'));
+app.use('/members', require('./routes/members'));
+app.use('/units', require('./routes/units'));
 
 app.use((req, res) => {
     res.status(404).json({ error: '404 Not Found' });

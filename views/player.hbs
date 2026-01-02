@@ -10,7 +10,7 @@
         <button class="btn waves-effect waves-light" type="submit">Save Player</button>
     </form>
 
-    <h4>Warbands</h4>
+    <h4>Rosters</h4>
     <table class="striped responsive-table" id="items-table">
         <thead>
         <tr>
@@ -21,9 +21,9 @@
         </tr>
         </thead>
         <tbody>
-        {{#each warbands}}
+        {{#each rosters}}
             <tr>
-                <td>{{{link this.name (concat '/warbands/warband/' this._id)}}}</td>
+                <td>{{{link this.name (concat '/rosters/roster/' this._id)}}}</td>
                 <td>{{this.rating}}</td>
                 <td>{{this.gold}}</td>
                 <td>{{formatDateTime this.createdAt}}</td>

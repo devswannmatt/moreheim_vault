@@ -7,7 +7,16 @@ const unitSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, default: '' },
   experience: { type: Number, default: 0 },
-  gold: { type: Number, default: 0 }
+  gold: { type: Number, default: 0 },
+  m: { type: Number, default: 0 },
+  ws: { type: Number, default: 0 },
+  bs: { type: Number, default: 0 },
+  s: { type: Number, default: 0 },
+  t: { type: Number, default: 0 },
+  w: { type: Number, default: 0 },
+  i: { type: Number, default: 0 },
+  a: { type: Number, default: 0 },
+  ld: { type: Number, default: 0 }
 }, { timestamps: true, collection: COLLECTION });
 
 const Unit = mongoose.models.Unit || mongoose.model('Unit', unitSchema);

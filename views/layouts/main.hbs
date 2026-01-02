@@ -19,8 +19,9 @@
           <li><a href="/dashboard">Dashboard</a></li>
           <li><a href="/items">Items</a></li>
           <li><a href="/campaigns">Campaigns</a></li>
-          <li><a href="/warbands">Warbands</a></li>
+          <li><a href="/rosters">Rosters</a></li>
           <li><a href="/players">Players</a></li>
+          <li><a href="/units">Units</a></li>
         </ul>
       </div>
     </nav>
@@ -30,8 +31,9 @@
       <li><a href="/dashboard">Dashboard</a></li>
       <li><a href="/items">Items</a></li>
       <li><a href="/campaigns">Campaigns</a></li>
-      <li><a href="/warbands">Warbands</a></li>
+      <li><a href="/rosters">Rosters</a></li>
       <li><a href="/players">Players</a></li>
+      <li><a href="/units">Units</a></li>
     </ul>
     <div class="container">
     {{{body}}}
@@ -40,6 +42,14 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Materialize JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Modal placeholder used by popouts.modals.js -->
+    <div id="popouts-modal" class="modal">
+      <div class="modal-content">
+        <h4 class="popouts-title"></h4>
+        <div class="popouts-body"></div>
+      </div>
+      <div class="modal-footer popouts-footer"></div>
+    </div>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         // init sidenav
@@ -56,6 +66,7 @@
       });
     </script>
     <script src="/js/ajax-methods.js"></script>
+    <script src="/js/modals.js"></script>
     {{{scripts}}}
   </body>
 </html>

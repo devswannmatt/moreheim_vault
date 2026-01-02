@@ -45,5 +45,32 @@ module.exports = {
 
   concat: function(...args) {
     return args.slice(0, -1).join('');
+  },
+  
+  ifCond: function(v1, operator, v2, options) {
+    switch (operator) {
+      case '==':
+        return (String(v1) == String(v2)) ? options.fn(this) : options.inverse(this);
+      case '===':
+        return (String(v1) === String(v2)) ? options.fn(this) : options.inverse(this);
+      case '!=':
+        return (String(v1) != String(v2)) ? options.fn(this) : options.inverse(this);
+      case '!==':
+        return (String(v1) !== String(v2)) ? options.fn(this) : options.inverse(this);
+      case '<':
+        return (v1 < v2) ? options.fn(this) : options.inverse(this);
+      case '<=':
+        return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+      case '>':
+        return (v1 > v2) ? options.fn(this) : options.inverse(this);
+      case '>=':
+        return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+      case '&&':
+        return (v1 && v2) ? options.fn(this) : options.inverse(this);
+      case '||':
+        return (v1 || v2) ? options.fn(this) : options.inverse(this);
+      default:
+        return options.inverse(this);
+    }
   }
 };

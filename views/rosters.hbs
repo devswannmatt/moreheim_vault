@@ -1,20 +1,20 @@
 <div class="section">
-<h3>Warbands</h3>
+<h3>Rosters</h3>
 
 <div class="row">
     <div class="col-8 col-md-8">
         <div class="card">
             <div class="card-content">
-                <span class="card-title">Warbands</span>
-                <p>Manage warbands in your campaigns.</p>
+                <span class="card-title">Rosters</span>
+                <p>Manage rosters in your campaigns.</p>
             </div>
         </div>
     </div>
     <div class="col-4 col-md-4">
         <div class="card">
             <div class="card-content">
-                <span class="card-title">Create Warband</span>
-                <form id="create-warband-form" method="POST" action="/warbands/create">
+                <span class="card-title">Create Roster</span>
+                <form id="create-roster-form" method="POST" action="/rosters/create">
                     <div class="input-field">
                         <input id="name" name="name" type="text" required>
                         <label for="name">Name</label>
@@ -28,7 +28,7 @@
                         </select>
                         <label for="player">Player</label>
                     </div>
-                    <button class="btn waves-effect waves-light" type="submit">Create Warband</button>
+                    <button class="btn waves-effect waves-light" type="submit">Create Roster</button>
                 </form>
             </div>
         </div>
@@ -45,9 +45,9 @@
     </tr>
     </thead>
     <tbody>
-    {{#each warbands}}
+    {{#each rosters}}
         <tr>
-            <td><a href="/warbands/warband/{{this._id}}">{{this._id}}</a></td>
+            <td><a href="/rosters/roster/{{this._id}}">{{this._id}}</a></td>
             <td>{{#if this.player}}{{this.player.name}}{{else}}(no player){{/if}} (<a href="/players/player/{{this.player._id}}">{{this.player._id}}</a>)</td>
             <td>{{this}}</td>
             <td>{{this.createdAt}}</td>
