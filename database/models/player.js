@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { getDb } = require('../db');
 
 const COLLECTION = 'players';
 
@@ -25,13 +24,14 @@ function getPlayerById(id) {
   return Player.findById(id).lean().exec();
 }
 
-function updatePlayer(id, patch = {}) {
-  patch.updatedAt = new Date();
-  return Player.findByIdAndUpdate(id, { $set: patch }, { new: true }).lean().exec();
-}
-
 function findPlayers(filter = {}, options = {}) {
   return Player.find(filter, null, options).lean().exec();
+}
+
+function updatePlayer(id, patch = {}) {
+  const _id = typeof id === 'string' ? new mongoose.Types.ObjectId(id) : id;
+  patch.updatedAt = new Date();
+  return Player.updateOne({ _id }, { $set: patch }).then(() => getPlayerById(_id));
 }
 
 module.exports = { createPlayer, getPlayerById, updatePlayer, findPlayers, COLLECTION };

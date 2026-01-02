@@ -1,12 +1,13 @@
 var router = require('express').Router();
-const { getDb } = require('../database/db');
 const player = require('../database/models/player');
+const warband = require('../database/models/warband');
 
 router.get('/', async (req, res) => {
   console.log("Rendering players view");
   try {
     const items = await player.findPlayers();
-    res.render('players', { players: items });
+    const warbands = await warband.findWarbands();
+    res.render('players', { players: items, warbands: warbands });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -16,10 +17,24 @@ router.get('/player/:id', async (req, res) => {
   console.log(`Fetching player with ID: ${req.params.id}`);
   try {
     const item = await player.getPlayerById(req.params.id);
+    const warbands = await warband.findWarbands({ player: req.params.id });
     if (!item) {
       return res.status(404).json({ error: 'Player not found' });
     }
-    res.render('player', { player: item });
+    res.render('player', { player: item, warbands: warbands });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.patch('/player/:id', async (req, res) => {
+  console.log(`Updating player with ID: ${req.params.id} with data:`, req.body);
+  try {
+    player.updatePlayer(req.params.id, req.body).then(updatedPlayer => {
+      if (!updatedPlayer) {
+        return res.status(404).json({ error: 'Player not found' });
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

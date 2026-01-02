@@ -1,16 +1,45 @@
 <div class="section">
-<h3>Campaigns</h3>
+    <h3>Campaigns</h3>
 
-<table class="striped responsive-table" id="items-table">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Data</th>
-        <th>Created</th>
-    </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+    <div class="col-8 col-md-8">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Campaigns</span>
+                <p>Manage campaigns in your campaigns.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-4 col-md-4">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Create Campaign</span>
+                <form id="create-campaign-form" method="POST" action="/campaigns/create">
+                    <div class="input-field">
+                        <input id="name" name="name" type="text" required>
+                        <label for="name">Name</label>
+                    </div>
+                    <button class="btn waves-effect waves-light" type="submit">Create Campaign</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <table class="striped responsive-table" id="items-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Created</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each campaigns}}
+            <tr>
+                <td>{{{link this.name (concat '/campaigns/campaign/' this._id)}}}</td>
+                <td>{{formatDateTime this.createdAt}}</td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
 </div>
 
 <script src="/js/campaigns.js"></script>

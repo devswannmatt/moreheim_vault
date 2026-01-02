@@ -6,18 +6,17 @@ const COLLECTION = 'warbands';
 // Mongoose schema for Warband
 const warbandSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  player: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', required: true }
+  description: { type: String, default: '' },
+  player: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', required: true },
+  rating: { type: Number, default: 0 },
+  gold: { type: Number, default: 0 }
 }, { timestamps: true, collection: COLLECTION });
 
 const Warband = mongoose.models.Warband || mongoose.model('Warband', warbandSchema);
 
 function createWarband(data) {
-    if (!data) return Promise.reject(new Error('No data provided for creating warband'));
-    const doc = {
-      name: data.name,
-      player: data.player
-    };
-    return Warband.create(doc).then(created => created._id);
+  if (!data) return Promise.reject(new Error('No data provided for creating warband'));
+  return Warband.create(data).then(created => created._id);
 }
 
 function getWarbandById(id) {

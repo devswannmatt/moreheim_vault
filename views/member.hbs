@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col s12 m12">
         <div class="card">
-            <form id="warband-name-form" data-method="PATCH" action="/warbands/warband/{{warband._id}}">
+            <form id="member-name-form" data-method="PATCH" action="/members/member/{{member._id}}">
                 <div class="card-content">
                     <div class="row">
                         <div class="col s3">
@@ -10,21 +10,21 @@
                                 <i class="ra ra-double-team" style="font-size:28px; color:#1565c0"></i>
                             </div>
                             <div style="margin-top:8px; text-align:center">
-                                <div class="grey-text text-darken-1">{{warband.player.name}}</div>
+                                <div class="grey-text text-darken-1">{{member.player.name}}</div>
                             </div>
                         </div>
                         <div class="col s9">
                             <div style="flex-grow:1">
                                 <span class="card-title" style="margin:0">
                                     <div class="input-field">
-                                        <input id="name" name="name" type="text" value="{{warband.name}}" required>
+                                        <input id="name" name="name" type="text" value="{{member.name}}" required>
                                         <label for="name" class="active">Name</label>
                                     </div>
                                 </span>
 
                                 <div class="input-field">
                                     <textarea id="description" name="description" class="materialize-textarea" rows="2"
-                                        style="min-height:48px">{{warband.description}}</textarea>
+                                        style="min-height:48px">{{member.description}}</textarea>
                                     <label for="description" class="active">Description</label>
                                 </div>
                             </div>
@@ -33,7 +33,7 @@
                     <div class="row" style="margin-bottom:0">
                         <div class="col s6">
                             <div class="input-field">
-                                <input id="rating" name="rating" type="number" value="{{warband.rating}}" required>
+                                <input id="rating" name="rating" type="number" value="{{member.rating}}" required>
                                 <label for="rating" class="active">
                                     <i class="ra ra-podium"></i> Rating
                                 </label>
@@ -41,7 +41,7 @@
                         </div>
                         <div class="col s6">
                             <div class="input-field">
-                                <input id="gold" name="gold" type="number" value="{{warband.gold}}" required>
+                                <input id="gold" name="gold" type="number" value="{{member.gold}}" required>
                                 <label for="gold" class="active">
                                     <i class="ra ra-gold-bar"></i> Gold
                                 </label>
@@ -50,18 +50,19 @@
                     </div>
                     <span class="grey-text text-darken-1" style="margin-right:12px">
                         Last updated:
-                        {{formatDateTime warband.updatedAt}}
+                        {{formatDateTime member.updatedAt}}
                     </span>
                 </div>
                 <div class="card-action blue lighten-5">
                     <div class="row" style="margin-bottom:0">
                         <div class="col s6">
-                            <a class="btn-small blue" href="/warbands/warband/{{warband._id}}/inventory">Inventory</a>
+                            <a class="btn-small blue" href="/members/member/{{member._id}}/members">Members</a>
+                            <a class="btn-small blue" href="/members/member/{{member._id}}/inventory">Inventory</a>
                         </div>
                         <div class="col s6 right-align">
                             <div class="btn-area">
-                                <button id="delete-warband-btn" type="button" class="btn waves-effect waves-light red"
-                                    title="Delete warband">
+                                <button id="delete-member-btn" type="button" class="btn waves-effect waves-light red"
+                                    title="Delete member">
                                     <i class="ra ra-tombstone"></i>
                                 </button>
                                 <button class="btn waves-effect waves-light" type="submit">
@@ -71,34 +72,7 @@
                         </div>
                     </div>
                 </div>
-            </form>
         </div>
-        <div class="card">
-            <div class="card-content">
-                <span class="card-title">Members</span>
-                <table class="striped responsive-table" id="members-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Rating</th>
-                            <th>Gold</th>
-                            <th>Created</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {{#each members}}
-                        <tr>
-                            <td><a href="/members/member/{{this._id}}">{{this._id}}</a></td>
-                            <td>{{this.name}}</td>
-                            <td>{{this.rating}}</td>
-                            <td>{{this.gold}}</td>
-                            <td>{{this.createdAt}}</td>
-                        </tr>
-                    {{/each}}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        </form>
     </div>
 </div>

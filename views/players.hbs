@@ -41,7 +41,7 @@
     <tbody>
     {{#each players}}
         <tr>
-            <td><a href="/players/player/{{this._id}}">{{this._id}}</a></td>
+            <td>{{{link this.name (concat '/players/player/' this._id)}}}</td>
             <td>{{this}}</td>
             <td>{{this.createdAt}}</td>
         </tr>

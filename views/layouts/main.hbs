@@ -6,6 +6,8 @@
     <title>{{title}}</title>
     <!-- Materialize CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- RPG Awesome icons (local vendor) -->
+    <link href="/vendor/rpg-awesome/css/rpg-awesome.min.css" rel="stylesheet">
   </head>
   <body>
     <nav>
@@ -34,6 +36,8 @@
     <div class="container">
     {{{body}}}
     </div>
+    <!-- jQuery (required by app scripts) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Materialize JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
@@ -51,6 +55,7 @@
         if (window.M && M.Modal && modalElems.length) M.Modal.init(modalElems);
       });
     </script>
+    <script src="/js/ajax-methods.js"></script>
     {{{scripts}}}
   </body>
 </html>

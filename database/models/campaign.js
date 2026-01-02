@@ -1,73 +1,66 @@
-const { ObjectId } = require('mongodb');
-const { getDb } = require('../db');
-const playerModel = require('./player');
+const mongoose = require('mongoose');
+const player = require('./player');
 
 const COLLECTION = 'campaigns';
 
-function normalizePlayerRef(p) {
-  if (!p) return null;
-  if (typeof p === 'string') return new ObjectId(p);
-  if (p instanceof ObjectId) return p;
-  if (p._id) return typeof p._id === 'string' ? new ObjectId(p._id) : p._id;
-  return null;
-}
+const campaignSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: { type: String, default: '' },
+  players: { type: [mongoose.Schema.Types.ObjectId], ref: 'Player', default: [] }
+}, { timestamps: true, collection: COLLECTION });
+
+const Campaign = mongoose.models.Campaign || mongoose.model('Campaign', campaignSchema);
 
 function createCampaign(data = {}) {
-  const db = getDb();
-  const players = (data.players || []).map(normalizePlayerRef).filter(Boolean);
   const doc = {
     name: data.name || 'Untitled Campaign',
     description: data.description || '',
-    players,
     createdAt: new Date(),
     updatedAt: new Date()
   };
-  return db.collection(COLLECTION).insertOne(doc).then(result => result.insertedId);
+  return Campaign.create(doc).then(created => created._id);
 }
 
 function getCampaignById(id, { populate = false } = {}) {
-  const db = getDb();
-  const _id = typeof id === 'string' ? new ObjectId(id) : id;
-  return db.collection(COLLECTION).findOne({ _id }).then(campaign => {
-    if (!campaign) return null;
-    if (populate && Array.isArray(campaign.players) && campaign.players.length) {
-      const ids = campaign.players.map(p => (typeof p === 'string' ? new ObjectId(p) : p));
-      return db.collection(playerModel.COLLECTION).find({ _id: { $in: ids } }).toArray().then(players => {
-        campaign.players = players;
-        return campaign;
-      });
-    }
-    return campaign;
-  });
+  const _id = typeof id === 'string' ? new mongoose.Types.ObjectId(id) : id;
+  return Campaign.findById(id).lean().exec();
 }
 
-function addPlayerToCampaign(campaignId, playerData = {}) {
-  const db = getDb();
-  const campaignObjectId = typeof campaignId === 'string' ? new ObjectId(campaignId) : campaignId;
-  return playerModel.createPlayer(playerData).then(playerId => {
-    return db.collection(COLLECTION)
-      .updateOne({ _id: campaignObjectId }, { $push: { players: playerId }, $set: { updatedAt: new Date() } })
-      .then(() => playerId);
-  });
+function addPlayerToCampaign(campaignId, playerId) {
+    return new Promise((resolve, reject) => {
+        const campaignObjectId = typeof campaignId === 'string' ? new mongoose.Types.ObjectId(campaignId) : campaignId;
+        player.getPlayerById(playerId).then(p => {
+            if (!p) return reject(new Error('Player not found'));
+            
+            Campaign.findById(campaignObjectId).then(c => {
+                if (!c) return reject(new Error('Campaign not found'));
+                if (Array.isArray(c.players) && c.players.some(existing => existing.toString() === playerId.toString())) {
+                    const err = new Error('Player already in campaign');
+                    err.status = 400;
+                    return reject(err);
+                }
+                c.players.push(playerId);
+                c.updatedAt = new Date();
+                return c.save().then(() => playerId);
+            }).catch(err => reject(err));
+        });
+    });
 }
 
 function removePlayerFromCampaign(campaignId, playerId) {
-  const db = getDb();
-  const cId = typeof campaignId === 'string' ? new ObjectId(campaignId) : campaignId;
-  const pId = typeof playerId === 'string' ? new ObjectId(playerId) : playerId;
-  return db.collection(COLLECTION).updateOne({ _id: cId }, { $pull: { players: pId }, $set: { updatedAt: new Date() } }).then(() => {});
+  const cId = typeof campaignId === 'string' ? new mongoose.Types.ObjectId(campaignId) : campaignId;
+  const pId = typeof playerId === 'string' ? new mongoose.Types.ObjectId(playerId) : playerId;
+  return Campaign.updateOne({ _id: cId }, { $pull: { players: pId }, $set: { updatedAt: new Date() } }).then(() => {});
 }
 
 function updateCampaign(id, patch = {}) {
-  const db = getDb();
-  const _id = typeof id === 'string' ? new ObjectId(id) : id;
+  const _id = typeof id === 'string' ? new mongoose.Types.ObjectId(id) : id;
   patch.updatedAt = new Date();
-  return db.collection(COLLECTION).updateOne({ _id }, { $set: patch }).then(() => getCampaignById(_id));
+  return Campaign.updateOne({ _id }, { $set: patch }).then(() => getCampaignById(_id));
 }
 
 function findCampaigns(filter = {}, options = {}) {
-  const db = getDb();
-  return db.collection(COLLECTION).find(filter, options).toArray();
+  return Campaign.find(filter, null, options).lean().exec();
 }
 
 module.exports = {

@@ -27,6 +27,20 @@ router.get('/warband/:id', async (req, res) => {
   }
 });
 
+router.patch('/warband/:id', async (req, res) => {
+  console.log(`Updating warband with ID: ${req.params.id} with data:`, req.body);
+  try {
+    warband.updateWarband(req.params.id, req.body).then(updatedWarband => {
+      if (!updatedWarband) {
+        return res.status(404).json({ error: 'Warband not found' });
+      }
+      res.status(200).json(updatedWarband);
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/json', async (req, res) => {
   console.log("Fetching warbands in JSON format");
   try {

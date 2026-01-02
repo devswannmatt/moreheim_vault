@@ -6,8 +6,8 @@ const app = express();
 
 const system = require('./system/functions');
 
-// view engine setup
-app.engine('hbs', engine({ defaultLayout: 'main', extname: 'hbs' }));
+const hbsHelpers = require('./system/helpers');
+app.engine('hbs', engine({ defaultLayout: 'main', extname: 'hbs', helpers: hbsHelpers }));
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -49,7 +49,7 @@ app.use('/campaigns', require('./routes/campaigns'));
 app.use('/players', require('./routes/players'));
 
 app.use((req, res) => {
-    res.status(404).json({ error: 'Not found' });
+    res.status(404).json({ error: '404 Not Found' });
 });
 
 module.exports = app;
