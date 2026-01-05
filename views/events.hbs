@@ -1,0 +1,66 @@
+
+<div class="row">
+    <div class="col-12 col-md-12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Events</span>
+                <p>Manage events in your campaigns.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-4 col-md-4">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Create Event</span>
+                <form id="create-event-form" method="POST" action="/events/create">
+                    <div class="row">
+                        <div class="col s3">
+                            <div class="input-field">
+                                <select id="type" name="type" required>
+                                    {{#each eventTypes}}
+                                        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+                                    {{/each}}
+                                </select>
+                                <label for="type">Event Type</label>
+                            </div>
+                        </div>
+                        <div class="col s9">
+                            <div class="input-field">
+                                <select id="entity" name="entity" required>
+                                    {{#each entities}}
+                                        <option value="{{this._id}}/{{this.type}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.type}})</option>
+                                    {{/each}}
+                            </select>
+                            <label for="entity">Entity</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="input-field">
+                                <input id="name" name="name" type="text" required>
+                                <label for="name">Name</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="input-field">
+                                <input id="description" name="description" type="text" required>
+                                <label for="description">Description</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s2">
+                            <div class="input-field">
+                                <input id="gold" name="gold" type="number" required>
+                                <label for="gold">Gold</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn waves-effect waves-light" type="submit">Create Event</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

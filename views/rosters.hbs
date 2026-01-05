@@ -40,21 +40,17 @@
     <tr>
         <th>ID</th>
         <th>Player</th>
-        <th>Data</th>
         <th>Created</th>
     </tr>
     </thead>
     <tbody>
     {{#each rosters}}
         <tr>
-            <td><a href="/rosters/roster/{{this._id}}">{{this._id}}</a></td>
-            <td>{{#if this.player}}{{this.player.name}}{{else}}(no player){{/if}} (<a href="/players/player/{{this.player._id}}">{{this.player._id}}</a>)</td>
-            <td>{{this}}</td>
+            <td><a href="/rosters/roster/{{this._id}}">{{this.name}}</a></td>
+            <td>{{#if this.player}}<a href="/players/player/{{this.player._id}}">{{this.player.name}}</a>{{else}}(no player){{/if}}</td>
             <td>{{this.createdAt}}</td>
         </tr>
     {{/each}}
     </tbody>
 </table>
 </div>
-
-<script src="/js/players.js"></script>

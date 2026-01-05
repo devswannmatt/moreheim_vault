@@ -7,6 +7,7 @@
 $(function () {
   // forms
   $(document).on('submit', 'form[data-method]', function (e) {
+    console.log("Intercepting form submission for AJAX");
     e.preventDefault();
     var $form = $(this);
     var method = ($form.data('method') || $form.attr('method') || 'POST').toUpperCase();

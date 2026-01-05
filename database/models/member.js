@@ -10,7 +10,8 @@ const memberSchema = new mongoose.Schema({
   unit: { type: mongoose.Schema.Types.ObjectId, ref: 'Unit', required: true },
   qty: { type: Number, default: 1 },
   experience: { type: Number, default: 0 },
-  gold: { type: Number, default: 0 }
+  gold: { type: Number, default: 0 },
+  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
 }, { timestamps: true, collection: COLLECTION });
 
 const Member = mongoose.models.Member || mongoose.model('Member', memberSchema);
@@ -21,16 +22,31 @@ function createMember(data) {
 }
 
 function getMemberById(id) {
-  return Member.findById(id).populate('roster').populate('unit').lean().exec();
+  return Member.findById(id)
+    .populate('roster')
+    .populate('unit')
+    .populate({ path: 'items', populate: { path: 'traits' } })
+    .lean()
+    .exec();
 }
 
 function updateMember(id, patch = {}) {
   patch.updatedAt = new Date();
-  return Member.findByIdAndUpdate(id, { $set: patch }, { new: true }).lean().exec();
+  return Member.findByIdAndUpdate(id, { $set: patch }, { new: true })
+    .populate('roster')
+    .populate('unit')
+    .populate({ path: 'items', populate: { path: 'traits' } })
+    .lean()
+    .exec();
 }
 
 function findMembers(filter = {}, options = {}) {
-  return Member.find(filter, null, options).populate('roster').populate('unit').lean().exec();
+  return Member.find(filter, null, options)
+    .populate('roster')
+    .populate('unit')
+    .populate({ path: 'items', populate: { path: 'traits' } })
+    .lean()
+    .exec();
 }
 
 module.exports = { createMember, getMemberById, updateMember, findMembers, COLLECTION };

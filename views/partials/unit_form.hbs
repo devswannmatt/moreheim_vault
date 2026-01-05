@@ -1,0 +1,17 @@
+<form id="{{formId}}" method="{{method}}" action="{{action}}">
+    {{> field label="Name" name="name" type="text" required=true }}
+    <div class="input-field">
+        <label for="warband" class="active">Warband</label>
+        <select id="warband" name="warband" required>
+            {{#each warbands}}
+                <option value="{{this._id}}" {{#ifCond this._id '==' ../unit.warband._id}}selected{{/ifCond}}>{{this.name}}</option>
+            {{/each}}
+        </select>
+    </div>
+    {{> field label="Description" name="description" type="text"}}
+    {{> field label="Experience" name="experience" type="number" value="0" required=true col="s6"}}
+    {{> field label="Gold" name="gold" type="number" value="0" required=true col="s6"}}
+
+    {{> stat_block_form}}
+    <button class="btn waves-effect waves-light" type="submit">Create Unit</button>
+</form>

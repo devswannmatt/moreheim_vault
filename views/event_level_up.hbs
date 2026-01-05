@@ -1,0 +1,130 @@
+<form id="create-event-form" method="POST" action="/events/create">
+    <div class="row">
+        <div class="col s3">
+            <div class="input-field">
+                <select id="type" name="type" required>
+                    {{#each eventTypes}}
+                    <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+                    {{/each}}
+                </select>
+                <label for="type">Event Type</label>
+            </div>
+        </div>
+        <div class="col s3">
+            <div class="input-field">
+                <input id="experience" name="wealth.experience" type="number" value="{{query.experience}}" required>
+                <label for="experience">Experience</label>
+            </div>
+        </div>
+        <div class="col s6">
+            <div class="input-field">
+                <select id="entity" name="entity" required>
+                    <option value="{{member._id}}/Member" selected>{{member.name}} (Member)</option>
+                </select>
+                <label for="entity">Entity</label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div class="input-field">
+                <select id="advance" name="advance" data-linkedfield="advance_linked" required>
+                    {{#each advanceTypes}}
+                    <option value="{{this.value}}" {{#if this.selected}}selected{{/if}} {{#if this.subType}}data-subfield='{{{json this.subType}}}'{{/if}}>{{this.value}}: {{this.label}}</option>
+                    {{/each}}
+                </select>
+                <label for="type">Advance Type</label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div class="input-field">
+                <select id="advance_linked" name="advance_linked" required>
+                    <option value="" disabled selected>Select an option</option>
+                </select>
+                <label for="type">Advance Sub Type</label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div class="input-field">
+                <input id="description" name="description" type="text" required>
+                <label for="description">Notes</label>
+            </div>
+        </div>
+    </div>
+    <button class="btn waves-effect waves-light" type="submit">Create Event</button>
+    <a href="#!" class="btn waves-effect waves-light red" type="button" onclick="closeModal(); return false;">Cancel</a>
+</form>
+
+<script>
+    (function(){
+        function showLinkedField(subfield, subFieldData) {
+            console.log('showLinkedField called with value:', subFieldData);
+            var subFieldSelect = document.getElementById(subfield);
+            if (!subFieldSelect) return;
+            var subFieldDiv = subFieldSelect.parentElement;
+            // clear
+            subFieldSelect.innerHTML = '';
+            if (subFieldData && Object.keys(subFieldData).length > 0) {
+                for (const key in subFieldData) {
+                    if (Object.prototype.hasOwnProperty.call(subFieldData, key)) {
+                        var option = document.createElement('option');
+                        option.value = key;
+                        var label = subFieldData[key];
+                        if (label && typeof label === 'object' && label.label) label = label.label;
+                        option.text = String(label);
+                        subFieldSelect.appendChild(option);
+                    }
+                }
+                // show the container (Materialize will render the styled select)
+                if (subFieldDiv) subFieldDiv.style.display = 'block';
+                // add placeholder
+                var placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.disabled = true;
+                placeholder.selected = true;
+                placeholder.text = 'Select an option';
+                subFieldSelect.insertBefore(placeholder, subFieldSelect.firstChild);
+                // re-init Materialize select so UI updates
+                if (window.M && M.FormSelect) M.FormSelect.init(subFieldSelect);
+            } else {
+                subFieldSelect.innerHTML = '';
+                if (subFieldDiv) subFieldDiv.style.display = 'none';
+                if (window.M && M.FormSelect) M.FormSelect.init(subFieldSelect);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            // ensure Materialize selects are initialized for this form
+            try {
+                var advEl = document.getElementById('advance');
+                var advLinked = document.getElementById('advance_linked');
+                if (window.M && M.FormSelect) {
+                    if (advEl) M.FormSelect.init(advEl);
+                    if (advLinked) M.FormSelect.init(advLinked);
+                }
+            } catch (e) { /* ignore */ }
+
+            var nodes = document.querySelectorAll('[data-linkedfield]');
+            nodes.forEach(function(e){
+                e.addEventListener('change', function(event){
+                    var subfield = e.getAttribute('data-linkedfield');
+                    var selectedOption = e.options[e.selectedIndex];
+                    var raw = selectedOption && (selectedOption.dataset ? selectedOption.dataset.subfield : selectedOption.getAttribute('data-subfield'));
+                    var subFieldData = null;
+                    if (raw) {
+                        try { subFieldData = JSON.parse(raw); } catch (err) { console.warn('Could not parse subfield JSON, using raw:', err); subFieldData = raw; }
+                    }
+                    showLinkedField(subfield, subFieldData);
+                });
+
+                // Trigger change event on load to set initial state
+                var ev = new Event('change', { bubbles: true });
+                e.dispatchEvent(ev);
+            });
+        });
+    })();
+</script>

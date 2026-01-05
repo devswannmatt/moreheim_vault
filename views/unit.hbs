@@ -1,0 +1,103 @@
+<div class="row">
+    <div class="col s12 m12">
+        <div class="card">
+            <form id="unit-name-form" data-method="PATCH" action="/units/unit/{{unit._id}}">
+                <div class="card-content">
+                    <div class="row">
+                        <div class="col s3">
+                            <div
+                                style="width:100%; height:140px; display:flex; align-items:center; justify-content:center; background:#e3f2fd;">
+                                <i class="ra ra-double-team" style="font-size:28px; color:#1565c0"></i>
+                            </div>
+                            <div style="margin-top:8px; text-align:center">
+                                <div class="grey-text text-darken-1">{{unit.roster.name}}</div>
+                            </div>
+                        </div>
+                        <div class="col s9">
+                            <div style="flex-grow:1">
+                                <div class="row">
+                                    <div class="col s3">
+                                        <span class="card-title" style="margin:0">
+                                            <div class="input-field">
+                                                <select id="type" name="type" required>
+                                                    {{#each unitTypes}}
+                                                        <option value="{{this.value}}" {{#ifCond this '==' ../unit.type}}selected{{/ifCond}}>{{this.label}}</option>
+                                                    {{/each}}
+                                                </select>
+                                                <label for="type" class="active">Type</label>
+                                            </div>
+                                        </span>
+                                    </div>
+                                    <div class="col s9">
+                                        <span class="card-title" style="margin:0">
+                                            <div class="input-field">
+                                                <input id="name" name="name" type="text" value="{{unit.name}}" required>
+                                                <label for="name" class="active">Name</label>
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col s12">
+                                        <div class="input-field">
+                                            <select id="warband" name="warband" required>
+                                                {{#each warbands}}
+                                                    <option value="{{this._id}}" {{#ifCond this._id '==' ../unit.warband._id}}selected{{/ifCond}}>{{this.name}}</option>
+                                                {{/each}}
+                                            </select>
+                                            <label for="warband" class="active">Warband</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom:0">
+                        <div class="col s12">
+                            <div class="input-field">
+                            </div>
+                        </div>
+                        <div class="col s12">
+                            <div class="input-field">
+                                <textarea id="description" name="description" class="materialize-textarea" rows="2"
+                                    style="min-height:48px">{{unit.description}}</textarea>
+                                <label for="description" class="active">Description</label>
+                            </div>
+                        </div>
+                        <div class="col s12">
+                            <div class="input-field">
+                                <input id="gold" name="gold" type="number" value="{{unit.gold}}" required>
+                                <label for="gold" class="active">
+                                    <i class="ra ra-gold-bar"></i> Gold
+                                </label>
+                            </div>
+                        </div>
+
+                        {{> stat_block_form unit=unit}}
+                    </div>
+                    <span class="grey-text text-darken-1" style="margin-right:12px">
+                        Last updated:
+                        {{formatDateTime unit.updatedAt}}
+                    </span>
+                </div>
+                <div class="card-action blue lighten-5">
+                    <div class="row" style="margin-bottom:0">
+                        <div class="col s6">
+                        </div>
+                        <div class="col s6 right-align">
+                            <div class="btn-area">
+                                <button id="delete-unit-btn" type="button" class="btn waves-effect waves-light red"
+                                    title="Delete unit">
+                                    <i class="ra ra-tombstone"></i>
+                                </button>
+                                <button class="btn waves-effect waves-light" type="submit">
+                                    <i class="ra ra-save"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+<div class="exp-square {{#if this.level}}exp-square-level{{/if}} waves-effect waves-light" style="{{{expBoxStyle this}}}">
+    {{#if this.spent}}
+        <i class="ra ra-diamonds"></i>
+    {{else}}
+        {{#if this.level}}
+            {{#if this.earned}}
+                <a href="#popouts-modal" class="modal-trigger tooltipped" data-tooltip="Level Up Available! Click to spend level." data-position="top" data-popout="/members/member/{{member}}/event/levelup?experience={{experience}}" title="Level Up">
+                    <i class="ra ra-hospital-cross"></i>
+                </a>
+            {{/if}}
+        {{/if}}
+    {{/if}}
+</div>

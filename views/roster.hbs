@@ -23,27 +23,37 @@
                                 </span>
 
                                 <div class="input-field">
-                                    <textarea id="description" name="description" class="materialize-textarea" rows="2"
-                                        style="min-height:48px">{{roster.description}}</textarea>
-                                    <label for="description" class="active">Description</label>
+                                    <select id="warband" name="warband" required>
+                                        {{#each warbands}}
+                                            <option value="{{this._id}}" {{#ifCond this._id '==' ../roster.warband}}selected{{/ifCond}}>{{this.name}}</option>
+                                        {{/each}}
+                                    </select>
+                                    <label for="warband" class="active">Warband</label> 
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="row" style="margin-bottom:0">
+                        <div class="col s12">
+                            <div class="input-field">
+                                <textarea id="description" name="description" class="materialize-textarea" rows="2"
+                                    style="min-height:48px">{{roster.description}}</textarea>
+                                <label for="description" class="active">Description</label>
+                            </div>
+                        </div>
                         <div class="col s6">
                             <div class="input-field">
-                                <input id="rating" name="rating" type="number" value="{{roster.rating}}" required>
+                                <input id="rating" name="rating" type="number" value="{{wealth.rating}}" required>
                                 <label for="rating" class="active">
-                                    <i class="ra ra-podium"></i> Rating
+                                    <i class="ra ra-podium" data-position="top" title="Rating"></i> Rating
                                 </label>
                             </div>
                         </div>
                         <div class="col s6">
                             <div class="input-field">
-                                <input id="gold" name="gold" type="number" value="{{roster.gold}}" required>
+                                <input id="gold" name="gold" type="number" value="{{wealth.gold}}" required>
                                 <label for="gold" class="active">
-                                    <i class="ra ra-gold-bar"></i> Gold
+                                    <i class="ra ra-gold-bar" data-position="top" title="Gold"></i> Gold
                                 </label>
                             </div>
                         </div>
@@ -56,8 +66,14 @@
                 <div class="card-action blue lighten-5">
                     <div class="row" style="margin-bottom:0">
                         <div class="col s6">
-                            <a class="btn-small blue" href="/rosters/roster/{{roster._id}}/inventory">Inventory</a>
-                            <a class="btn-small green" href="/members/member/create">Add Member</a>
+                            {{#if roster.warband}}
+                                <a class="btn-small green" href="/members/member/create?warband={{roster.warband}}&roster={{roster._id}}">Add Member</a>
+                            {{else}}
+                                <span class="tooltipped" data-tooltip="Required: Select Warband" data-position="top" title="Add Member" tabindex="0" style="display:inline-block">
+                                    <a class="btn-small green disabled" aria-disabled="true" href="#" onclick="return false;">Add Member</a>
+                                </span>
+                            {{/if}}
+                            <a class="btn-small blue" data-position="top" title="Inventory" href="/rosters/roster/{{roster._id}}/inventory">Inventory</a>
                         </div>
                         <div class="col s6 right-align">
                             <div class="btn-area">
@@ -65,7 +81,7 @@
                                     title="Delete roster">
                                     <i class="ra ra-tombstone"></i>
                                 </button>
-                                <button class="btn waves-effect waves-light" type="submit">
+                                <button class="btn waves-effect waves-light tooltipped" type="submit" data-tooltip="Save changes to this Roster!" data-position="top" title="Save roster">
                                     <i class="ra ra-save"></i>
                                 </button>
                             </div>
@@ -81,27 +97,27 @@
                     <thead>
                         <tr>
                             <th>Name</th>
+                            <th>#</th>
                             <th>Unit</th>
-                            <th>Quantity</th>
-                            <th>M</th>
-                            <th>WS</th>
-                            <th>BS</th>
-                            <th>S</th>
-                            <th>T</th>
-                            <th>W</th>
-                            <th>I</th>
-                            <th>A</th>
-                            <th>LD</th>
-                            <th>Rating</th>
-                            <th>Gold</th>
+                            <th class="tooltipped" data-tooltip="Movement" data-position="top" title="Movement">M</th>
+                            <th class="tooltipped" data-tooltip="Weapon Skill" data-position="top" title="Weapon Skill">WS</th>
+                            <th class="tooltipped" data-tooltip="Ballistic Skill" data-position="top" title="Ballistic Skill">BS</th>
+                            <th class="tooltipped" data-tooltip="Strength" data-position="top" title="Strength">S</th>
+                            <th class="tooltipped" data-tooltip="Toughness" data-position="top" title="Toughness">T</th>
+                            <th class="tooltipped" data-tooltip="Wounds" data-position="top" title="Wounds">W</th>
+                            <th class="tooltipped" data-tooltip="Initiative" data-position="top" title="Initiative">I</th>
+                            <th class="tooltipped" data-tooltip="Attacks" data-position="top" title="Attacks">A</th>
+                            <th class="tooltipped" data-tooltip="Leadership" data-position="top" title="Leadership">LD</th>
+                            <th class="tooltipped" data-tooltip="Rating" data-position="top" title="Rating">Rating</th>
+                            <th class="tooltipped" data-tooltip="Gold" data-position="top" title="Gold">Gold</th>
                         </tr>
                     </thead>
                     <tbody>
                     {{#each members}}
                         <tr>
                             <td><a href="/members/member/{{this._id}}">{{this.name}}</a></td>
-                            <td>{{this.unit.name}}</td>
                             <td>{{this.qty}}</td>
+                            <td>{{this.unit.name}}</td>
                             <td>{{this.unit.m}}</td>
                             <td>{{this.unit.ws}}</td>
                             <td>{{this.unit.bs}}</td>
@@ -111,8 +127,8 @@
                             <td>{{this.unit.i}}</td>
                             <td>{{this.unit.a}}</td>
                             <td>{{this.unit.ld}}</td>
-                            <td>{{this.rating}}</td>
-                            <td>{{this.gold}}</td>
+                            <td>{{this.wealth.rating}}</td>
+                            <td>{{this.wealth.gold}}</td>
                         </tr>
                     {{/each}}
                     </tbody>

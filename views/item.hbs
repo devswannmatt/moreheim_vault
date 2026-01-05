@@ -1,0 +1,94 @@
+<div class="row">
+    <div class="col s12 m12">
+        <div class="card">
+            <form id="item-name-form" data-method="PATCH" action="/items/item/{{item._id}}">
+                <div class="card-content">
+                    <div class="row">
+                        <div class="col s12">
+                            <div style="flex-grow:1">
+                                <div class="row">
+                                    <div class="col s4">
+                                        <div class="input-field">
+                                            <select id="type" name="type" required>
+                                                <option value="1" {{#ifCond item.type '==' '1'}}selected{{/ifCond}}>Combat Weapon</option>
+                                                <option value="2" {{#ifCond item.type '==' '2'}}selected{{/ifCond}}>Missile Weapon</option>
+                                                <option value="3" {{#ifCond item.type '==' '3'}}selected{{/ifCond}}>Armour</option>
+                                                <option value="4" {{#ifCond item.type '==' '4'}}selected{{/ifCond}}>Miscellaneous</option>
+                                            </select>
+                                            <label for="type" class="active">Type</label>
+                                        </div>
+                                    </div>
+                                    <div class="col s8">
+                                        <div class="input-field">
+                                            <input id="name" name="name" type="text" value="{{item.name}}" required>
+                                            <label for="name" class="active">Name</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col s10">
+                                        <div class="input-field">
+                                            <input id="description" name="description" type="text" value="{{item.description}}" required>
+                                            <label for="description" class="active">Description</label>
+                                        </div>
+                                    </div>
+                                    <div class="col s2">
+                                        <div class="input-field">
+                                            <input id="gold" name="gold" type="number" value="{{item.gold}}" min="1" required>
+                                            <label for="gold" class="active">Gold</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-action blue lighten-5">
+                    <div class="row" style="margin-bottom:0">
+                        <div class="col s6">
+                            <a class="btn-small blue" href="/items/item/{{item._id}}/traits">Traits</a>
+                        </div>
+                        <div class="col s6 right-align">
+                            <div class="btn-area">
+                                <button id="delete-item-btn" type="button" class="btn waves-effect waves-light red"
+                                    title="Delete item">
+                                    <i class="ra ra-tombstone"></i>
+                                </button>
+                                <button class="btn waves-effect waves-light" type="submit">
+                                    <i class="ra ra-save"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 m12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Inventory</span>
+                <table class="striped responsive-table" id="items-table">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#each item.traits}}
+                        <tr>
+                            <td><a href="/traits/trait/{{_id}}">{{name}}</a></td>
+                            <td>{{formatTraitType type}}</td>
+                            <td>{{description}}</td>
+                        </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

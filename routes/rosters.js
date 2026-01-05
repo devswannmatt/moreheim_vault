@@ -1,14 +1,22 @@
 var router = require('express').Router();
-const roster = require('../database/models/roster');
+const roster  = require('../database/models/roster');
 const player  = require('../database/models/player');
 const member  = require('../database/models/member');
+const warband = require('../database/models/warband');
+
+const calc = require('../js/calc');
 
 router.get('/', async (req, res) => {
   console.log("Rendering rosters view");
   try {
-    const items   = await roster.findRosters();
+    const rosters = await roster.findRosters();
     const players = await player.findPlayers();
-    res.render('rosters', { rosters: items, players: players });
+
+    rosters.forEach(async r => {
+      const members = calc.membersInRoster(r._id, await member.findMembers());
+      r.wealth = calc.wealth(members);
+    });
+    res.render('rosters', { rosters: rosters, players: players });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -17,12 +25,21 @@ router.get('/', async (req, res) => {
 router.get('/roster/:id', async (req, res) => {
   console.log(`Fetching roster with ID: ${req.params.id}`);
   try {
-    const item    = await roster.getRosterById(req.params.id);
-    const members = await member.findMembers({ roster: req.params.id });
+    const item     = await roster.getRosterById(req.params.id);
+    const members  = await member.findMembers({ roster: req.params.id });
+
+    const wealth = { rating: 0, gold: 0 };
+    members.forEach(m => {
+      m.wealth = calc.wealth([m], m.items);
+      wealth.rating += m.wealth.rating;
+      wealth.gold += m.wealth.gold;
+    });
+
+    const warbands = await warband.findWarbands();
     if (!item) {
       return res.status(404).json({ error: 'Roster not found' });
     }
-    res.render('roster', { roster: item, members: members });
+    res.render('roster', { roster: item, members: members, warbands: warbands, wealth: wealth });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

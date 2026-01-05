@@ -72,5 +72,61 @@ module.exports = {
       default:
         return options.inverse(this);
     }
+  },
+
+  formatItemType: function(type) {
+    switch(type) {
+      case 1: return "Combat Weapon";
+      case 2: return "Missile Weapon";
+      case 3: return "Armour";
+      case 4: return "Miscellaneous";
+      default: return "Unknown";
+    }
+  },
+
+  formatTraitType: function(type) {
+    switch(type) {
+      case 1: return "General";
+      case 2: return "Weapon";
+      case 3: return "Unit";
+      default: return "Unknown";
+    }
+  },
+
+  formatUnitType: function(type) {
+    switch(type) {
+      case 1: return "Hero";
+      case 2: return "Henchman";
+      default: return "Unknown";
+    }
+  },
+
+  formatEventType: function(type) {
+    switch(type) {
+      case 1: return "Level Up";
+      case 2: return "Quest";
+      case 3: return "Campaign";
+      default: return "Unknown";
+    }
+  },
+
+  expBoxStyle: function(box) {
+    if (!box || typeof box !== 'object') return '';
+    var bg;
+
+    if (box.earned) {
+      if (box.level) {
+        if (!box.spent) {
+          bg = '#0094E6'; // earned, level up, not spent
+        } else {
+          bg = '#7FBFEF'; // earned, level up, spent
+        }
+      } else {
+        bg = '#DDD'; // earned, no level up
+      }
+    }
+
+    var border = box.level ? '3px solid #5E5E5E' : '1px solid #7A7A7A';
+    return 'background: ' + bg + '; border: ' + border + '; display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; margin-right:2px; margin-bottom:6px; border-radius:4px; vertical-align:middle;';
   }
 };

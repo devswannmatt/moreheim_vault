@@ -15,20 +15,32 @@
                         </div>
                         <div class="col s9">
                             <div style="flex-grow:1">
-                                <span class="card-title" style="margin:0">
-                                    <div class="input-field">
-                                        <input id="name" name="name" type="text" value="{{member.name}}" required>
-                                        <label for="name" class="active">Name</label>
-                                    </div>
-                                </span>
                                 <div class="row">
-                                    <div class="col s2">
+                                    <div class="col s3">
+                                        <span class="card-title" style="margin:0">
+                                            <div class="input-field">
+                                                <input id="type" type="text" value="{{formatUnitType member.unit.type}}" disabled>
+                                                <label for="type" class="active">Type</label>
+                                            </div>
+                                        </span>
+                                    </div>
+                                    <div class="col s9">
+                                        <span class="card-title" style="margin:0">
+                                            <div class="input-field">
+                                                <input id="name" name="name" type="text" value="{{member.name}}" required>
+                                                <label for="name" class="active">Name</label>
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col s3">
                                         <div class="input-field">
                                             <input id="qty" name="qty" type="number" value="{{member.qty}}" min="1" required>
                                             <label for="qty" class="active">Quantity</label>
                                         </div>
                                     </div>
-                                    <div class="col s10">
+                                    <div class="col s9">
                                         <div class="input-field">
                                             <select id="unit" name="unit" required>
                                                 {{#each units}}
@@ -43,16 +55,9 @@
                         </div>
                     </div>
                     <div class="row" style="margin-bottom:0">
-                        <div class="col s12">
-                            <div class="input-field">
-                                <select id="roster" name="roster" required>
-                                    {{#each rosters}}
-                                        <option value="{{this._id}}" {{#ifCond this._id '==' ../member.roster._id}}selected{{/ifCond}}>{{this.name}}</option>
-                                    {{/each}}
-                                </select>
-                                <label for="roster" class="active">Roster</label>
-                            </div>
-                        </div>
+                        {{> stat_block_form unit=member.unit}}
+                    </div>
+                    <div class="row" style="margin-bottom:0">
                         <div class="col s12">
                             <div class="input-field">
                                 <textarea id="description" name="description" class="materialize-textarea" rows="2"
@@ -60,23 +65,48 @@
                                 <label for="description" class="active">Description</label>
                             </div>
                         </div>
-                        <div class="col s6">
+                    </div>
+                    <div class="row">
+                        <div class="col s3">
                             <div class="input-field">
-                                <input id="rating" name="rating" type="number" value="{{member.rating}}" required>
+                                <input id="rating" name="rating" type="number" value="{{wealth.rating}}" disabled>
                                 <label for="rating" class="active">
                                     <i class="ra ra-podium"></i> Rating
                                 </label>
                             </div>
                         </div>
-                        <div class="col s6">
+                        <div class="col s3">
                             <div class="input-field">
-                                <input id="gold" name="gold" type="number" value="{{member.gold}}" required>
+                                <input id="gold" name="gold" type="number" value="{{wealth.gold}}" disabled>
                                 <label for="gold" class="active">
-                                    <i class="ra ra-gold-bar"></i> Gold
+                                    <i class="ra ra-gold-bar"></i> Gold (Total Value)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col s3">
+                            <div class="input-field">
+                                <input id="experience" name="experience" type="number" value="{{member.unit.experience}}" disabled> </input>
+                                <label for="experience" class="active">
+                                    <i class="ra ra-muscle-up"></i> Experience (Starting)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col s3">
+                            <div class="input-field">
+                                <input id="experience" name="experience" type="number" value="{{member.experience}}">
+                                <label for="experience" class="active">
+                                    <i class="ra ra-muscle-up"></i> Experience (Earned)
                                 </label>
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col s12">
+                            {{#each expLevels}}
+                                {{> exp_widget exp=this member=../member/_id experience=(add @index 1)}}
+                            {{/each}}
+                        </div>
+                    </div> 
                     <span class="grey-text text-darken-1" style="margin-right:12px">
                         Last updated:
                         {{formatDateTime member.updatedAt}}
@@ -84,16 +114,29 @@
                 </div>
                 <div class="card-action blue lighten-5">
                     <div class="row" style="margin-bottom:0">
-                        <div class="col s6">
-                            <a class="btn-small blue" href="/members/member/{{member._id}}/inventory">Inventory</a>
-                        </div>
-                        <div class="col s6 right-align">
+                        <div class="col s8">
                             <div class="btn-area">
-                                <button id="delete-member-btn" type="button" class="btn waves-effect waves-light red"
+                                <button class="btn-small" href="/members/member/{{member._id}}/inventory">
+                                    <i class="ra ra-round-shield"></i>
+                                    Inventory
+                                </button>
+                                <button class="btn-small" href="/members/member/{{member._id}}/history?type=all">
+                                    <i class="ra ra-book"></i>
+                                    History
+                                </button>
+                                <button class="btn-small red" href="/members/member/{{member._id}}/history?type=injuries">
+                                    <i class="ra ra-droplet"></i>
+                                    Injuries
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col s4 right-align">
+                            <div class="btn-area">
+                                <button id="delete-member-btn" type="button" class="btn-small waves-effect waves-light red"
                                     title="Delete member">
                                     <i class="ra ra-tombstone"></i>
                                 </button>
-                                <button class="btn waves-effect waves-light" type="submit">
+                                <button class="btn-small waves-effect waves-light" type="submit">
                                     <i class="ra ra-save"></i>
                                 </button>
                             </div>
@@ -101,6 +144,93 @@
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 m12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Inventory</span>
+                <table class="striped responsive-table" id="items-table">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Traits</th>
+                        <th>Gold</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#each member.items}}
+                        <tr>
+                            <td><a href="/items/item/{{_id}}">{{name}}</a></td>
+                            <td>{{formatItemType type}}</td>
+                            <td>{{description}}</td>
+                            <td>
+                                <div class="widget widget-sm">
+                                {{#each traits}}
+                                    <a href="/traits/trait/{{_id}}" class="tooltipped" data-tooltip="{{description}}">{{name}}</a>
+                                {{/each}}
+                                </div>
+                            </td>
+                            <td>{{gold}}</td>
+                        </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 m12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Events</span>
+                <table class="striped responsive-table" id="items-table">
+                    <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Options</th>
+                        <th>Notes</th>
+                        <th>Detail</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#each events}}
+                        <tr>
+                            <td>{{formatEventType type}} (Exp: {{wealth.experience}})</td>
+                            <td>{{name}}</td>
+                            <td>{{description}}</td>
+                            <td>
+                                {{#if wealth}}
+                                    <div>Gold: {{wealth.gold}}</div>
+                                    <div>Experience: {{wealth.experience}}</div>
+                                    <div>Rating: {{wealth.rating}}</div>
+                                {{/if}}
+                            </td>
+                            <td>
+                                {{#if wealth}}
+                                    <div class="exp-square exp-square-level waves-effect waves-light blue">
+                                        <a href="/members/member/{{../member._id}}/event/levelup?level={{wealth.experience}}" class="tooltipped" data-tooltip="View level-up event" data-position="top" title="Level Up">
+                                            <i class="ra ra-hospital-cross"></i>
+                                        </a>
+                                    </div>
+                                {{/if}}
+                                <div class="exp-square exp-square-level waves-effect waves-light red">
+                                    <a href="/events/event/{{_id}}" class="tooltipped" data-method="delete" data-tooltip="Delete event" data-position="top" title="Level Up">
+                                        <i class="ra ra-desert-skull"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

@@ -8,6 +8,7 @@ const rosterSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, default: '' },
   player: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', required: true },
+  warband: { type: mongoose.Schema.Types.ObjectId, ref: 'Warband', required: true },
   rating: { type: Number, default: 0 },
   gold: { type: Number, default: 0 }
 }, { timestamps: true, collection: COLLECTION });

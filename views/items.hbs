@@ -1,0 +1,35 @@
+<div class="section">
+    <h3>Items</h3>
+
+    <div class="row">
+        <div class="col-4 col-md-4">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Create Item</span>
+                    {{> item_form method="POST" action="/items/create" formId="create-item-form"}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="striped responsive-table" id="items-table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Gold</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each items}}
+            <tr>
+                <td><a href="/items/item/{{this._id}}">{{this.name}}</a></td>
+                <td>{{formatItemType this.type}}</td>
+                <td>{{this.description}}</td>
+                <td>{{this.gold}}</td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</div>

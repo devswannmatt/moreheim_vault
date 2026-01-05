@@ -1,0 +1,26 @@
+<form id="{{formId}}" method="{{method}}" action="{{action}}">
+    <div class="row">
+        <div class="col s4">
+            <div class="input-field">
+                <select id="type" name="type" required>
+                    <option value="1" {{#ifCond item.type '==' '1'}}selected{{/ifCond}}>Combat Weapon</option>
+                    <option value="2" {{#ifCond item.type '==' '2'}}selected{{/ifCond}}>Missile Weapon</option>
+                    <option value="3" {{#ifCond item.type '==' '3'}}selected{{/ifCond}}>Armour</option>
+                    <option value="4" {{#ifCond item.type '==' '4'}}selected{{/ifCond}}>Miscellaneous</option>
+                </select>
+                <label for="type" class="active">Type</label>
+            </div>
+        </div>
+        <div class="col s8">
+            <div class="input-field">
+                <input id="name" name="name" type="text" value="{{item.name}}" required>
+                <label for="name" class="active">Name</label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        {{> field label="Description" name="description" type="text" col="s10" required=true}}
+        {{> field label="Gold" name="gold" type="number" value="0" required=true col="s2"}}
+    </div>
+    <button class="btn waves-effect waves-light" type="submit">Create Item</button>
+</form>

@@ -18,30 +18,44 @@
                         <label for="name">Name</label>
                     </div>
                     <div class="input-field">
+                        <select class="readOnly" id="warband" name="warband" required>
+                            {{#each warbands}}
+                                <option value="{{this._id}}" {{#if this.selected}}selected{{else}} disabled{{/if}}>{{this.name}}</option>
+                            {{/each}}
+                        </select>
+                        <label for="warband">Warband</label>
+                    </div>
+                    <div class="input-field">
                         <select id="roster" name="roster" required>
                             <option value="" disabled selected>Choose roster</option>
                             {{#each rosters}}
-                                <option value="{{this._id}}">{{this.name}}</option>
+                                <option value="{{this._id}}" {{#if this.selected}}selected{{else}} disabled{{/if}}>{{this.name}}</option>
                             {{/each}}
                         </select>
                         <label for="roster">Roster</label>
                     </div>
                     <div class="row">
-                        <div class="col s2">
+                        <div class="col s1">
                             <div class="input-field">
                                 <input id="qty" name="qty" type="number" value="1" min="1" required>
                                 <label for="qty">Quantity</label>
                             </div>
                         </div>
-                        <div class="col s10">
+                        <div class="col s9">
                             <div class="input-field">
                                 <select id="unit" name="unit" required>
                                     <option value="" disabled selected>Choose unit</option>
                                     {{#each units}}
-                                        <option value="{{this._id}}">{{this.name}}</option>
+                                        <option value="{{this._id}}" data-gold="{{this.gold}}">{{this.name}} — {{this.gold}}g</option>
                                     {{/each}}
                                 </select>
                                 <label for="unit">Unit</label>
+                            </div>
+                        </div>
+                        <div class="col s2">
+                            <div class="input-field">
+                                <input id="cost" name="cost" type="number" value="{{member.cost}}" min="1" required>
+                                <label for="cost" class="active">Cost</label>
                             </div>
                         </div>
                     </div>

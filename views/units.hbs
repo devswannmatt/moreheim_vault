@@ -14,63 +14,7 @@
         <div class="card">
             <div class="card-content">
                 <span class="card-title">Create Unit</span>
-                <form id="create-unit-form" method="POST" action="/units/create">
-                    <div class="input-field">
-                        <input id="name" name="name" type="text" required>
-                        <label for="name">Name</label>
-                    </div>
-                    <div class="input-field">
-                        <input id="description" name="description" type="text">
-                        <label for="description">Description</label>
-                    </div>
-                    <div class="input-field">
-                        <input id="experience" name="experience" type="number" value="0" required>
-                        <label for="experience">Experience</label>
-                    </div>
-                    <div class="input-field">
-                        <input id="gold" name="gold" type="number" value="0" required>
-                        <label for="gold">Gold</label>
-                    </div>
-                    <div class="row">
-                        <div class="input-field col s1">
-                            <input id="m" name="m" type="number" value="0" required>
-                            <label for="m">M</label>
-                        </div>
-                        <div class="input-field col s1">
-                            <input id="ws" name="ws" type="number" value="0" required>
-                            <label for="ws">WS</label>
-                        </div>
-                        <div class="input-field col s1">
-                            <input id="bs" name="bs" type="number" value="0" required>
-                            <label for="bs">BS</label>
-                        </div>
-                        <div class="input-field col s1">
-                            <input id="s" name="s" type="number" value="0" required>
-                            <label for="s">S</label>
-                        </div>
-                        <div class="input-field col s1">
-                            <input id="t" name="t" type="number" value="0" required>
-                            <label for="t">T</label>
-                        </div>
-                        <div class="input-field col s1">
-                            <input id="w" name="w" type="number" value="0" required>
-                            <label for="w">W</label>
-                        </div>
-                        <div class="input-field col s1">
-                            <input id="i" name="i" type="number" value="0" required>
-                            <label for="i">I</label>
-                        </div>
-                        <div class="input-field col s1">
-                            <input id="a" name="a" type="number" value="0" required>
-                            <label for="a">A</label>
-                        </div>
-                        <div class="input-field col s1">
-                            <input id="ld" name="ld" type="number" value="0" required>
-                            <label for="ld">LD</label>
-                        </div>
-                    </div>
-                    <button class="btn waves-effect waves-light" type="submit">Create Unit</button>
-                </form>
+                {{> unit_form method="POST" action="/units/create" formId="create-unit-form"}}
             </div>
         </div>
     </div>
@@ -80,6 +24,7 @@
     <thead>
     <tr>
         <th>Name</th>
+        <th>Warband</th>
         <th>Experience</th>
         <th>Gold</th>
         <th>M</th>
@@ -91,13 +36,13 @@
         <th>I</th>
         <th>A</th>
         <th>LD</th>
-        <th>Created</th>
     </tr>
     </thead>
     <tbody>
     {{#each units}}
         <tr>
             <td><a href="/units/unit/{{this._id}}">{{this.name}}</a></td>
+            <td>{{this.warband.name}}</td>
             <td>{{this.experience}}</td>
             <td>{{this.gold}}</td>
             <td>{{this.m}}</td>
@@ -109,7 +54,6 @@
             <td>{{this.i}}</td>
             <td>{{this.a}}</td>
             <td>{{this.ld}}</td>
-            <td>{{formatDateTime this.createdAt}}</td>
         </tr>
     {{/each}}
     </tbody>
