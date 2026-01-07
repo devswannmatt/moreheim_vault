@@ -4,8 +4,14 @@
             <div class="input-field">
                 <select id="type" name="type" required>
                     <option value="1" {{#ifCond trait.type '==' '1'}}selected{{/ifCond}}>General</option>
-                    <option value="2" {{#ifCond trait.type '==' '2'}}selected{{/ifCond}}>Weapon</option>
+                    <option value="2" {{#ifCond trait.type '==' '2'}}selected{{/ifCond}}>Item</option>
                     <option value="3" {{#ifCond trait.type '==' '3'}}selected{{/ifCond}}>Unit</option>
+                    <option value="4" {{#ifCond trait.type '==' '4'}}selected{{/ifCond}}>Skill: Combat</option>
+                    <option value="5" {{#ifCond trait.type '==' '5'}}selected{{/ifCond}}>Skill: Shooting</option>
+                    <option value="6" {{#ifCond trait.type '==' '6'}}selected{{/ifCond}}>Skill: Academic</option>
+                    <option value="7" {{#ifCond trait.type '==' '7'}}selected{{/ifCond}}>Skill: Strength</option>
+                    <option value="8" {{#ifCond trait.type '==' '8'}}selected{{/ifCond}}>Skill: Speed</option>
+                    <option value="9" {{#ifCond trait.type '==' '9'}}selected{{/ifCond}}>Skill: Special</option>
                 </select>
                 <label for="type" class="active">Type</label>
             </div>

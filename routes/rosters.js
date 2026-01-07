@@ -9,14 +9,15 @@ const calc = require('../js/calc');
 router.get('/', async (req, res) => {
   console.log("Rendering rosters view");
   try {
-    const rosters = await roster.findRosters();
-    const players = await player.findPlayers();
+    const rosters  = await roster.findRosters();
+    const players  = await player.findPlayers();
+    const warbands = await warband.findWarbands();
 
     rosters.forEach(async r => {
       const members = calc.membersInRoster(r._id, await member.findMembers());
       r.wealth = calc.wealth(members);
     });
-    res.render('rosters', { rosters: rosters, players: players });
+    res.render('rosters', { rosters: rosters, players: players, warbands: warbands });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -25,8 +26,9 @@ router.get('/', async (req, res) => {
 router.get('/roster/:id', async (req, res) => {
   console.log(`Fetching roster with ID: ${req.params.id}`);
   try {
-    const item     = await roster.getRosterById(req.params.id);
+    const rosters  = await roster.getRosterById(req.params.id);
     const members  = await member.findMembers({ roster: req.params.id });
+    const warbands = await warband.findWarbands();
 
     const wealth = { rating: 0, gold: 0 };
     members.forEach(m => {
@@ -34,12 +36,10 @@ router.get('/roster/:id', async (req, res) => {
       wealth.rating += m.wealth.rating;
       wealth.gold += m.wealth.gold;
     });
+    
+    if (!rosters) return res.status(404).json({ error: 'Roster not found' });
 
-    const warbands = await warband.findWarbands();
-    if (!item) {
-      return res.status(404).json({ error: 'Roster not found' });
-    }
-    res.render('roster', { roster: item, members: members, warbands: warbands, wealth: wealth });
+    res.render('roster', { roster: rosters, members: members, warbands: warbands, wealth: wealth });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

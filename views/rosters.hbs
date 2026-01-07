@@ -28,6 +28,15 @@
                         </select>
                         <label for="player">Player</label>
                     </div>
+                    <div class="input-field">
+                        <select id="warband" name="warband" required>
+                            <option value="" disabled selected>Choose warband</option>
+                            {{#each warbands}}
+                                <option value="{{this._id}}">{{this.name}}</option>
+                            {{/each}}
+                        </select>
+                        <label for="warband">Warband</label>
+                    </div>
                     <button class="btn waves-effect waves-light" type="submit">Create Roster</button>
                 </form>
             </div>

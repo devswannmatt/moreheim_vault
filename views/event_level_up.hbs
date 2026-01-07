@@ -50,7 +50,7 @@
     <div class="row">
         <div class="col s12">
             <div class="input-field">
-                <input id="description" name="description" type="text" required>
+                <input id="description" name="description" type="text">
                 <label for="description">Notes</label>
             </div>
         </div>
@@ -60,8 +60,10 @@
 </form>
 
 <script>
+
+    var skillList = {{{json skillList}}};
     (function(){
-        function showLinkedField(subfield, subFieldData) {
+        function showLinkedField(subfield, subFieldData, list=false) {
             console.log('showLinkedField called with value:', subFieldData);
             var subFieldSelect = document.getElementById(subfield);
             if (!subFieldSelect) return;
@@ -69,14 +71,23 @@
             // clear
             subFieldSelect.innerHTML = '';
             if (subFieldData && Object.keys(subFieldData).length > 0) {
-                for (const key in subFieldData) {
-                    if (Object.prototype.hasOwnProperty.call(subFieldData, key)) {
+                if (list) {
+                    for (var i = 0; i < subFieldData.length; i++) {
                         var option = document.createElement('option');
-                        option.value = key;
-                        var label = subFieldData[key];
-                        if (label && typeof label === 'object' && label.label) label = label.label;
-                        option.text = String(label);
+                        option.value = subFieldData[i]._id;
+                        option.text = String(subFieldData[i].name);
                         subFieldSelect.appendChild(option);
+                    }
+                } else {
+                    for (const key in subFieldData) {
+                        if (Object.prototype.hasOwnProperty.call(subFieldData, key)) {
+                            var option = document.createElement('option');
+                            option.value = key;
+                            var label = subFieldData[key];
+                            if (label && typeof label === 'object' && label.label) label = label.label;
+                            option.text = String(label);
+                            subFieldSelect.appendChild(option);
+                        }
                     }
                 }
                 // show the container (Materialize will render the styled select)
@@ -112,13 +123,25 @@
             nodes.forEach(function(e){
                 e.addEventListener('change', function(event){
                     var subfield = e.getAttribute('data-linkedfield');
+                    console.log(subfield)
                     var selectedOption = e.options[e.selectedIndex];
                     var raw = selectedOption && (selectedOption.dataset ? selectedOption.dataset.subfield : selectedOption.getAttribute('data-subfield'));
                     var subFieldData = null;
+                    var list = false;
                     if (raw) {
+                        console.log('raw subfield data:', raw);
+                        console.log('raw subfield skillList:', skillList);
+                        if (raw == '"skillList"') {
+                            console.log('using skillList for subfield data');
+                            raw = skillList;
+                            list = true;
+                        }
+                        console.log('processed raw subfield data:', raw);
                         try { subFieldData = JSON.parse(raw); } catch (err) { console.warn('Could not parse subfield JSON, using raw:', err); subFieldData = raw; }
                     }
-                    showLinkedField(subfield, subFieldData);
+                    console.log(subFieldData)
+                    console.log(subfield)
+                    showLinkedField(subfield, subFieldData, list);
                 });
 
                 // Trigger change event on load to set initial state

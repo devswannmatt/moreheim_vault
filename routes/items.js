@@ -68,10 +68,8 @@ router.get('/item/:id/traits', async (req, res) => {
 router.patch('/item/:id/traits', async (req, res) => {
   console.log(`Updating item traits with ID: ${req.params.id} with data:`, req.body);
   try {
-    // Normalize incoming items into an array and only update the `items` field
     let traits = req.body.items || [];
     if (!Array.isArray(traits)) traits = [traits];
-    // filter empty values (in case of placeholders)
     traits = traits.filter(function (v) { return v !== undefined && v !== null && String(v).length > 0; });
 
     item.updateItem(req.params.id, { traits: traits }).then(updatedItem => {

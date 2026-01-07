@@ -3,6 +3,7 @@ const event = require('../database/models/event');
 const roster = require('../database/models/roster');
 const member = require('../database/models/member');
 const campaign = require('../database/models/campaign');
+const trait = require('../database/models/trait');
 const calc = require('../js/calc');
 
 router.get('/', async (req, res) => {
@@ -94,24 +95,40 @@ router.post('/create', async (req, res) => {
     }
 
     if (req.body.type) {
-      req.body.name = generateEventName(req.body.type, req.body);
+      req.body.name = await generateEventName(req.body.type, req.body);
       console.log("Generated event name:", req.body.name);
     }
 
-    event.createEvent(req.body).then(result => {
-      res.status(201).redirect(`/events/event/${result}`);
-    }).catch(err => {
-      res.status(500).json({ error: err.message });
-    });
+    const result = await event.createEvent(req.body);
+    res.status(201).redirect(`/events/event/${result}`);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-function generateEventName(type, body) {
+async function generateEventName(type, body) {
+  console.log(body);
   switch (parseInt(type)) {
     case 1:
-      return `Selected ${calc.advanceTypes[1][body.advance].subType[body.advance_linked]}`;
+      var selected = '';
+      if (body.advance_linked) {
+        var adv = calc.advanceTypes[1] && calc.advanceTypes[1][body.advance];
+        var sub = adv && adv.subType && adv.subType[body.advance_linked];
+        console.log("Advance details:", adv, sub);
+        if (adv.value === '2-5' || adv.value ==='10-12') {
+          try {
+            const tr = await trait.getTraitById(body.advance_linked);
+            console.log("Fetched trait for event name:", tr);
+            selected = `${calc.traitTypes[tr.type]} Skill: ${tr.name}`;
+          } catch (e) {
+            selected = 'Unknown Skill';
+          }
+        } else if (sub && typeof sub === 'object' && sub.label) {
+          selected = sub.label;
+        }
+      }
+
+      return `Selected ${selected}`;
     default:
       return 'Event';
   }

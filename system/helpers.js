@@ -87,8 +87,14 @@ module.exports = {
   formatTraitType: function(type) {
     switch(type) {
       case 1: return "General";
-      case 2: return "Weapon";
+      case 2: return "Item";
       case 3: return "Unit";
+      case 4: return "Skill: Combat";
+      case 5: return "Skill: Shooting";
+      case 6: return "Skill: Academic";
+      case 7: return "Skill: Strength";
+      case 8: return "Skill: Speed";
+      case 9: return "Skill: Special";
       default: return "Unknown";
     }
   },
@@ -104,8 +110,10 @@ module.exports = {
   formatEventType: function(type) {
     switch(type) {
       case 1: return "Level Up";
-      case 2: return "Quest";
-      case 3: return "Campaign";
+      case 2: return "Injury";
+      case 3: return "Gain Experience";
+      case 4: return "Purchase Item";
+      case 5: return "Other";
       default: return "Unknown";
     }
   },

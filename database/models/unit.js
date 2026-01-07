@@ -18,7 +18,8 @@ const unitSchema = new mongoose.Schema({
   w: { type: Number, default: 0 },
   i: { type: Number, default: 0 },
   a: { type: Number, default: 0 },
-  ld: { type: Number, default: 0 }
+  ld: { type: Number, default: 0 },
+  traits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trait' }]
 }, { timestamps: true, collection: COLLECTION });
 
 const Unit = mongoose.models.Unit || mongoose.model('Unit', unitSchema);
@@ -29,7 +30,7 @@ function createUnit(data) {
 }
 
 function getUnitById(id) {
-  return Unit.findById(id).lean().exec();
+  return Unit.findById(id).populate('warband').populate('traits').lean().exec();
 }
 
 function updateUnit(id, patch = {}) {
@@ -38,7 +39,7 @@ function updateUnit(id, patch = {}) {
 }
 
 function findUnits(filter = {}, options = {}) {
-  return Unit.find(filter, null, options).populate('warband').lean().exec();
+  return Unit.find(filter, null, options).populate('warband').populate('traits').lean().exec();
 }
 
 module.exports = { createUnit, getUnitById, updateUnit, findUnits, COLLECTION };

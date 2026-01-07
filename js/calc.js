@@ -1,3 +1,7 @@
+function membersInRoster(rosterId, allMembers) {
+  return allMembers.filter(m => String(m.roster) === String(rosterId));
+}
+
 function wealth(members, items = []) {
   const wealth = { gold: 0, rating: 0, members: members.length };
   members.forEach(m => {
@@ -21,9 +25,9 @@ function wealth(members, items = []) {
 function fetchEventTypes(type) {
   const eventTypes = {
     1: { value: 1, label:'Level Up' },
-    2: { value: 2, label:'Purchase Item' },
-    3: { value: 3, label:'Exploration' },
-    4: { value: 4, label:'Social' },
+    2: { value: 2, label:'Injury' },
+    3: { value: 3, label:'Gain Experience' },
+    4: { value: 4, label:'Purchase Item' },
     5: { value: 5, label:'Other' }
   }
   return type ? [eventTypes[type]] : eventTypes;
@@ -88,12 +92,12 @@ function spentExp(exp, spent) {
 
 const advanceTypes = {
   1: {
-    '2-5': { value: '2-5', label: 'New Skill' },
-    '6': { value: '6', label: 'Characteristic Increase: Roll 1-3 = +1 Strength; 4-6 = +1 Attack', subType: { '1-3': '+1 Strength', '4-6': '+1 Attack' } },
-    '7': { value: '7', label: 'Characteristic Increase: Roll 1-3 = +1 WS; 4-6 = +1 BS', subType: { '1-3': '+1 WS', '4-6': '+1 BS' } },
-    '8': { value: '8', label: 'Characteristic Increase: Roll 1-3 = +1 Initiative; 4-6 = +1 Leadership', subType: { '1-3': '+1 Initiative', '4-6': '+1 Leadership' } },
-    '9': { value: '9', label: 'Characteristic Increase: Roll 1-3 = +1 Wound; 4-6 = +1 Toughness', subType: { '1-3': '+1 Wound', '4-6': '+1 Toughness' } },
-    '10-12': { value: '10-12', label: 'New Skill' },
+    '2-5': { value: '2-5', label: 'New Skill', subType: 'skillList' },
+    '6': { value: '6', label: 'Characteristic Increase: Roll 1-3 = +1 Strength; 4-6 = +1 Attack', subType: { '1-3': { label: '+1 Strength', stat: { s: 1 } }, '4-6': { label: '+1 Attack', stat: { a: 1 } } } },
+    '7': { value: '7', label: 'Characteristic Increase: Roll 1-3 = +1 WS; 4-6 = +1 BS', subType: { '1-3': { label: '+1 WS', stat: { ws: 1 } }, '4-6': { label: '+1 BS', stat: { bs: 1 } } } },
+    '8': { value: '8', label: 'Characteristic Increase: Roll 1-3 = +1 Initiative; 4-6 = +1 Leadership', subType: { '1-3': { label: '+1 Initiative', stat: { i: 1 } }, '4-6': { label: '+1 Leadership', stat: { ld: 1 } } } },
+    '9': { value: '9', label: 'Characteristic Increase: Roll 1-3 = +1 Wound; 4-6 = +1 Toughness', subType: { '1-3': { label: '+1 Wound', stat: { w: 1 } }, '4-6': { label: '+1 Toughness', stat: { t: 1 } } } },
+    '10-12': { value: '10-12', label: 'New Skill', subType: 'skillList' },
   },
   2: {
     '2-4': { value: '2-4', label: 'Characteristic Increase: +1 Initiative' },
@@ -106,9 +110,23 @@ const advanceTypes = {
   }
 };
 
+const traitTypes = {
+  1: 'General',
+  2: 'Item',
+  3: 'Unit',
+  4: 'Combat',
+  5: 'Shooting',
+  6: 'Academic',
+  7: 'Strength',
+  8: 'Speed',
+  9: 'Special'
+}
+
 exports.wealth = wealth;
 exports.fetchEventTypes = fetchEventTypes;
 exports.levelUp = levelUp;
 exports.spentExp = spentExp;
 exports.levelBands = levelBands;
 exports.advanceTypes = advanceTypes;
+exports.membersInRoster = membersInRoster;
+exports.traitTypes = traitTypes;

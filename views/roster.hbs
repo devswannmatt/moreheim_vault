@@ -14,21 +14,32 @@
                             </div>
                         </div>
                         <div class="col s9">
-                            <div style="flex-grow:1">
-                                <span class="card-title" style="margin:0">
+                            <div class="row">
+                                <div class="col s4">
+                                    <div class="input-field">
+                                        <select id="warband" name="warband" required>
+                                            {{#each warbands}}
+                                                <option value="{{this._id}}" {{#ifCond this._id '==' ../roster.warband}}selected{{/ifCond}}>{{this.name}}</option>
+                                            {{/each}}
+                                        </select>
+                                        <label for="warband" class="active">Warband</label> 
+                                    </div>
+                                </div>
+                                <div class="col s8">
                                     <div class="input-field">
                                         <input id="name" name="name" type="text" value="{{roster.name}}" required>
                                         <label for="name" class="active">Name</label>
                                     </div>
-                                </span>
-
-                                <div class="input-field">
-                                    <select id="warband" name="warband" required>
-                                        {{#each warbands}}
-                                            <option value="{{this._id}}" {{#ifCond this._id '==' ../roster.warband}}selected{{/ifCond}}>{{this.name}}</option>
-                                        {{/each}}
-                                    </select>
-                                    <label for="warband" class="active">Warband</label> 
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col s9">
+                            <div class="row">
+                                <div class="col s2">
+                                    <div class="input-field">
+                                        <input id="gold" name="gold" type="number" value="{{roster.gold}}" required>
+                                        <label for="gold" class="active">Gold</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -51,9 +62,9 @@
                         </div>
                         <div class="col s6">
                             <div class="input-field">
-                                <input id="gold" name="gold" type="number" value="{{wealth.gold}}" required>
+                                <input id="gold" name="gold" type="number" value="{{wealth.gold}}" disabled>
                                 <label for="gold" class="active">
-                                    <i class="ra ra-gold-bar" data-position="top" title="Gold"></i> Gold
+                                    <i class="ra ra-gold-bar" data-position="top" title="Gold"></i> Gold (Value)
                                 </label>
                             </div>
                         </div>

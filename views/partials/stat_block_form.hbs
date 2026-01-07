@@ -1,11 +1,9 @@
-<div class="row">
-    {{> field label="M" name="m" type="number" value=unit.m required=true col="s1"}}
-    {{> field label="WS" name="ws" type="number" value=unit.ws required=true col="s1"}}
-    {{> field label="BS" name="bs" type="number" value=unit.bs required=true col="s1"}}
-    {{> field label="S" name="s" type="number" value=unit.s required=true col="s1"}}
-    {{> field label="T" name="t" type="number" value=unit.t required=true col="s1"}}
-    {{> field label="W" name="w" type="number" value=unit.w required=true col="s1"}}
-    {{> field label="I" name="i" type="number" value=unit.i required=true col="s1"}}
-    {{> field label="A" name="a" type="number" value=unit.a required=true col="s1"}}
-    {{> field label="LD" name="ld" type="number" value=unit.ld required=true col="s1"}}
-</div>
+{{> field label="M" name="m" type="number" value=unit.m advance=unit.advance.m required=true col="s1" disabled=disabled}}
+{{> field label="WS" name="ws" type="number" value=unit.ws advance=unit.advance.ws required=true col="s1" disabled=disabled}}
+{{> field label="BS" name="bs" type="number" value=unit.bs advance=unit.advance.bs required=true col="s1" disabled=disabled}}
+{{> field label="S" name="s" type="number" value=unit.s advance=unit.advance.s required=true col="s1" disabled=disabled}}
+{{> field label="T" name="t" type="number" value=unit.t advance=unit.advance.t required=true col="s1" disabled=disabled}}
+{{> field label="W" name="w" type="number" value=unit.w advance=unit.advance.w required=true col="s1" disabled=disabled}}
+{{> field label="I" name="i" type="number" value=unit.i advance=unit.advance.i required=true col="s1" disabled=disabled}}
+{{> field label="A" name="a" type="number" value=unit.a advance=unit.advance.a required=true col="s1" disabled=disabled}}
+{{> field label="LD" name="ld" type="number" value=unit.ld advance=unit.advance.ld required=true col="s1" disabled=disabled}}

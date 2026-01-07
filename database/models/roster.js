@@ -10,7 +10,7 @@ const rosterSchema = new mongoose.Schema({
   player: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', required: true },
   warband: { type: mongoose.Schema.Types.ObjectId, ref: 'Warband', required: true },
   rating: { type: Number, default: 0 },
-  gold: { type: Number, default: 0 }
+  gold: { type: Number, default: 500 }
 }, { timestamps: true, collection: COLLECTION });
 
 const Roster = mongoose.models.Roster || mongoose.model('Roster', rosterSchema);

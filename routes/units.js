@@ -1,6 +1,7 @@
 var router = require('express').Router();
 const unit = require('../database/models/unit');
 const warband = require('../database/models/warband');
+const trait = require('../database/models/trait');
 
 router.get('/', async (req, res) => {
   console.log("Rendering units view");
@@ -59,11 +60,42 @@ router.patch('/unit/:id', async (req, res) => {
   }
 });
 
+router.get('/unit/:id/traits', async (req, res) => {
+  console.log(`Fetching unit with ID: ${req.params.id}`);
+  try {
+    const result = await unit.getUnitById(req.params.id);
+    const traits = await trait.findTraits();
+    if (!result) return res.status(404).json({ error: 'Unit not found' });
+
+    res.render('unit_traits', { unit: result, traits: traits, existing: result.traits });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.patch('/unit/:id/traits', async (req, res) => {
+  console.log(`Updating unit traits with ID: ${req.params.id} with data:`, req.body);
+  try {
+    let traits = req.body.items || [];
+    if (!Array.isArray(traits)) traits = [traits];
+    traits = traits.filter(function (v) { return v !== undefined && v !== null && String(v).length > 0; });
+
+    unit.updateUnit(req.params.id, { traits: traits }).then(updatedUnit => {
+      if (!updatedUnit) {
+        return res.status(404).json({ error: 'Unit not found' });
+      }
+      res.status(200).json(updatedUnit);
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/json', async (req, res) => {
   console.log("Fetching units in JSON format");
   try {
-    const items = await unit.findUnits();
-    res.json(items);
+    const units = await unit.findUnits();
+    res.json(units);
   } catch (err) {
     res.status(500).json({ error: err.message, info: "Error fetching units" });
   }

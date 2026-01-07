@@ -11,6 +11,7 @@ const memberSchema = new mongoose.Schema({
   qty: { type: Number, default: 1 },
   experience: { type: Number, default: 0 },
   gold: { type: Number, default: 0 },
+  traits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trait' }],
   items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
 }, { timestamps: true, collection: COLLECTION });
 
@@ -25,6 +26,7 @@ function getMemberById(id) {
   return Member.findById(id)
     .populate('roster')
     .populate('unit')
+    .populate({ path: 'unit', populate: { path: 'traits' } })
     .populate({ path: 'items', populate: { path: 'traits' } })
     .lean()
     .exec();
@@ -49,4 +51,8 @@ function findMembers(filter = {}, options = {}) {
     .exec();
 }
 
-module.exports = { createMember, getMemberById, updateMember, findMembers, COLLECTION };
+function deleteMember(id) {
+  return Member.findByIdAndDelete(id).exec();
+}
+
+module.exports = { createMember, getMemberById, updateMember, findMembers, deleteMember, COLLECTION };

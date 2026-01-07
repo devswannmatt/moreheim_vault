@@ -1,22 +1,33 @@
+<a href="/rosters/roster/{{member.roster._id}}">&larr; {{member.roster.name}}</a>
 <div class="row">
-    <div class="col s12 m12">
+    <div class="col s9 m9">
         <div class="card">
             <form id="member-name-form" data-method="PATCH" action="/members/member/{{member._id}}">
                 <div class="card-content">
                     <div class="row">
                         <div class="col s3">
                             <div
-                                style="width:100%; height:140px; display:flex; align-items:center; justify-content:center; background:#e3f2fd;">
+                                style="width:100%; height:155px; display:flex; align-items:center; justify-content:center; background:#e3f2fd;">
                                 <i class="ra ra-double-team" style="font-size:28px; color:#1565c0"></i>
                             </div>
                             <div style="margin-top:8px; text-align:center">
-                                <div class="grey-text text-darken-1">{{member.roster.name}}</div>
+                                <div class="grey-text text-darken-1">
+                                    {{#each units}}
+                                        {{#ifCond this._id '==' ../member.unit._id}}<div value="{{this._id}}">{{this.name}}</div>{{/ifCond}}
+                                    {{/each}}
+                                </div>
                             </div>
                         </div>
                         <div class="col s9">
                             <div style="flex-grow:1">
-                                <div class="row">
-                                    <div class="col s3">
+                                <div class="row" style="margin-bottom:0;">
+                                    <div class="col s2">
+                                        <div class="input-field">
+                                            <input id="qty" name="qty" type="number" value="{{member.qty}}" min="1" required>
+                                            <label for="qty" class="active">Quantity</label>
+                                        </div>
+                                    </div>
+                                    <div class="col s2">
                                         <span class="card-title" style="margin:0">
                                             <div class="input-field">
                                                 <input id="type" type="text" value="{{formatUnitType member.unit.type}}" disabled>
@@ -24,7 +35,7 @@
                                             </div>
                                         </span>
                                     </div>
-                                    <div class="col s9">
+                                    <div class="col s8">
                                         <span class="card-title" style="margin:0">
                                             <div class="input-field">
                                                 <input id="name" name="name" type="text" value="{{member.name}}" required>
@@ -33,37 +44,35 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col s3">
-                                        <div class="input-field">
-                                            <input id="qty" name="qty" type="number" value="{{member.qty}}" min="1" required>
-                                            <label for="qty" class="active">Quantity</label>
-                                        </div>
-                                    </div>
-                                    <div class="col s9">
-                                        <div class="input-field">
-                                            <select id="unit" name="unit" required>
-                                                {{#each units}}
-                                                    <option value="{{this._id}}" {{#ifCond this._id '==' ../member.unit._id}}selected{{/ifCond}}>{{this.name}}</option>
-                                                {{/each}}
-                                            </select>
-                                            <label for="unit" class="active">Unit</label>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row" style="margin-bottom:0">
-                        {{> stat_block_form unit=member.unit}}
-                    </div>
-                    <div class="row" style="margin-bottom:0">
-                        <div class="col s12">
-                            <div class="input-field">
-                                <textarea id="description" name="description" class="materialize-textarea" rows="2"
-                                    style="min-height:48px">{{member.description}}</textarea>
-                                <label for="description" class="active">Description</label>
-                            </div>
+                        
+                        <div class="col s1">
+                            {{> stat_square label="M" value=member.unit.m improved=member.unit.advance.m}}
+                        </div>
+                        <div class="col s1">
+                            {{> stat_square label="WS" value=member.unit.ws improved=member.unit.advance.ws}}
+                        </div>
+                        <div class="col s1">
+                            {{> stat_square label="BS" value=member.unit.bs improved=member.unit.advance.bs}}
+                        </div>
+                        <div class="col s1">
+                            {{> stat_square label="S" value=member.unit.s improved=member.unit.advance.s}}
+                        </div>
+                        <div class="col s1">
+                            {{> stat_square label="T" value=member.unit.t improved=member.unit.advance.t}}
+                        </div>
+                        <div class="col s1">
+                            {{> stat_square label="W" value=member.unit.w improved=member.unit.advance.w}}
+                        </div>
+                        <div class="col s1">
+                            {{> stat_square label="I" value=member.unit.i improved=member.unit.advance.i}}
+                        </div>
+                        <div class="col s1">
+                            {{> stat_square label="A" value=member.unit.a improved=member.unit.advance.a}}
+                        </div>
+                        <div class="col s1">
+                            {{> stat_square label="LD" value=member.unit.ld improved=member.unit.advance.ld}}
                         </div>
                     </div>
                     <div class="row">
@@ -92,12 +101,10 @@
                             </div>
                         </div>
                         <div class="col s3">
-                            <div class="input-field">
-                                <input id="experience" name="experience" type="number" value="{{member.experience}}">
-                                <label for="experience" class="active">
-                                    <i class="ra ra-muscle-up"></i> Experience (Earned)
-                                </label>
-                            </div>
+                            <button href="#popouts-modal" class="modal-trigger btn-small" data-popout="/members/member/{{member._id}}/event/gainresource">
+                                <i class="fa fa-square-up"></i>
+                                GAIN EXPERIENCE
+                            </button>
                         </div>
                     </div>
                     <div class="row">
@@ -106,7 +113,16 @@
                                 {{> exp_widget exp=this member=../member/_id experience=(add @index 1)}}
                             {{/each}}
                         </div>
-                    </div> 
+                    </div>
+                    <div class="row" style="margin-bottom:0">
+                        <div class="col s12">
+                            <div class="input-field">
+                                <textarea id="description" name="description" class="materialize-textarea" rows="2"
+                                    style="min-height:48px">{{member.description}}</textarea>
+                                <label for="description" class="active">Description</label>
+                            </div>
+                        </div>
+                    </div>
                     <span class="grey-text text-darken-1" style="margin-right:12px">
                         Last updated:
                         {{formatDateTime member.updatedAt}}
@@ -116,15 +132,11 @@
                     <div class="row" style="margin-bottom:0">
                         <div class="col s8">
                             <div class="btn-area">
-                                <button class="btn-small" href="/members/member/{{member._id}}/inventory">
+                                <button href="#popouts-modal" class="modal-trigger btn-small" data-popout="/members/member/{{member._id}}/inventory">
                                     <i class="ra ra-round-shield"></i>
                                     Inventory
                                 </button>
-                                <button class="btn-small" href="/members/member/{{member._id}}/history?type=all">
-                                    <i class="ra ra-book"></i>
-                                    History
-                                </button>
-                                <button class="btn-small red" href="/members/member/{{member._id}}/history?type=injuries">
+                                <button href="#popouts-modal" class="modal-trigger btn-small red" data-popout="/members/member/{{member._id}}/history?type=injuries">
                                     <i class="ra ra-droplet"></i>
                                     Injuries
                                 </button>
@@ -132,10 +144,9 @@
                         </div>
                         <div class="col s4 right-align">
                             <div class="btn-area">
-                                <button id="delete-member-btn" type="button" class="btn-small waves-effect waves-light red"
-                                    title="Delete member">
+                                <a href="/members/member/{{member._id}}" data-method="delete" id="delete-member-btn" class="btn-small waves-effect waves-light red" title="Delete member">
                                     <i class="ra ra-tombstone"></i>
-                                </button>
+                                </a>
                                 <button class="btn-small waves-effect waves-light" type="submit">
                                     <i class="ra ra-save"></i>
                                 </button>
@@ -144,6 +155,28 @@
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+    <div class="col s3 m312">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Unit Skills</span>
+                {{#each member.unit.traits}}
+                    <div style="margin-bottom:8px">
+                        <a href="/traits/trait/{{_id}}">{{name}}</a>
+                        <div class="grey-text text-darken-1" style="font-size:0.9em">{{description}}</div>
+                    </div>
+                {{/each}}
+            </div>
+            <div class="card-content">
+                <span class="card-title">Earned Skills</span>
+                {{#each member.traits}}
+                    <div style="margin-bottom:8px">
+                        <a href="/traits/trait/{{_id}}">{{name}}</a>
+                        <div class="grey-text text-darken-1" style="font-size:0.9em">{{description}}</div>
+                    </div>
+                {{/each}}
+            </div>
         </div>
     </div>
 </div>

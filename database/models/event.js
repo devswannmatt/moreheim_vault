@@ -16,6 +16,8 @@ const eventSchema = new mongoose.Schema({
     experience: { type: Number, default: 0 },
     rating: { type: Number, default: 0 }
   },
+  advance: { type: String, default: '' },
+  advance_linked: { type: String, default: '' }
 }, { timestamps: true, collection: COLLECTION });
 
 const Event = mongoose.models.Event || mongoose.model('Event', eventSchema);
