@@ -78,7 +78,7 @@
                     <div class="row" style="margin-bottom:0">
                         <div class="col s6">
                             {{#if roster.warband}}
-                                <a class="btn-small green" href="/members/member/create?warband={{roster.warband}}&roster={{roster._id}}">Add Member</a>
+                                <a href="#popouts-modal" class="btn-small green modal-trigger" data-popout="/members/member/create?warband={{roster.warband}}&roster={{roster._id}}">Add Member</a>
                             {{else}}
                                 <span class="tooltipped" data-tooltip="Required: Select Warband" data-position="top" title="Add Member" tabindex="0" style="display:inline-block">
                                     <a class="btn-small green disabled" aria-disabled="true" href="#" onclick="return false;">Add Member</a>
@@ -110,17 +110,17 @@
                             <th>Name</th>
                             <th>#</th>
                             <th>Unit</th>
-                            <th class="tooltipped" data-tooltip="Movement" data-position="top" title="Movement">M</th>
-                            <th class="tooltipped" data-tooltip="Weapon Skill" data-position="top" title="Weapon Skill">WS</th>
-                            <th class="tooltipped" data-tooltip="Ballistic Skill" data-position="top" title="Ballistic Skill">BS</th>
-                            <th class="tooltipped" data-tooltip="Strength" data-position="top" title="Strength">S</th>
-                            <th class="tooltipped" data-tooltip="Toughness" data-position="top" title="Toughness">T</th>
-                            <th class="tooltipped" data-tooltip="Wounds" data-position="top" title="Wounds">W</th>
-                            <th class="tooltipped" data-tooltip="Initiative" data-position="top" title="Initiative">I</th>
-                            <th class="tooltipped" data-tooltip="Attacks" data-position="top" title="Attacks">A</th>
-                            <th class="tooltipped" data-tooltip="Leadership" data-position="top" title="Leadership">LD</th>
-                            <th class="tooltipped" data-tooltip="Rating" data-position="top" title="Rating">Rating</th>
-                            <th class="tooltipped" data-tooltip="Gold" data-position="top" title="Gold">Gold</th>
+                            <th class="tooltipped center" data-tooltip="Movement" data-position="top" title="Movement">M</th>
+                            <th class="tooltipped center" data-tooltip="Weapon Skill" data-position="top" title="Weapon Skill">WS</th>
+                            <th class="tooltipped center" data-tooltip="Ballistic Skill" data-position="top" title="Ballistic Skill">BS</th>
+                            <th class="tooltipped center" data-tooltip="Strength" data-position="top" title="Strength">S</th>
+                            <th class="tooltipped center" data-tooltip="Toughness" data-position="top" title="Toughness">T</th>
+                            <th class="tooltipped center" data-tooltip="Wounds" data-position="top" title="Wounds">W</th>
+                            <th class="tooltipped center" data-tooltip="Initiative" data-position="top" title="Initiative">I</th>
+                            <th class="tooltipped center" data-tooltip="Attacks" data-position="top" title="Attacks">A</th>
+                            <th class="tooltipped center" data-tooltip="Leadership" data-position="top" title="Leadership">LD</th>
+                            <th class="tooltipped center" data-tooltip="Rating" data-position="top" title="Rating">Rating</th>
+                            <th class="tooltipped center" data-tooltip="Gold" data-position="top" title="Gold">Gold</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -129,18 +129,35 @@
                             <td><a href="/members/member/{{this._id}}">{{this.name}}</a></td>
                             <td>{{this.qty}}</td>
                             <td>{{this.unit.name}}</td>
-                            <td>{{this.unit.m}}</td>
-                            <td>{{this.unit.ws}}</td>
-                            <td>{{this.unit.bs}}</td>
-                            <td>{{this.unit.s}}</td>
-                            <td>{{this.unit.t}}</td>
-                            <td>{{this.unit.w}}</td>
-                            <td>{{this.unit.i}}</td>
-                            <td>{{this.unit.a}}</td>
-                            <td>{{this.unit.ld}}</td>
-                            <td>{{this.wealth.rating}}</td>
-                            <td>{{this.wealth.gold}}</td>
+                            <td class="center">{{> stat_square value=this.unit.m improved=this.unit.advance.m}}</td>
+                            <td class="center">{{> stat_square value=this.unit.ws improved=this.unit.advance.ws}}</td>
+                            <td class="center">{{> stat_square value=this.unit.bs improved=this.unit.advance.bs}}</td>
+                            <td class="center">{{> stat_square value=this.unit.s improved=this.unit.advance.s}}</td>
+                            <td class="center">{{> stat_square value=this.unit.t improved=this.unit.advance.t}}</td>
+                            <td class="center">{{> stat_square value=this.unit.w improved=this.unit.advance.w}}</td>
+                            <td class="center">{{> stat_square value=this.unit.i improved=this.unit.advance.i}}</td>
+                            <td class="center">{{> stat_square value=this.unit.a improved=this.unit.advance.a}}</td>
+                            <td class="center">{{> stat_square value=this.unit.ld improved=this.unit.advance.ld}}</td>
+                            <td class="center">{{this.wealth.rating}}</td>
+                            <td class="center">{{this.wealth.gold}}</td>
                         </tr>
+                        {{#if this.items}}
+                            <tr>
+                                <td colspan="14" style="padding-left:32px;">
+                                    <strong>Equipment:</strong>
+                                    {{#each this.items}}
+                                        <a class="tooltipped pill" href="/items/item/{{this._id}}" data-tooltip="{{this.description}}">{{this.name}} ({{multiply this.gold ../this.qty}}g)</a>
+                                    {{/each}}
+                                    <strong>Skills:</strong>
+                                    {{#each this.unit.traits}}
+                                        <a class="tooltipped pill" href="/items/item/{{this._id}}" data-tooltip="{{this.description}}">{{this.name}}</a>
+                                    {{/each}}
+                                    {{#each this.traits}}
+                                        <a class="tooltipped pill" href="/items/item/{{this._id}}" data-tooltip="{{this.description}}">{{this.name}}</a>
+                                    {{/each}}
+                                </td>
+                            </tr>
+                        {{/if}}
                     {{/each}}
                     </tbody>
                 </table>

@@ -3,6 +3,7 @@ const roster  = require('../database/models/roster');
 const player  = require('../database/models/player');
 const member  = require('../database/models/member');
 const warband = require('../database/models/warband');
+const event   = require('../database/models/event');
 
 const calc = require('../js/calc');
 
@@ -31,10 +32,16 @@ router.get('/roster/:id', async (req, res) => {
     const warbands = await warband.findWarbands();
 
     const wealth = { rating: 0, gold: 0 };
-    members.forEach(m => {
+    members.forEach(async m => {
+      var events = await event.findEvents({ 'entities.id': m._id });
       m.wealth = calc.wealth([m], m.items);
       wealth.rating += m.wealth.rating;
       wealth.gold += m.wealth.gold;
+      
+      m.wealth    = calc.wealth([m], m.items);
+      m.expLevels = calc.buildExpLevels(m.unit, calc.calcCurrentExp((m.unit.experience + m.experience), events));
+  
+      m = await calc.checkEvents(m, events, m.expLevels);
     });
     
     if (!rosters) return res.status(404).json({ error: 'Roster not found' });

@@ -46,7 +46,11 @@ $(function () {
 
     $.ajax(ajaxOptions).done(function (data, textStatus, jqXHR) {
       if ($form.data('redirect')) {
-        if ($form.data('redirect') === 'self') return window.location.reload();
+        if ($form.data('redirect') === 'self')  return window.location.reload();
+        if ($form.data('redirect') === 'close') {
+          closeModal();
+          return window.location.reload();
+        }
         return window.location.href = $form.data('redirect');
       }
       if (data && data.redirect) return window.location.href = data.redirect;

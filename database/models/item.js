@@ -8,6 +8,8 @@ const itemSchema = new mongoose.Schema({
   type: { type: Number, required: true },
   description: { type: String, default: '' },
   gold: { type: Number, default: 0 },
+  range: { type: String, default: '' },
+  strength: { type: String, default: '' },
   traits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trait' }]
 }, { timestamps: true, collection: COLLECTION });
 

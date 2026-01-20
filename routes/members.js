@@ -45,74 +45,20 @@ router.get('/member/create', async (req, res) => {
 router.get('/member/:id', async (req, res) => {
   console.log(`Fetching member with ID: ${req.params.id}`);
   try {
-    const result  = await member.getMemberById(req.params.id);
+    var result  = await member.getMemberById(req.params.id);
     if (!result) return res.status(404).json({ error: 'Member not found' });
 
     const rosters = await roster.findRosters();
     const units   = await unit.findUnits();
     const events  = await event.findEvents({ 'entities.id': result._id });
 
-    const wealth = calc.wealth([result], result.items);
+    result.expLevels = await calc.buildExpLevels(result.unit, calc.calcCurrentExp((result.unit.experience + result.experience), events));
+    result.wealth    = await calc.wealth([result], result.items);
+    result           = await calc.checkEvents(result, events);
 
-    console.log('Wealth calculated:', wealth);
-    let expLevels = {};
-    let expCap = 0;
-    let expCurrent = 0;
-    if (result.unit.type === 1) expCap = 90;
-    if (result.unit.type === 2) expCap = 14;
+    console.log(result.expLevels[25])
 
-    expCurrent = result.unit.experience + result.experience;
-
-    // Clean this up, we are doing two loops where one should suffice
-    for (const ev of events) {
-      if (ev.type === 3) {
-        if (ev.wealth && ev.wealth.experience) {
-          expCurrent += ev.wealth.experience;
-        }
-      }
-    }
-
-    for (let i = 1; i <= expCap; i++) {
-      if (i <= expCurrent) {
-        expLevels[i] = { earned: true, spent: calc.spentExp(i, result.unit.experience), level: calc.levelUp(i)};
-        if (i <= result.unit.experience) {
-          expLevels[i].initial = true;
-        }
-      } else {
-        expLevels[i] = { earned: false, spent: false, level: calc.levelUp(i) };
-      }
-    }
-
-    result.unit.advance = { s: false, a: false, ws: false, bs: false, i: false, ld: false, w: false, t: false };
-    result.traits = [];
-    for (const ev of events) {
-      if (ev.type === 1 && ev.wealth && ev.wealth.experience) {
-        if (expLevels[ev.wealth.experience]) {
-          expLevels[ev.wealth.experience].spent = true;
-        }
- 
-        if (ev.advance) {
-          if (ev.advance_linked) {
-            console.log('Processing advance linked:', ev.advance);
-            if (ev.advance === '2-5' || ev.advance === '10-12') {
-              console.log('Adding trait for advance linked skillList:', ev.advance_linked);
-              var tr = await trait.getTraitById(ev.advance_linked);
-              result.traits.push(tr);
-            } else {
-              console.log('Processing standard advance for type:', ev.advance);
-              let advance = calc.advanceTypes[result.unit.type][ev.advance].subType[ev.advance_linked];
-              let stat = advance.stat ? advance.stat : undefined;
-              Object.keys(stat).forEach(s => {
-                result.unit[s] += stat[s];
-                result.unit.advance[s] = true; 
-              });
-            }
-          }
-        }
-      }
-    }
-
-    res.render('member', { member: result, rosters: rosters, units: units, events: events, wealth: wealth, expLevels: expLevels });
+    res.render('member', { member: result, rosters: rosters, units: units, events: events });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -121,6 +67,22 @@ router.get('/member/:id', async (req, res) => {
 router.patch('/member/:id', async (req, res) => {
   console.log(`Updating member with ID: ${req.params.id} with data:`, req.body);
   try {
+    member.updateMember(req.params.id, req.body).then(updatedMember => {
+      if (!updatedMember) return res.status(404).json({ error: 'Member not found' });
+      res.status(200).json(updatedMember);
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.patch('/member/:id/status', async (req, res) => {
+  console.log(`Updating member with ID: ${req.params.id} with data:`, req.body);
+  console.log('Status from query:', req.query.status);
+  try {
+    if (!req.query.status && req.query.status !== 0) return res.status(400).json({ error: 'Status is required' });
+    if (req.query.status) req.body.status = parseInt(req.query.status);
+    req.body = { status: req.body.status };
     member.updateMember(req.params.id, req.body).then(updatedMember => {
       if (!updatedMember) return res.status(404).json({ error: 'Member not found' });
       res.status(200).json(updatedMember);
@@ -179,15 +141,42 @@ router.get('/member/:id/inventory', async (req, res) => {
 router.patch('/member/:id/inventory', async (req, res) => {
   console.log(`Updating member Inventory with ID: ${req.params.id} with data:`, req.body);
   try {
-    let items = req.body.items || [];
-    if (!Array.isArray(items)) items = [items];
-    items = items.filter(function (v) { return v !== undefined && v !== null && String(v).length > 0; });
+    member.getMemberById(req.params.id).then(m => {
+      if (!m) throw('Member not found');
 
-    member.updateMember(req.params.id, { items: items }).then(updatedMember => {
-      if (!updatedMember) {
-        return res.status(404).json({ error: 'Member not found' });
-      }
-      res.status(200).json(updatedMember);
+      let items = req.body.items || [];
+      if (!Array.isArray(items)) items = [items];
+      items = items.filter(function (v) { return v !== undefined && v !== null && String(v).length > 0; });
+
+      console.log('Items to add to inventory:', items); 
+
+      var itemCost = 0;
+      items.forEach(async (element) => {
+        console.log('Processing item ID for cost calculation:', element);
+        await item.getItemById(element).then(i => {
+          if (!i) throw('Invalid item ID provided.');
+          itemCost += ((i.gold * m.qty) || 0);
+          console.log('Adding item cost:', i.gold, 'Total so far:', itemCost);
+        });
+      });
+
+      console.log('Total item cost calculated:', itemCost);
+
+      roster.getRosterById(m.roster).then(r => {
+        console.log('Roster fetched for member creation:', r);
+        console.log('Roster gold available:', r.gold);
+        if (r.gold < itemCost) throw('Insufficient gold in roster to create this member.');
+
+        member.updateMember(req.params.id, { items: items }).then(updatedMember => {
+          if (!updatedMember) return res.status(404).json({ error: 'Member not found' });
+
+          rosterAdjustGold(m.roster, -(itemCost || 0)).then(() => {
+            res.status(201).redirect(`/members/member/${updatedMember._id}`);
+          }).catch(err => {
+            res.status(500).json({ error: err.message });
+          });
+        });
+      });
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -206,28 +195,37 @@ router.get('/json', async (req, res) => {
 
 router.post('/create', async (req, res) => {
   try {
-    console.log("Creating new member with data:", req.body);
-    const rosters = await roster.getRosterById(req.body.roster);
-    const units   = await unit.getUnitById(req.body.unit);
-    console.log('Roster fetched for member creation:', rosters);
-    console.log('Unit fetched for member creation:', units);
+    roster.getRosterById(req.body.roster).then(r => {
+      console.log('Roster fetched for member creation:', r);
+      unit.getUnitById(req.body.unit).then(u => {
+        console.log('Unit fetched for member creation:', u);
+        var owedGold = (u.gold * req.body.qty || 0);
+        if (r.gold < owedGold) throw('Insufficient gold in roster to create this member.');
 
-    if (rosters.gold < (units.gold || 0)) return res.status(400).json({ error: 'Insufficient gold in roster to create this member.' });
-
-    member.createMember(req.body).then(result => {
-      roster.updateRoster(req.body.roster, { gold: rosters.gold - (units.gold || 0) } ).then((result) => {
-        console.log('Adjusted Gold for roster after member creation:', result);
-        res.status(201).redirect(`/members/member/${result}`);
-      }).catch(err => {
-        res.status(500).json({ error: err.message });
+        member.createMember(req.body).then(result => {
+          rosterAdjustGold(req.body.roster, -(owedGold || 0)).then(() => {
+            res.status(201).redirect(`/members/member/${result}`);
+          }).catch(err => {
+            res.status(500).json({ error: err.message });
+          });
+        }).catch(err => {
+          res.status(500).json({ error: err.message });
+        });
       });
-    }).catch(err => {
-      res.status(500).json({ error: err.message });
     });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+function rosterAdjustGold(rosterId, amount) {
+  if (!amount) return Promise.reject(new Error('Amount to adjust gold by is required'));
+  return roster.getRosterById(rosterId).then(r => {
+    let newGold = (r.gold || 0) + amount;
+    return roster.updateRoster(rosterId, { gold: newGold });
+  });
+}
 
 router.delete('/member/:id', async (req, res) => {
   console.log(`Deleting member with ID: ${req.params.id}`);

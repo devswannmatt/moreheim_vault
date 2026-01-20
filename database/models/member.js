@@ -5,6 +5,7 @@ const COLLECTION = 'members';
 // Mongoose schema for Member
 const memberSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  status: { type: Number, enum: [0, 1, 2, 3], default: 0 }, // 0: Active, 1: Inactive, 2: Retired, 3: Killed
   description: { type: String, default: '' },
   roster: { type: mongoose.Schema.Types.ObjectId, ref: 'Roster', required: true },
   unit: { type: mongoose.Schema.Types.ObjectId, ref: 'Unit', required: true },
@@ -47,6 +48,9 @@ function findMembers(filter = {}, options = {}) {
     .populate('roster')
     .populate('unit')
     .populate({ path: 'items', populate: { path: 'traits' } })
+    .populate({ path: 'unit', populate: { path: 'traits' } })
+    .populate({ path: 'unit', populate: { path: 'traits' } })
+    .populate({ path: 'traits' })
     .lean()
     .exec();
 }

@@ -2,13 +2,13 @@ function membersInRoster(rosterId, allMembers) {
   return allMembers.filter(m => String(m.roster) === String(rosterId));
 }
 
-function wealth(members, items = []) {
-  const wealth = { gold: 0, rating: 0, members: members.length };
+async function wealth(members, items = []) {
+  const wealth = { gold: 0, rating: 0, experience: 0, members: members.length };
   members.forEach(m => {
     if (m.unit && m.unit.gold && m.cost === undefined) {
-      wealth.gold += (m.gold + m.unit.gold) * m.qty;
-      wealth.rating += (m.experience + m.unit.experience) + (m.qty * 5);
-
+      wealth.gold       += (m.gold + m.unit.gold) * m.qty;
+      wealth.experience += (m.experience + m.unit.experience) * m.qty;
+      wealth.rating     += wealth.experience + (5 * m.qty);
       if (Array.isArray(items)) {
         items.forEach(i => {
           if (i && i.gold) {
@@ -122,6 +122,75 @@ const traitTypes = {
   9: 'Special'
 }
 
+function calcCurrentExp(starting, events) {
+  let totalExp = starting || 0;
+  for (const ev of events) {
+    if (ev.type === 3 && ev.wealth && ev.wealth.experience) {
+      totalExp += ev.wealth.experience;
+    }
+  }
+  return totalExp;
+}
+
+async function buildExpLevels(unit, expCurrent) {
+  let levels = [];
+  let cap = 14;
+  let earnedExp = 0;
+  
+  if (unit.type === 1) cap = 90;
+  for (let i = 1; i <= cap; i++) {
+    if (i <= expCurrent) {
+      levels[i] = { earned: true, spent: spentExp(i, unit.experience), level: levelUp(i)};
+      if (i <= unit.experience) levels[i].initial = true;
+      earnedExp = i;
+    } else {
+      levels[i] = { earned: false, spent: false, level: levelUp(i), gain: (i - earnedExp)};
+    }
+  }
+  return levels;
+}
+
+async function processLevelUpEvent(result, ev) {
+  const trait = require('../database/models/trait');
+  if (result.unit.type == 1) {
+    if (ev.advance === '2-5' || ev.advance === '10-12') {
+      var tr = await trait.getTraitById(ev.advance_linked);
+      result.traits.push(tr);
+    } else {
+      let advance = advanceTypes[result.unit.type][ev.advance].subType[ev.advance_linked];
+      let stat = advance.stat ? advance.stat : undefined;
+      Object.keys(stat).forEach(s => {
+        result.unit[s] += stat[s];
+        result.unit.advance[s] = true; 
+      });
+    }
+  } else if (result.unit.type == 2) {
+  };
+}
+
+async function checkEvents(result, events) {
+  result.unit.advance = { s: false, a: false, ws: false, bs: false, i: false, ld: false, w: false, t: false };
+  result.traits = [];
+  for (const ev of events) {
+    if (ev.type === 1 && ev.wealth && ev.wealth.experience) {
+      if (result.expLevels[ev.wealth.experience]) {
+        console.log('Marking level as spent:', ev.wealth.experience);
+        result.expLevels[ev.wealth.experience].spent = true;
+      }
+
+      if (ev.advance && ev.advance_linked) {
+        await processLevelUpEvent(result, ev);
+      }
+    }
+    if (ev.type === 3 && ev.wealth) {
+      result.wealth.experience += ev.wealth.experience || 0;
+      result.wealth.gold       += ev.wealth.gold || 0;
+      result.wealth.rating     += (ev.wealth.experience * result.qty) || 0;
+    }
+  }
+  return result;
+};
+
 exports.wealth = wealth;
 exports.fetchEventTypes = fetchEventTypes;
 exports.levelUp = levelUp;
@@ -130,3 +199,7 @@ exports.levelBands = levelBands;
 exports.advanceTypes = advanceTypes;
 exports.membersInRoster = membersInRoster;
 exports.traitTypes = traitTypes;
+exports.calcCurrentExp = calcCurrentExp;
+exports.buildExpLevels = buildExpLevels;
+exports.processLevelUpEvent = processLevelUpEvent;
+exports.checkEvents = checkEvents;

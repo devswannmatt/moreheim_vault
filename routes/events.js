@@ -34,8 +34,7 @@ router.get('/event/create', async (req, res) => {
   const rosters = await roster.findRosters();
   try {
     res.render('event_create', { rosters: rosters } );
-  }
-  catch (err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -100,7 +99,7 @@ router.post('/create', async (req, res) => {
     }
 
     const result = await event.createEvent(req.body);
-    res.status(201).redirect(`/events/event/${result}`);
+    res.status(201).json({ success: 'Event Created' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

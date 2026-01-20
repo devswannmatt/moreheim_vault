@@ -15,7 +15,6 @@
   <body>
     <nav>
       <div class="nav-wrapper blue darken-2">
-        <a href="/" class="brand-logo" style="padding-left:12px">Moreheim Vault</a>
         <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
           <li><a href="/">Home</a></li>
@@ -115,6 +114,11 @@
             iframe.src = 'about:blank';
             iframe.style.display = 'none';
             loader.style.display = 'none';
+            try {
+              window.location.reload();
+            } catch (e) {
+              // ignore reload errors
+            }
           };
           return inst;
         }

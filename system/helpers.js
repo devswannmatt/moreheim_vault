@@ -30,6 +30,10 @@ module.exports = {
     return JSON.stringify(obj);
   },
 
+  multiply: function(a, b) {
+    return Number(a) * Number(b);
+  },
+
   add: function(a, b) {
     return Number(a) + Number(b);
   },
@@ -114,6 +118,16 @@ module.exports = {
       case 3: return "Gain Experience";
       case 4: return "Purchase Item";
       case 5: return "Other";
+      default: return "Unknown";
+    }
+  },
+
+  formatStatus: function(status) {
+    switch(status) {
+      case 0: return "Active";
+      case 1: return "Inactive";
+      case 2: return "Retired";
+      case 3: return "Killed";
       default: return "Unknown";
     }
   },

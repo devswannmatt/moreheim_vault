@@ -1,4 +1,4 @@
-<div class="exp-square {{#if this.level}}exp-square-level{{/if}} waves-effect waves-light" style="{{{expBoxStyle this}}}">
+<div class="exp-square {{#if this.earned}}{{else}}exp-square-unearned{{/if}} {{#if this.level}}exp-square-level{{/if}} waves-effect waves-light" data-experience="{{experience}}" style="{{{expBoxStyle this}}}">
     {{#if this.initial}}
         <i class="ra ra-cancel tooltipped" data-tooltip="Initial Experience" data-position="top"></i>
     {{else}}
@@ -13,6 +13,9 @@
                 {{else}}
                     <i class="fa-solid fa-check"></i>
                 {{/if}}
+            {{else}}
+                <a href="#popouts-modal" class="modal-trigger tooltipped" data-tooltip="Click to add Experience." data-position="top" data-popout="/members/member/{{member}}/event/gainresource?experience={{gain}}" title="Level Up">
+                </a>
             {{/if}}
         {{/if}}
     {{/if}}

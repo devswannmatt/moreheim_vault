@@ -6,29 +6,25 @@
 </div>
 
 <div class="row">
-    <div class="col-8 col-md-8">
+    <div class="col-12 col-md-12">
         <div class="card">
             <div class="card-content">
-                <span class="card-title">Add Players</span>
-                <p>Manage players in your campaigns.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-4 col-md-4">
-        <div class="card">
-            <div class="card-content">
-                <span class="card-title">Add Player</span>
+                <span class="card-title">Add Roster</span>
                 <form id="create-campaign-form" data-method="PATCH" action="/campaigns/campaign/{{campaign._id}}">
-                    <div class="input-field">
-                        <select id="player" name="player" required>
-                            <option value="" disabled selected>Choose player</option>
-                            {{#each playersList}}
-                                <option value="{{this._id}}">{{this.name}}</option>
-                            {{/each}}
-                        </select>
-                        <label for="player">Player</label>
+                    <div class="row">
+                        <div class="col-12 col-md-12">
+                            <div class="input-field">
+                                <select id="roster" name="roster" required>
+                                    <option value="" disabled selected>Choose roster</option>
+                                    {{#each rostersList}}
+                                        <option value="{{this._id}}">{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                                <label for="roster">Roster</label>
+                            </div>
+                            <button class="btn waves-effect waves-light" type="submit">Add Roster</button>
+                        </div>
                     </div>
-                    <button class="btn waves-effect waves-light" type="submit">Add Player</button>
                 </form>
             </div>
         </div>
@@ -38,14 +34,18 @@
 <table class="striped responsive-table" id="items-table">
     <thead>
     <tr>
-        <th>ID</th>
+        <th>Roster</th>
+        <th>Rating</th>
+        <th>Gold Value</th>
         <th>Created</th>
     </tr>
     </thead>
     <tbody>
-    {{#each players}}
+    {{#each rosters}}
         <tr>
-            <td>{{{link this.name (concat '/players/player/' this._id)}}}</td>
+            <td>{{{link this.name (concat '/rosters/roster/' this._id)}}}</td>
+            <td>{{this.wealth.rating}}</td>
+            <td>{{this.wealth.gold}}</td>
             <td>{{formatDateTime this.createdAt}}</td>
         </tr>
     {{/each}}

@@ -1,0 +1,44 @@
+<div class="col s6" style="margin-bottom: 8px;">
+    <article class="item-card">
+        <figure class="item-figure">
+            <div class="item-icon">
+                {{#ifCond type '==' 1}}
+                    <i class="ra ra-sword ra-2x" aria-hidden="true"></i>
+                {{/ifCond}}
+                {{#ifCond type '==' 2}}
+                    <i class="ra ra-crossbow ra-2x" aria-hidden="true"></i>
+                {{/ifCond}}
+                {{#ifCond type '==' 3}}
+                    <i class="ra ra-shield ra-2x" aria-hidden="true"></i>
+                {{/ifCond}}
+                {{#ifCond type '==' 4}}
+                    <i class="ra ra-amulet ra-2x" aria-hidden="true"></i>
+                {{/ifCond}}
+            </div>
+            <figcaption class="item-price">{{range}}</figcaption>
+            <figcaption class="item-price">S: {{strength}}</figcaption>
+        </figure>
+
+        <div class="item-body">
+            <h4 class="item-name"><a href="/items/item/{{_id}}">{{name}}</a></h4>
+            {{#if description}}
+                <div class="item-desc">{{description}}</div>
+            {{/if}}
+            {{#each traits}}
+                <span class="pill tooltipped" data-tooltip="{{this.description}}">{{this.name}}</span>
+            {{/each}}
+            <div class="btn-area">
+                <form action="/members/member/{{member}}/item/{{_id}}?action=sell" data-method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-info" onclick="return confirm('Are you sure you want to sell this item?');">
+                        <i class="fa fa-coins"></i>
+                    </button>
+                </form>
+                <form action="/members/member/{{member}}/item/{{_id}}?action=discard" data-method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Are you sure you want to discard this item?');">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </article>
+</div>
