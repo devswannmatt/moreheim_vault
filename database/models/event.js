@@ -17,7 +17,8 @@ const eventSchema = new mongoose.Schema({
     rating: { type: Number, default: 0 }
   },
   advance: { type: String, default: '' },
-  advance_linked: { type: String, default: '' }
+  advance_linked: { type: String, default: '' },
+  injury: { type: Number, default: 0 }
 }, { timestamps: true, collection: COLLECTION });
 
 const Event = mongoose.models.Event || mongoose.model('Event', eventSchema);

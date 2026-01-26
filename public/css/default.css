@@ -4,8 +4,8 @@ table.tight-rows td, table.tight-rows th {
 }
 
 .stat-square {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -14,6 +14,7 @@ table.tight-rows td, table.tight-rows th {
     border-radius: 4px;
     vertical-align:middle;
     color: #333;
+    background: #fff;
 }
 
 .stat-square.improved {
@@ -21,12 +22,10 @@ table.tight-rows td, table.tight-rows th {
 }
 
 .exp-square {
-    width: 32px;
-    height: 32px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin: 2px;
+    margin: 1px;
     border: 1px solid #ccc;
     border-radius: 4px;
     vertical-align:middle;
@@ -54,6 +53,11 @@ table.tight-rows td, table.tight-rows th {
 
 .exp-square-level.pulsing {
     transform-origin: center center;
+    animation: pulse 1.2s ease-in-out infinite;
+}
+
+.exp-square-level-pending {
+    background-color: #a4edff69;
     animation: pulse 1.2s ease-in-out infinite;
 }
 
@@ -93,14 +97,20 @@ table.tight-rows td, table.tight-rows th {
     background: #ffffff;
     display: flex;
     gap: 8px;
-    align-items: flex-start;
+    align-items: stretch;
     box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
-.item-figure {
-    min-height: 100px;
+.item-figure-left {
     min-width: 64px;
     background: #e6e6e6;
     border-radius: 8px 0 0 8px;
+    text-align: center;
+    margin: 0;
+}
+.item-figure-right {
+    width: 64px;
+    background: #e6e6e6;
+    border-radius: 0 8px 8px 0;
     text-align: center;
     margin: 0;
 }
@@ -131,4 +141,10 @@ table.tight-rows td, table.tight-rows th {
     line-height: 1.2;
     word-wrap: break-word;
     font-style: italic;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 6px;
+    margin-bottom: 4px;
 }

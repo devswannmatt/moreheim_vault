@@ -1,134 +1,118 @@
 <a href="/rosters/roster/{{member.roster._id}}">&larr; {{member.roster.name}}</a>
 <div class="row">
-    <div class="col s9 m9">
+    <div class="col s12 m12">
         <div class="card">
-            <form id="member-name-form" data-method="PATCH" action="/members/member/{{member._id}}">
+            <form id="member-form" data-method="PATCH" action="/members/member/{{member._id}}">
                 <div class="card-content">
                     <div class="row">
                         <div class="col s3">
-                            <div
-                                style="width:100%; height:155px; display:flex; align-items:center; justify-content:center; background:#e3f2fd;">
-                                <i class="ra ra-double-team" style="font-size:28px; color:#1565c0"></i>
-                            </div>
-                            <div style="margin-top:8px; text-align:center">
-                                <div class="grey-text text-darken-1">
-                                    {{#each units}}
-                                    {{#ifCond this._id '==' ../member.unit._id}}<div value="{{this._id}}">{{this.name}}
-                                    </div>{{/ifCond}}
-                                    {{/each}}
+                            <div style="height:200px; display:flex; align-items:center; justify-content:center; background:#f9f9f9; border-radius:8px; margin-right:8px; padding: 8px;">
+                                {{!-- <img src="/images/avatar.jpg" alt="Member Avatar" style="max-width: 100%; max-height: 100%; border-radius: 8px;"> --}}
+                                <div style="height: 100%; width: 100%; background:#e3f2fd; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                    <i class="fa fa-person" style="font-size:100px; color:#1565c0"></i>
                                 </div>
                             </div>
                         </div>
-                        <div class="col s9">
-                            <div style="flex-grow:1">
+                        <div class="col s9" style="margin-left: 0; background: #f9f9f9; border-radius: 8px; padding: 8px;">
+                            <div style="flex-grow:1;">
                                 <div class="row" style="margin-bottom:0;">
-                                    <div class="col s2">
-                                        <div class="input-field">
-                                            <input id="qty" name="qty" type="number" value="{{member.qty}}" min="1"
-                                                required>
-                                            <label for="qty" class="active">Quantity</label>
-                                        </div>
-                                    </div>
-                                    <div class="col s2">
+                                    <div class="col s8">
                                         <span class="card-title" style="margin:0">
                                             <div class="input-field">
-                                                <input id="type" type="text" value="{{formatUnitType member.unit.type}}"
-                                                    disabled>
-                                                <label for="type" class="active">Type</label>
-                                            </div>
-                                        </span>
-                                    </div>
-                                    <div class="col s6">
-                                        <span class="card-title" style="margin:0">
-                                            <div class="input-field">
-                                                <input id="name" name="name" type="text" value="{{member.name}}"
-                                                    required>
+                                                <input id="name" name="name" type="text" value="{{member.name}}" required>
                                                 <label for="name" class="active">Name</label>
                                             </div>
                                         </span>
                                     </div>
                                     <div class="col s2">
-                                        <span class="card-title" style="margin:0">
-                                            <div class="input-field">
-                                                <input id="status" type="text" value="{{formatStatus member.status}}"
-                                                    disabled>
-                                                <label for="status" class="active">Status</label>
-                                            </div>
-                                        </span>
+                                        {{> value_square label="Gold" value=member.wealth.gold}}
+                                    </div>
+                                    <div class="col s2">
+                                        {{> value_square label="Rating" value=member.wealth.rating}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="border-bottom">
+                                    <div>
+                                        {{#ifCond member.unit.type '==' '1'}}
+                                            {{member.unit.name}} <span class="grey-text">({{formatUnitType member.unit.type}}) - {{formatStatus member.status}}</span>
+                                        {{else}}
+                                            {{member.qty}} x {{member.unit.name}} <span class="grey-text">({{formatUnitType member.unit.type}})</span>
+                                        {{/ifCond}}
+                                    </div>
+                                </div>
+                                {{> stat_square label="M" value=member.unit.m improved=member.unit.advance.m}}
+                                {{> stat_square label="WS" value=member.unit.ws improved=member.unit.advance.ws}}
+                                {{> stat_square label="BS" value=member.unit.bs improved=member.unit.advance.bs}}
+                                {{> stat_square label="S" value=member.unit.s improved=member.unit.advance.s}}
+                                {{> stat_square label="T" value=member.unit.t improved=member.unit.advance.t}}
+                                {{> stat_square label="W" value=member.unit.w improved=member.unit.advance.w}}
+                                {{> stat_square label="I" value=member.unit.i improved=member.unit.advance.i}}
+                                {{> stat_square label="A" value=member.unit.a improved=member.unit.advance.a}}
+                                {{> stat_square label="LD" value=member.unit.ld improved=member.unit.advance.ld}}
+                                {{> stat_square label="Sv" value=member.unit.sv improved=member.unit.advance.sv}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <small class="grey-text text-darken-1">Experience</small>
+                        <div class="col s12">
+                            {{#each member.expLevels}}
+                            {{> exp_widget exp=this member=../member/_id experience=@index currentExp=../member.wealth.experience}}
+                            {{/each}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6" style="border-radius: 8px;">
+                            <small class="grey-text text-darken-1">Inventory</small>
+                            <div class="row">
+                                {{#each member.items}}
+                                {{> item this member=../member index=@index}}
+                                {{/each}}
+                                <div class="col s6" style="margin-bottom:8px;"></div>
+                                <div class="col s6" style="margin-bottom:8px;">
+                                    <div class="btn-area" style="margin-top:4px; text-align:right;">
+                                        <button href="#popouts-modal" class="modal-trigger btn-small" data-popout="/members/member/{{member._id}}/inventory">
+                                            {{!-- <i class="ra ra-round-shield"></i> --}}
+                                            Add Item
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col s1">
-                            {{> stat_square label="M" value=member.unit.m improved=member.unit.advance.m}}
-                        </div>
-                        <div class="col s1">
-                            {{> stat_square label="WS" value=member.unit.ws improved=member.unit.advance.ws}}
-                        </div>
-                        <div class="col s1">
-                            {{> stat_square label="BS" value=member.unit.bs improved=member.unit.advance.bs}}
-                        </div>
-                        <div class="col s1">
-                            {{> stat_square label="S" value=member.unit.s improved=member.unit.advance.s}}
-                        </div>
-                        <div class="col s1">
-                            {{> stat_square label="T" value=member.unit.t improved=member.unit.advance.t}}
-                        </div>
-                        <div class="col s1">
-                            {{> stat_square label="W" value=member.unit.w improved=member.unit.advance.w}}
-                        </div>
-                        <div class="col s1">
-                            {{> stat_square label="I" value=member.unit.i improved=member.unit.advance.i}}
-                        </div>
-                        <div class="col s1">
-                            {{> stat_square label="A" value=member.unit.a improved=member.unit.advance.a}}
-                        </div>
-                        <div class="col s1">
-                            {{> stat_square label="LD" value=member.unit.ld improved=member.unit.advance.ld}}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col s3">
-                            <div class="input-field">
-                                <input id="rating" name="rating" type="number" value="{{member.wealth.rating}}"
-                                    disabled>
-                                <label for="rating" class="active">
-                                    <i class="ra ra-podium"></i> Rating
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col s3">
-                            <div class="input-field">
-                                <input id="gold" name="gold" type="number" value="{{member.wealth.gold}}" disabled>
-                                <label for="gold" class="active">
-                                    <i class="ra ra-gold-bar"></i> Gold (Total Value)
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col s3">
-                            <div class="input-field">
-                                <input id="experience" name="experience" type="number"
-                                    value="{{member.unit.experience}}" disabled> </input>
-                                <label for="experience" class="active">
-                                    <i class="ra ra-muscle-up"></i> Experience (Starting)
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col s3">
-                            <button href="#popouts-modal" class="modal-trigger btn-small"
-                                data-popout="/members/member/{{member._id}}/event/gainresource">
-                                <i class="fa fa-square-up"></i>
-                                GAIN EXPERIENCE
-                            </button>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col s12">
-                            {{#each member.expLevels}}
-                            {{> exp_widget exp=this member=../member/_id experience=@index
-                            currentExp=../member.wealth.experience}}
+                        <div class="col s6" style="border-radius: 8px;">
+                            <small class="grey-text text-darken-1">Skills</small>
+                            <div class="border-bottom"></div>
+                            {{#each member.unit.traits}}
+                                {{> skill skill=this}}
                             {{/each}}
+                            {{#each member.traits}}
+                                {{> skill skill=this}}
+                            {{/each}}
+                        </div>
+                        <div class="col s6" style="border-radius: 8px;">
+                            <small class="grey-text text-darken-1">Injuries</small>
+                            <div class="border-bottom"></div>
+                            {{#each injuries}}
+                                <div style="margin-bottom:8px">
+                                    <div>
+                                        <a href="/events/event/{{_id}}">{{this.details.label}}</a> <small class="grey-text text-darken-1" style="float:right;">Result: {{this.details.value}}</small>
+                                    </div>
+                                    <div class="grey-text text-darken-1" style="font-size:0.9em">{{this.details.description}}</div>
+                                </div>
+                            {{/each}}
+                            <div class="col s6" style="margin-bottom:8px;"></div>
+                            <div class="col s6" style="margin-bottom:8px;">
+                                <div class="btn-area" style="margin-top:4px; text-align:right;">
+                                    <div class="btn-area" style="margin-top:4px;">
+                                        <button href="#popouts-modal" class="modal-trigger btn-small red" data-popout="/members/member/{{member._id}}/event/injury">
+                                            {{!-- <i class="ra ra-droplet"></i> --}}
+                                            Add Injury
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="row" style="margin-bottom:0">
@@ -138,16 +122,6 @@
                                     style="min-height:48px">{{member.description}}</textarea>
                                 <label for="description" class="active">Description</label>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col s12">
-                            <row>
-                            {{#each member.items}}
-                            {{> item this member=../member._id }}
-                            {{/each}}
-                            </row>
                         </div>
                     </div>
                     <span class="grey-text text-darken-1" style="margin-right:12px">
@@ -163,11 +137,6 @@
                                     data-popout="/members/member/{{member._id}}/inventory">
                                     <i class="ra ra-round-shield"></i>
                                     Inventory
-                                </button>
-                                <button href="#popouts-modal" class="modal-trigger btn-small red"
-                                    data-popout="/members/member/{{member._id}}/history?type=injuries">
-                                    <i class="ra ra-droplet"></i>
-                                    Injuries
                                 </button>
                             </div>
                         </div>
@@ -192,49 +161,39 @@
             </form>
         </div>
     </div>
-    <div class="col s3">
-        <div class="card">
-            <div class="card-content">
-                <span class="card-title">Unit Skills</span>
-                {{#each member.unit.traits}}
-                <div style="margin-bottom:8px">
-                    <a href="/traits/trait/{{_id}}">{{name}}</a>
-                    <div class="grey-text text-darken-1" style="font-size:0.9em">{{description}}</div>
-                </div>
-                {{/each}}
-            </div>
-            <div class="card-content">
-                <span class="card-title">Earned Skills</span>
-                {{#each member.traits}}
-                <div style="margin-bottom:8px">
-                    <a href="/traits/trait/{{_id}}">{{name}}</a>
-                    <div class="grey-text text-darken-1" style="font-size:0.9em">{{description}}</div>
-                </div>
-                {{/each}}
-            </div>
-        </div>
-    </div>
 </div>
 <div class="row">
     <div class="col s12 m12">
         <div class="card">
             <div class="card-content">
                 <span class="card-title">Events</span>
-                <table class="striped responsive-table tight-rows" id="items-table">
+                <table class="striped tight-rows" id="items-table">
                     <thead>
                         <tr>
                             <th>Type</th>
                             <th>Options</th>
                             <th>Notes</th>
+                            <th>Date</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         {{#each events}}
                         <tr>
-                            <td>{{formatEventType type}} (Exp: {{wealth.experience}})</td>
-                            <td>{{name}}</td>
-                            <td>{{description}}</td>
+                            <td>{{formatEventType type}}</td>
+                            <td>
+                                {{#if details}}
+                                    {{#if details.label}}
+                                        {{details.label}}
+                                    {{/if}}
+                                {{else}}
+                                    {{name}}
+                                {{/if}}
+                            </td>
+                            <td>
+                                {{description}}
+                            </td>
+                            <td>{{formatDateTime createdAt}}</td>
                             <td class="center-align">
                                 <a href="/events/event/{{_id}}" class="tooltipped" data-method="delete"
                                     data-tooltip="Delete event" data-position="top" title="Level Up">
@@ -259,21 +218,19 @@
             elem.addEventListener('mouseover', function () {
                 console.log('hovered');
 
-                elem.classList.add('green');
+                elem.classList.add('exp-square-level-pending');
 
                 elems.forEach(function (e, i) {
-                    if (i <= index) {
-                        e.classList.add('green');
-                    }
+                    if (i <= index) e.classList.add('exp-square-level-pending');
                 });
             });
 
             elem.addEventListener('mouseout', function () {
                 console.log('unhovered');
 
-                elem.classList.remove('green');
+                elem.classList.remove('exp-square-level-pending');
                 elems.forEach(function (elem) {
-                    elem.classList.remove('green');
+                    elem.classList.remove('exp-square-level-pending');
                 });
             });
         });

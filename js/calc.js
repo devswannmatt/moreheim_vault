@@ -33,6 +33,36 @@ function fetchEventTypes(type) {
   return type ? [eventTypes[type]] : eventTypes;
 }
 
+function fetchInjuries(injuryId) {
+  var injuries = {
+    1: { value: '11-15', label: 'Dead!', description: 'The member has died as a result of their injuries.' },
+    2: { value: '16-21', label: 'Multiple Injuries', description: 'The member has sustained multiple injuries and will require extensive care.' },
+    3: { value: '22', label: 'Leg Wound', description: 'The member has a serious leg wound that will impair movement until healed.' },
+    4: { value: '23', label: 'Arm Wound', description: 'The member has a serious arm wound that will impair movement until healed.' },
+    5: { value: '24', label: 'Madness', description: 'The member has gone mad as a result of their injuries.' },
+    6: { value: '25', label: 'Smashed Leg', description: 'The member has a smashed leg that will impair movement until healed.' },
+    7: { value: '26', label: 'Chest Wound', description: 'The member has a serious chest wound that will impair movement until healed.' },
+    8: { value: '31', label: 'Blinded in One Eye', description: 'The member has been blinded in one eye.' },
+    9: { value: '32', label: 'Old Battle Wound', description: 'The member has an old battle wound that still causes pain and discomfort.' },
+    10: { value: '33', label: 'Nervous Condition', description: 'The member has developed a nervous condition as a result of their injuries.' },
+    11: { value: '34', label: 'Hand Injury', description: 'The member has a serious hand injury that will impair their ability to fight until healed.' },
+    12: { value: '35', label: 'Deep Wound', description: 'The member has a deep wound that will take time to heal properly.' },
+    13: { value: '36', label: 'Robbed', description: 'The member has been robbed of their possessions during their injury.' },
+    14: { value: '41-55', label: 'Full Recovery', description: 'The member has made a full recovery from their injuries.' },
+    15: { value: '56', label: 'Bitter Enmity', description: 'The member has developed bitter enmity towards those responsible for their injuries.' },
+    16: { value: '61', label: 'Captured', description: 'The member has been captured by enemy forces.' },
+    17: { value: '62-63', label: 'Hardened', description: 'The member has become hardened as a result of their injuries.' },
+    18: { value: '64', label: 'Horrible Scars', description: 'The member has been left with horrible scars from their injuries.' },
+    19: { value: '65', label: 'Sold to the Pits', description: 'The member has been sold to the pits as a result of their injuries.' },
+    20: { value: '66', label: 'Survives Against The Odds', description: 'The member has survived against all odds despite their injuries.' }
+  }
+
+  if (injuryId) {
+    return injuries[injuryId] || null;
+  }
+  return injuries;
+}
+
 const levelBands = {
   2: { level: 1, exp: 2 },
   4: { level: 2, exp: 4 },
@@ -203,3 +233,4 @@ exports.calcCurrentExp = calcCurrentExp;
 exports.buildExpLevels = buildExpLevels;
 exports.processLevelUpEvent = processLevelUpEvent;
 exports.checkEvents = checkEvents;
+exports.fetchInjuries = fetchInjuries;

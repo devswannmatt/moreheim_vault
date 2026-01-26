@@ -34,6 +34,11 @@ module.exports = {
     return Number(a) * Number(b);
   },
 
+  divide: function(a, b) {
+    if (Number(b) === 0) return 0;
+    return Math.floor(Number(a) / Number(b));
+  },
+
   add: function(a, b) {
     return Number(a) + Number(b);
   },
@@ -122,12 +127,59 @@ module.exports = {
     }
   },
 
+  formatItemSlot: function(slot) {
+    switch(slot) {
+      case 0: return "";
+      case 1: return '<div class="tooltipped" data-tooltip="One handed weapon, usable in either hand. Can wield in either hand."><i class="fas fa-hand-fist"></i></div>';
+      case 2: return '<div class="tooltipped" data-tooltip="Two handed weapon, requires both hands to wield."><i class="fas fa-hand-fist"></i><i class="fas fa-hand-back-fist"></i></div>';
+      case 3: return '<div class="tooltipped" data-tooltip="Off hand item, can only use one at once."><i class="ra ra-round-shield"></i></div>';
+      case 4: return '<div class="tooltipped" data-tooltip="Head gear, can only wear one."><i class="ra ra-knight-helmet"></i></div>';
+      case 5: return '<div class="tooltipped" data-tooltip="Chest gear, can only wear one."><i class="ra ra-vest"></i></div>';
+      case 6: return '<div class="tooltipped" data-tooltip="Consumable"><i class="ra ra-round-bottom-flask"></i></div>';
+      default: return '<div class="tooltipped" data-tooltip="Unknown Item Type, configuration error. Tell Matt please."><i class="fas fa-question"></i></div>';
+    }
+  },
+
   formatStatus: function(status) {
     switch(status) {
       case 0: return "Active";
       case 1: return "Inactive";
       case 2: return "Retired";
       case 3: return "Killed";
+      default: return "Unknown";
+    }
+  },
+
+  formatStrength: function(strength, base) {
+    if (!strength) return '';
+    if (strength.slice(0,1) === '+') {
+      strength = (base || 0) + Number(strength);
+    }
+    return strength;
+  },
+
+  formatInjury: function(injury) {
+    switch(injury) {
+      case 1: return { label: "Dead!", description: "The member has died." };
+      case 2: return { label: "Multiple Injuries", description: "The member has multiple injuries." };
+      case 3: return { label: "Leg Wound", description: "The member has a leg wound." };
+      case 4: return { label: "Arm Wound", description: "The member has an arm wound." };
+      case 5: return { label: "Madness", description: "The member is suffering from madness." };
+      case 6: return { label: "Smashed Leg", description: "The member has a smashed leg." };
+      case 7: return { label: "Chest Wound", description: "The member has a chest wound." };
+      case 8: return { label: "Blinded in One Eye", description: "The member is blinded in one eye." };
+      case 9: return { label: "Old Battle Wound", description: "The member has an old battle wound." };
+      case 10: return { label: "Nervous Condition", description: "The member has a nervous condition." };
+      case 11: return { label: "Hand Injury", description: "The member has a hand injury." };
+      case 12: return { label: "Deep Wound", description: "The member has a deep wound." };
+      case 13: return { label: "Robbed", description: "The member has been robbed." };
+      case 14: return { label: "Full Recovery", description: "The member has made a full recovery." };
+      case 15: return { label: "Bitter Enmity", description: "The member has bitter enmity." };
+      case 16: return { label: "Captured", description: "The member has been captured." };
+      case 17: return { label: "Hardened", description: "The member has become hardened." };
+      case 18: return { label: "Horrible Scars", description: "The member has horrible scars." };
+      case 19: return { label: "Sold to the Pits", description: "The member has been sold to the pits." };
+      case 20: return { label: "Survives Against The Odds", description: "The member survives against the odds." };
       default: return "Unknown";
     }
   },
@@ -149,6 +201,6 @@ module.exports = {
     }
 
     var border = box.level ? '3px solid #5E5E5E' : '1px solid #7A7A7A';
-    return 'background: ' + bg + '; border: ' + border + '; display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; margin-right:2px; margin-bottom:6px; border-radius:4px; vertical-align:middle;';
+    return 'background: ' + bg + '; border: ' + border + '; display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; margin-right:1px; margin-bottom:6px; border-radius:4px; vertical-align:middle;';
   }
 };

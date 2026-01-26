@@ -40,9 +40,7 @@ router.patch('/item/:id', async (req, res) => {
   console.log(`Updating item with ID: ${req.params.id} with data:`, req.body);
   try {
     item.updateItem(req.params.id, req.body).then(updatedItem => {
-      if (!updatedItem) {
-        return res.status(404).json({ error: 'Item not found' });
-      }
+      if (!updatedItem) return res.status(404).json({ error: 'Item not found' });
       res.status(200).json(updatedItem);
     });
   } catch (err) {

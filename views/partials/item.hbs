@@ -1,6 +1,7 @@
-<div class="col s6" style="margin-bottom: 8px;">
+<div class="col s12" style="margin-bottom: 8px;">
     <article class="item-card">
-        <figure class="item-figure">
+        <figure class="item-figure-left">
+            {{#ifCond type '!=' 4}}
             <div class="item-icon">
                 {{#ifCond type '==' 1}}
                     <i class="ra ra-sword ra-2x" aria-hidden="true"></i>
@@ -11,34 +12,41 @@
                 {{#ifCond type '==' 3}}
                     <i class="ra ra-shield ra-2x" aria-hidden="true"></i>
                 {{/ifCond}}
-                {{#ifCond type '==' 4}}
-                    <i class="ra ra-amulet ra-2x" aria-hidden="true"></i>
-                {{/ifCond}}
             </div>
-            <figcaption class="item-price">{{range}}</figcaption>
-            <figcaption class="item-price">S: {{strength}}</figcaption>
+            
+                <figcaption class="item-price">{{range}}</figcaption>
+                <figcaption class="item-price">S: {{formatStrength strength member.unit.s}}</figcaption>
+            {{else}}
+                <a data-method="PATCH" href="/members/member/{{member._id}}/item?action=use&item={{_id}}&index={{index}}" class="btn" style="width: 100%; height: 100%; border-radius: 8px 0 0 8px;" {{#ifCond index '==' 0}}disabled{{/ifCond}}>
+                    <i class="ra ra-round-bottom-flask ra-2x" aria-hidden="true"></i>
+                    use <br />
+                    1 / 1
+                </a>
+            {{/ifCond}}
         </figure>
 
         <div class="item-body">
-            <h4 class="item-name"><a href="/items/item/{{_id}}">{{name}}</a></h4>
+            <div class="item-name" style="border-bottom: 1px solid rgb(228, 228, 228); padding: 4px;">
+                <a href="/items/item/{{_id}}">{{name}}</a> 
+                <div style="float: right;">{{{formatItemSlot slot}}}</div>
+            </div>
             {{#if description}}
                 <div class="item-desc">{{description}}</div>
             {{/if}}
+            <ul></ul>
             {{#each traits}}
                 <span class="pill tooltipped" data-tooltip="{{this.description}}">{{this.name}}</span>
             {{/each}}
-            <div class="btn-area">
-                <form action="/members/member/{{member}}/item/{{_id}}?action=sell" data-method="POST" style="display: inline;">
-                    <button type="submit" class="btn btn-small btn-info" onclick="return confirm('Are you sure you want to sell this item?');">
-                        <i class="fa fa-coins"></i>
-                    </button>
-                </form>
-                <form action="/members/member/{{member}}/item/{{_id}}?action=discard" data-method="POST" style="display: inline;">
-                    <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Are you sure you want to discard this item?');">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </form>
-            </div>
         </div>
+
+        <figure class="item-figure-right">
+            <a data-method="PATCH" href="/members/member/{{member._id}}/item?action=moveUp&item={{_id}}&index={{index}}" class="btn blue" style="width: 100%; height: 40%; border-radius: 0 8px 0 0; margin-bottom: 2px;" {{#ifCond index '==' 0}}disabled{{/ifCond}}>
+                <div class="fa fa-arrow-up"></div>
+            </a>
+            <a data-method="PATCH" href="/members/member/{{member._id}}/item?action=sell&item={{_id}}&index={{index}}" class="btn" style="width: 100%; height: 60%; border-radius: 0 0 8px 0;">
+                <div class="fa fa-coins"></div>
+                <div>{{divide gold 2}}g</div>
+            </a>
+        </figure>
     </article>
 </div>

@@ -10,6 +10,7 @@ const itemSchema = new mongoose.Schema({
   gold: { type: Number, default: 0 },
   range: { type: String, default: '' },
   strength: { type: String, default: '' },
+  slot: { type: Number, default: 0 },
   traits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trait' }]
 }, { timestamps: true, collection: COLLECTION });
 

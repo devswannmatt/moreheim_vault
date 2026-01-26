@@ -56,16 +56,20 @@ router.get('/member/:id', async (req, res) => {
     result.wealth    = await calc.wealth([result], result.items);
     result           = await calc.checkEvents(result, events);
 
-    console.log(result.expLevels[25])
+    events.forEach(ev => {
+      if (ev.injury) ev.details = calc.fetchInjuries(ev.injury);
+    });
 
-    res.render('member', { member: result, rosters: rosters, units: units, events: events });
+    var injuries = events.filter(ev => ev.type === 2);
+
+    res.render('member', { member: result, rosters: rosters, units: units, events: events, injuries: injuries });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 router.patch('/member/:id', async (req, res) => {
-  console.log(`Updating member with ID: ${req.params.id} with data:`, req.body);
+  console.log(`Updating /member/:id with ID: ${req.params.id} with data:`, req.body);
   try {
     member.updateMember(req.params.id, req.body).then(updatedMember => {
       if (!updatedMember) return res.status(404).json({ error: 'Member not found' });
@@ -77,7 +81,7 @@ router.patch('/member/:id', async (req, res) => {
 });
 
 router.patch('/member/:id/status', async (req, res) => {
-  console.log(`Updating member with ID: ${req.params.id} with data:`, req.body);
+  console.log(`Updating member status with ID: ${req.params.id} with data:`, req.body);
   console.log('Status from query:', req.query.status);
   try {
     if (!req.query.status && req.query.status !== 0) return res.status(400).json({ error: 'Status is required' });
@@ -87,6 +91,67 @@ router.patch('/member/:id/status', async (req, res) => {
       if (!updatedMember) return res.status(404).json({ error: 'Member not found' });
       res.status(200).json(updatedMember);
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.patch('/member/:id/item', async (req, res) => {
+  console.log(`Item action Member with ID: ${req.params.id} with data:`, req.query);
+  console.log('Status from query:', req.query.status);
+  try {
+    if (!req.query.action) return res.status(400).json({ error: 'Action is required' });
+    if (!req.query.item)   return res.status(400).json({ error: 'Item ID is required' });
+    if (!req.query.index)  return res.status(400).json({ error: 'Item index is required' });
+
+    if (req.query.action === 'sell' || req.query.action === 'use') {
+      member.getMemberById(req.params.id).then(m => {
+        if (!m) return res.status(404).json({ error: 'Member not found' });
+        item.getItemById(req.query.item).then(i => {
+          if (!i) return res.status(404).json({ error: 'Item not found' });
+          let updatedItems = m.items || [];
+          const itemIndex = parseInt(req.query.index);
+          if (itemIndex > -1) {
+            updatedItems.splice(itemIndex, 1);
+            member.updateMember(req.params.id, { items: updatedItems }).then(updatedMember => {
+              if (!updatedMember) return res.status(404).json({ error: 'Member not found' });
+              if (req.query.action === 'sell') {
+                const goldEarned = Math.floor((i.gold || 0) / 2) * (m.qty || 1);
+                rosterAdjustGold(m.roster, goldEarned).then(() => {
+                  res.status(200).json({ member: updatedMember, goldEarned: goldEarned });
+                }).catch(err => {
+                  res.status(500).json({ error: err.message });
+                });
+              } else {
+                res.status(200).json({ member: updatedMember });
+              };
+            });
+          } else {
+            res.status(400).json({ error: 'Member does not possess this item' });
+          }
+        });
+      });
+      return;
+    }
+
+    if (req.query.action === 'moveUp') {
+      member.getMemberById(req.params.id).then(m => {
+        if (!m) return res.status(404).json({ error: 'Member not found' });
+        let updatedItems = m.items || [];
+        const itemIndex = parseInt(req.query.index);
+        if (itemIndex > 0) {
+          const temp = updatedItems[itemIndex - 1];
+          updatedItems[itemIndex - 1] = updatedItems[itemIndex];
+          updatedItems[itemIndex] = temp;
+          member.updateMember(req.params.id, { items: updatedItems }).then(updatedMember => {
+            if (!updatedMember) return res.status(404).json({ error: 'Member not found' });
+            res.status(200).json({ member: updatedMember });
+          });
+        } else {
+          res.status(400).json({ error: 'Item is already at the top of the inventory' });
+        }
+      });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -112,12 +177,24 @@ router.get('/member/:id/event/levelup', async (req, res) => {
 });
 
 router.get('/member/:id/event/gainresource', async (req, res) => {
-  console.log(`Fetching member event level up with ID: ${req.params.id}`);
+  console.log(`Fetching member event gain resource with ID: ${req.params.id}`);
   try {
     const result = await member.getMemberById(req.params.id);
     if (!result) return res.status(404).json({ error: 'Member not found' });
 
     res.render('event_gain_resource', { member: result, eventTypes: calc.fetchEventTypes(3), query: req.query });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/member/:id/event/injury', async (req, res) => {
+  console.log(`Fetching member event injury with ID: ${req.params.id}`);
+  try {
+    const result = await member.getMemberById(req.params.id);
+    if (!result) return res.status(404).json({ error: 'Member not found' });
+
+    res.render('event_injury', { member: result, eventTypes: calc.fetchEventTypes(2), injuries: calc.fetchInjuries(), query: req.query });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
