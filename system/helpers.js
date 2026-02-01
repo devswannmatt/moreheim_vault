@@ -104,6 +104,7 @@ module.exports = {
       case 7: return "Skill: Strength";
       case 8: return "Skill: Speed";
       case 9: return "Skill: Special";
+      case 10: return "Warband";
       default: return "Unknown";
     }
   },
@@ -202,5 +203,13 @@ module.exports = {
 
     var border = box.level ? '3px solid #5E5E5E' : '1px solid #7A7A7A';
     return 'background: ' + bg + '; border: ' + border + '; display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; margin-right:1px; margin-bottom:6px; border-radius:4px; vertical-align:middle;';
+  },
+
+  isInArray: function(value, array) {
+    if (!Array.isArray(array)) return false;
+    // Check if array contains the value directly
+    if (array.includes(value)) return true;
+    // Check if array contains objects with _id matching the value
+    return array.some(item => item && item._id && item._id.toString() === value.toString());
   }
 };

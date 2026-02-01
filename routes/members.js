@@ -104,7 +104,7 @@ router.patch('/member/:id/item', async (req, res) => {
     if (!req.query.item)   return res.status(400).json({ error: 'Item ID is required' });
     if (!req.query.index)  return res.status(400).json({ error: 'Item index is required' });
 
-    if (req.query.action === 'sell' || req.query.action === 'use') {
+    if (req.query.action === 'sell' || req.query.action === 'use' || req.query.action === 'refund') {
       member.getMemberById(req.params.id).then(m => {
         if (!m) return res.status(404).json({ error: 'Member not found' });
         item.getItemById(req.query.item).then(i => {
@@ -115,16 +115,20 @@ router.patch('/member/:id/item', async (req, res) => {
             updatedItems.splice(itemIndex, 1);
             member.updateMember(req.params.id, { items: updatedItems }).then(updatedMember => {
               if (!updatedMember) return res.status(404).json({ error: 'Member not found' });
-              if (req.query.action === 'sell') {
-                const goldEarned = Math.floor((i.gold || 0) / 2) * (m.qty || 1);
+              let goldEarned = 0;
+              if (req.query.action === 'sell')   goldEarned = Math.floor((i.gold || 0) / 2) * (m.qty || 1);
+              if (req.query.action === 'refund') goldEarned = (i.gold || 0) * (m.qty || 1);
+              
+              if (goldEarned) {
+                console.log(`Member sold/refunded item ${i.name} for ${goldEarned} gold`);
                 rosterAdjustGold(m.roster, goldEarned).then(() => {
-                  res.status(200).json({ member: updatedMember, goldEarned: goldEarned });
+                  return res.status(200).json({ member: updatedMember, goldEarned: goldEarned });
                 }).catch(err => {
-                  res.status(500).json({ error: err.message });
+                  return res.status(500).json({ error: err.message });
                 });
               } else {
-                res.status(200).json({ member: updatedMember });
-              };
+                return res.status(200).json({ member: updatedMember });
+              }
             });
           } else {
             res.status(400).json({ error: 'Member does not possess this item' });
@@ -206,9 +210,8 @@ router.get('/member/:id/inventory', async (req, res) => {
     const result = await member.getMemberById(req.params.id);
     const items  = await item.findItems();
 
-    if (!result) {
-      return res.status(404).json({ error: 'Member not found' });
-    }
+    if (!result) return res.status(404).json({ error: 'Member not found' });
+
     res.render('member_inventory', { member: result, items: items, inventory: result.items });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -219,40 +222,67 @@ router.patch('/member/:id/inventory', async (req, res) => {
   console.log(`Updating member Inventory with ID: ${req.params.id} with data:`, req.body);
   try {
     member.getMemberById(req.params.id).then(m => {
-      if (!m) throw('Member not found');
+      if (!m) return res.status(404).json({ error: 'Member not found' });
 
-      let items = req.body.items || [];
-      if (!Array.isArray(items)) items = [items];
-      items = items.filter(function (v) { return v !== undefined && v !== null && String(v).length > 0; });
+      let oldItems = m.items.map(i => String(i._id)) || [];
+      let newItems = req.body.items || [];
+      if (!Array.isArray(newItems)) newItems = [newItems];
+      newItems = newItems.filter(function (v) { return v !== undefined && v !== null && String(v).length > 0; });
 
-      console.log('Items to add to inventory:', items); 
+      // Find items being added (in newItems but not in oldItems)
+      // Create a copy of oldItems to track which items have been matched
+      let itemsToAdd = [];
+      let remainingOldItems = [...oldItems];
+
+      newItems.forEach((item) => {
+        const indexInOld = remainingOldItems.indexOf(item);
+        if (indexInOld !== -1) {
+          // Item already exists in inventory, remove it from tracking
+          remainingOldItems.splice(indexInOld, 1);
+        } else {
+          // Item is new and needs to be purchased
+          itemsToAdd.push(item);
+        }
+      });
+
+      console.log('Items already in Inventory:', oldItems);
+      console.log('Full desired Inventory:', newItems);
+      console.log('Items to add (will charge for):', itemsToAdd);
+
+      if (itemsToAdd.length === 0) return res.status(404).json({ error: 'No new items to add to inventory.' });
 
       var itemCost = 0;
-      items.forEach(async (element) => {
-        console.log('Processing item ID for cost calculation:', element);
-        await item.getItemById(element).then(i => {
+      // Calculate cost for items being added using Promise.all to wait for all calculations
+      var costPromises = itemsToAdd.map(element => {
+        return item.getItemById(element).then(i => {
           if (!i) throw('Invalid item ID provided.');
-          itemCost += ((i.gold * m.qty) || 0);
-          console.log('Adding item cost:', i.gold, 'Total so far:', itemCost);
+          const cost = (i.gold * (m.qty || 1));
+          itemCost += cost;
+          console.log('Item to pay for:', i.name || element, 'Cost:', cost, 'Total so far:', itemCost);
+          return cost;
         });
       });
 
-      console.log('Total item cost calculated:', itemCost);
+      Promise.all(costPromises).then(() => {
+        console.log('Total item cost calculated:', itemCost);
 
-      roster.getRosterById(m.roster).then(r => {
-        console.log('Roster fetched for member creation:', r);
-        console.log('Roster gold available:', r.gold);
-        if (r.gold < itemCost) throw('Insufficient gold in roster to create this member.');
+        roster.getRosterById(m.roster).then(r => {
+          console.log('Roster fetched for member inventory update:', r);
+          console.log('Roster gold available:', r.gold);
+          if (r.gold < itemCost) return res.status(400).json({ error: 'Insufficient gold in roster to purchase these items.' });
 
-        member.updateMember(req.params.id, { items: items }).then(updatedMember => {
-          if (!updatedMember) return res.status(404).json({ error: 'Member not found' });
+          member.updateMember(req.params.id, { items: newItems }).then(updatedMember => {
+            if (!updatedMember) return res.status(404).json({ error: 'Member not found' });
 
-          rosterAdjustGold(m.roster, -(itemCost || 0)).then(() => {
-            res.status(201).redirect(`/members/member/${updatedMember._id}`);
-          }).catch(err => {
-            res.status(500).json({ error: err.message });
+            rosterAdjustGold(m.roster, -(itemCost || 0)).then(() => {
+              res.status(201).redirect(`/members/member/${updatedMember._id}`);
+            }).catch(err => {
+              res.status(500).json({ error: err.message });
+            });
           });
         });
+      }).catch(err => {
+        res.status(500).json({ error: err.message });
       });
     });
   } catch (err) {

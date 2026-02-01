@@ -56,10 +56,38 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="col s12">
+                            <div class="input-field">
+                                <select id="traits" name="traits" multiple>
+                                    <option value="" disabled>Select Traits</option>
+                                    {{#each traitList}}
+                                        <option value="{{this._id}}"
+                                        {{#if (isInArray this._id ../warband.traits)}}selected{{/if}}>
+                                            {{this.name}}
+                                        </option>
+                                    {{/each}}
+                                </select>
+                                <label for="traits" class="active">Traits</label>
+                            </div>
+                        </div>
+                        <div class="col s12">
+                            <div class="input-field">
+                                <select id="units" name="units" multiple>
+                                    <option value="" disabled>Select Units</option>
+                                    {{#each unitList}}
+                                        <option value="{{this._id}}"
+                                        {{#if (isInArray this._id ../warband.units)}}selected{{/if}}>
+                                            {{this.name}} |
+                                        </option>
+                                    {{/each}}
+                                </select>
+                                <label for="units" class="active">Units</label>
+                            </div>
+                        </div>
                     </div>
                     <span class="grey-text text-darken-1" style="margin-right:12px">
                         Last updated:
-                        {{formatDateTime unit.updatedAt}}
+                        {{formatDateTime warband.updatedAt}}
                     </span>
                 </div>
                 <div class="card-action blue lighten-5">
@@ -69,6 +97,10 @@
                         </div>
                         <div class="col s6 right-align">
                             <div class="btn-area">
+                                <a href="/warbands/warband/{{_id}}/copy" class="btn waves-effect waves-light grey"
+                                    title="Copy warband">
+                                    <i class="fa fa-copy"></i>
+                                </a>
                                 <button id="delete-unit-btn" type="button" class="btn waves-effect waves-light red"
                                     title="Delete unit">
                                     <i class="ra ra-tombstone"></i>

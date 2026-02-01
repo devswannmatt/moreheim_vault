@@ -57,7 +57,17 @@ $(function () {
       window.location.reload();
     }).fail(function (jqXHR, textStatus, err) {
       var txt = jqXHR.responseText || err || textStatus;
+      var message = '';
       console.error('Request failed', jqXHR.status, txt);
+      if (txt.error) message = JSON.parse(txt).error;
+
+      var responseResult = document.getElementById('response-result');
+      if (responseResult) {
+        responseResult.innerText = 'Error ' + jqXHR.status + ': ' + (message || txt);
+        responseResult.style.color = 'red';
+        
+        return;
+      }
       alert('Request failed: ' + jqXHR.status + '\n' + txt);
     });
   });

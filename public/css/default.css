@@ -148,3 +148,45 @@ table.tight-rows td, table.tight-rows th {
     padding-bottom: 6px;
     margin-bottom: 4px;
 }
+/* Multi-select dropdown styling */
+.select-wrapper input.select-dropdown {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.select-wrapper .select-dropdown li span {
+    color: #26a69a;
+}
+
+select[multiple] + .select-wrapper .caret {
+    display: none;
+}
+
+.select-wrapper ul.dropdown-content li {
+    min-height: 40px;
+}
+
+/* Improve chip display in multi-selects */
+.input-field .select-wrapper .chips {
+    border-bottom: none;
+    box-shadow: none;
+    min-height: auto;
+    margin: 0;
+    padding-top: 8px;
+}
+
+.input-field .select-wrapper .chips .chip {
+    height: 26px;
+    line-height: 26px;
+    margin: 2px 4px 2px 0;
+    padding: 0 10px;
+    font-size: 13px;
+    border-radius: 13px;
+    background-color: #e0e0e0;
+}
+
+.input-field .select-wrapper .chips .chip .close {
+    font-size: 18px;
+    margin-left: 6px;
+}

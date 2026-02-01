@@ -1,8 +1,7 @@
 
 <form id="member-inventory-form" data-method="PATCH" action="/members/member/{{member._id}}/inventory">
-
     <div class="row">
-        <table class="striped responsive-table" id="items-table">
+        <table class="striped tight-rows" id="items-table">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -23,11 +22,8 @@
                 </button>
             </div>
             <div class="col s6 right-align">
+                <span id="response-result"></span>
                 <div class="btn-area">
-                    <button id="delete-member-btn" type="button" class="btn waves-effect waves-light red"
-                        title="Delete member">
-                        <i class="ra ra-tombstone"></i>
-                    </button>
                     <button class="btn waves-effect waves-light" type="submit">
                         <i class="ra ra-save"></i>
                     </button>
@@ -36,7 +32,6 @@
         </div>
     </div>
 </form>
-
 
 <script>
     const EXISTING_LIST = {{#if inventory}}{{{json inventory}}}{{else}}[]{{/if}};

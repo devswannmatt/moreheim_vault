@@ -35,4 +35,8 @@ function findRosters(filter = {}, options = {}) {
   return Roster.find(filter, null, options).populate('player').lean().exec();
 }
 
-module.exports = { createRoster, getRosterById, updateRoster, findRosters, COLLECTION };
+function deleteRoster(id) {
+  return Roster.findByIdAndDelete(id).lean().exec();
+}
+
+module.exports = { createRoster, getRosterById, updateRoster, findRosters, deleteRoster, COLLECTION };

@@ -89,4 +89,17 @@ router.post('/create', async (req, res) => {
   }
 });
 
+router.delete('/roster/:id', async (req, res) => {
+  console.log(`Deleting roster with ID: ${req.params.id}`);
+  try {
+    const deletedRoster = await roster.deleteRoster(req.params.id);
+    if (!deletedRoster) {
+      return res.status(404).json({ error: 'Roster not found' });
+    }
+    res.status(200).json({ message: 'Roster deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

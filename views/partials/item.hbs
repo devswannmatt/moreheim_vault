@@ -13,9 +13,8 @@
                     <i class="ra ra-shield ra-2x" aria-hidden="true"></i>
                 {{/ifCond}}
             </div>
-            
-                <figcaption class="item-price">{{range}}</figcaption>
-                <figcaption class="item-price">S: {{formatStrength strength member.unit.s}}</figcaption>
+            <figcaption class="item-price">{{range}}</figcaption>
+            <figcaption class="item-price">S: {{formatStrength strength member.unit.s}}</figcaption>
             {{else}}
                 <a data-method="PATCH" href="/members/member/{{member._id}}/item?action=use&item={{_id}}&index={{index}}" class="btn" style="width: 100%; height: 100%; border-radius: 8px 0 0 8px;" {{#ifCond index '==' 0}}disabled{{/ifCond}}>
                     <i class="ra ra-round-bottom-flask ra-2x" aria-hidden="true"></i>
@@ -38,12 +37,11 @@
                 <span class="pill tooltipped" data-tooltip="{{this.description}}">{{this.name}}</span>
             {{/each}}
         </div>
-
         <figure class="item-figure-right">
-            <a data-method="PATCH" href="/members/member/{{member._id}}/item?action=moveUp&item={{_id}}&index={{index}}" class="btn blue" style="width: 100%; height: 40%; border-radius: 0 8px 0 0; margin-bottom: 2px;" {{#ifCond index '==' 0}}disabled{{/ifCond}}>
+            <a data-method="PATCH" href="/members/member/{{member._id}}/item?action=moveUp&item={{_id}}&index={{index}}" class="btn blue" style="width:64px; height: 50%; border-radius: 0 8px 0 0; margin-bottom: 2px;" {{#ifCond index '==' 0}}disabled{{/ifCond}}>
                 <div class="fa fa-arrow-up"></div>
             </a>
-            <a data-method="PATCH" href="/members/member/{{member._id}}/item?action=sell&item={{_id}}&index={{index}}" class="btn" style="width: 100%; height: 60%; border-radius: 0 0 8px 0;">
+            <a data-method="PATCH" href="/members/member/{{member._id}}/item?action=sell&item={{_id}}&index={{index}}" class="btn" style="width: 64px; height: 50%; border-radius: 0 0 8px 0;">
                 <div class="fa fa-coins"></div>
                 <div>{{divide gold 2}}g</div>
             </a>

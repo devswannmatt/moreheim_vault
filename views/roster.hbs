@@ -88,10 +88,10 @@
                         </div>
                         <div class="col s6 right-align">
                             <div class="btn-area">
-                                <button id="delete-roster-btn" type="button" class="btn waves-effect waves-light red"
-                                    title="Delete roster">
+                                <a href="/rosters/roster/{{roster._id}}" data-method="delete" class="btn waves-effect waves-light red"
+                                    title="View roster"> 
                                     <i class="ra ra-tombstone"></i>
-                                </button>
+                                </a>
                                 <button class="btn waves-effect waves-light tooltipped" type="submit" data-tooltip="Save changes to this Roster!" data-position="top" title="Save roster">
                                     <i class="ra ra-save"></i>
                                 </button>

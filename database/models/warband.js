@@ -6,6 +6,9 @@ const COLLECTION = 'warbands';
 const warbandSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, default: '' },
+  gold: { type: Number, default: 500 },
+  traits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trait' }],
+  units: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Unit' }]
 }, { timestamps: true, collection: COLLECTION });
 
 const Warband = mongoose.models.Warband || mongoose.model('Warband', warbandSchema);
@@ -16,16 +19,16 @@ function createWarband(data) {
 }
 
 function getWarbandById(id) {
-  return Warband.findById(id).lean().exec();
+  return Warband.findById(id).populate('traits').populate('units').lean().exec();
 }
 
 function updateWarband(id, patch = {}) {
   patch.updatedAt = new Date();
-  return Warband.findByIdAndUpdate(id, { $set: patch }, { new: true }).lean().exec();
+  return Warband.findByIdAndUpdate(id, { $set: patch }, { new: true }).populate('traits').populate('units').lean().exec();
 }
 
 function findWarbands(filter = {}, options = {}) {
-  return Warband.find(filter, null, options).lean().exec();
+  return Warband.find(filter, null, options).populate('traits').populate('units').lean().exec();
 }
 
 module.exports = { createWarband, getWarbandById, updateWarband, findWarbands, COLLECTION };
