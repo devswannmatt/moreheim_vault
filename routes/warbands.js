@@ -7,6 +7,7 @@ router.get('/', async (req, res) => {
   console.log("Rendering warbands view");
   try {
     const items = await warband.findWarbands();
+    items.sort((a, b) => a.name.localeCompare(b.name));
     res.render('warbands', { warbands: items });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -19,8 +20,14 @@ router.get('/warband/:id', async (req, res) => {
     const item   = await warband.getWarbandById(req.params.id);
     const units  = await unit.findUnits();
     const traits = await trait.findTraits({ type: 10 });
+
+    console.log("Units available for warband:", units);
+
+    item.units.sort((a, b) => a.type - b.type || b.experience - a.experience || a.name.localeCompare(b.name));
+    item.traits.sort((a, b) => a.name.localeCompare(b.name));
+
     if (!item) return res.status(404).json({ error: 'Roster not found' });
-    res.render('warband', { warband: item, units: item.units, unitList: units, traits: item.traits, traitList: traits });
+    res.render('warband', { warband: item, unitList: units, traitList: traits });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -81,6 +88,26 @@ router.post('/create', async (req, res) => {
     }).catch(err => {
       res.status(500).json({ error: err.message });
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/warband/:id/copy', async (req, res) => {
+  try {
+    console.log(`Copying warband with ID: ${req.params.id}`);
+    const original = await warband.getWarbandById(req.params.id);
+    if (!original) {
+      return res.status(404).json({ error: 'Original warband not found' });
+    }
+    const copyData = {
+      name: original.name + ' (Copy)',
+      description: original.description,
+      units: original.units,
+      traits: original.traits
+    };
+    const newWarbandId = await warband.createWarband(copyData);
+    res.status(201).redirect(`/warbands/warband/${newWarbandId}`);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

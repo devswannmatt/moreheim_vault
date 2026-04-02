@@ -1,6 +1,11 @@
 <div class="row">
+
     <div class="col s12 m12">
+        
         <div class="card">
+            <a href="/warbands" class="btn" style="margin-bottom: -10px;">
+            <i class="fa fa-arrow-left fa-fw"></i> Warbands
+        </a>
             <form id="warband-name-form" data-method="PATCH" action="/warbands/warband/{{warband._id}}">
                 <div class="card-content">
                     <div class="row">
@@ -42,47 +47,17 @@
                         </div>
                         <div class="col s6">
                             <div class="input-field">
-                                <input id="rating" name="rating" type="number" value="{{warband.rating}}" required>
-                                <label for="rating" class="active">
-                                    <i class="ra ra-podium"></i> Rating
+                                <input id="gold" name="gold" type="number" value="{{warband.gold}}" required>
+                                <label for="gold" class="active">
+                                    <i class="ra ra-gold-bar"></i> Starting Gold
                                 </label>
                             </div>
                         </div>
                         <div class="col s6">
-                            <div class="input-field">
-                                <input id="gold" name="gold" type="number" value="{{warband.gold}}" required>
-                                <label for="gold" class="active">
-                                    <i class="ra ra-gold-bar"></i> Gold
-                                </label>
-                            </div>
+                            {{> field_select_multi list=traitList selected=warband.traits id="traits" name="traits" label="Traits"}}
                         </div>
                         <div class="col s12">
-                            <div class="input-field">
-                                <select id="traits" name="traits" multiple>
-                                    <option value="" disabled>Select Traits</option>
-                                    {{#each traitList}}
-                                        <option value="{{this._id}}"
-                                        {{#if (isInArray this._id ../warband.traits)}}selected{{/if}}>
-                                            {{this.name}}
-                                        </option>
-                                    {{/each}}
-                                </select>
-                                <label for="traits" class="active">Traits</label>
-                            </div>
-                        </div>
-                        <div class="col s12">
-                            <div class="input-field">
-                                <select id="units" name="units" multiple>
-                                    <option value="" disabled>Select Units</option>
-                                    {{#each unitList}}
-                                        <option value="{{this._id}}"
-                                        {{#if (isInArray this._id ../warband.units)}}selected{{/if}}>
-                                            {{this.name}} |
-                                        </option>
-                                    {{/each}}
-                                </select>
-                                <label for="units" class="active">Units</label>
-                            </div>
+                            {{> field_select_multi list=unitList selected=warband.units id="units" name="units" label="Units"}}
                         </div>
                     </div>
                     <span class="grey-text text-darken-1" style="margin-right:12px">
@@ -97,12 +72,11 @@
                         </div>
                         <div class="col s6 right-align">
                             <div class="btn-area">
-                                <a href="/warbands/warband/{{_id}}/copy" class="btn waves-effect waves-light grey"
-                                    title="Copy warband">
+                                <a href="/warbands/warband/{{warband._id}}/copy" data-method="post" class="btn waves-effect waves-light grey" title="Copy warband">
                                     <i class="fa fa-copy"></i>
                                 </a>
-                                <button id="delete-unit-btn" type="button" class="btn waves-effect waves-light red"
-                                    title="Delete unit">
+                                <button id="delete-warband-btn" type="button" class="btn waves-effect waves-light red"
+                                    title="Delete warband">
                                     <i class="ra ra-tombstone"></i>
                                 </button>
                                 <button class="btn waves-effect waves-light" type="submit">
@@ -120,8 +94,8 @@
                 <table class="striped responsive-table" id="units-table">
                     <thead>
                         <tr>
+                            <th></th>
                             <th>Name</th>
-                            <th>#</th>
                             <th>M</th>
                             <th>WS</th>
                             <th>BS</th>
@@ -131,15 +105,22 @@
                             <th>I</th>
                             <th>A</th>
                             <th>LD</th>
-                            <th>Rating</th>
+                            <th>Experience</th>
                             <th>Gold</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {{#each units}}
+                    {{#each warband.units}}
                         <tr>
+                            <td>
+                                {{#ifCond this.type '==' '1'}}
+                                    <i class="ra ra-flat-hammer tooltipped" data-tooltip="Hero Unit Type"></i>
+                                {{/ifCond}}
+                                {{#ifCond this.type '==' '2'}}
+                                    <i class="ra ra-gavel tooltipped" data-tooltip="Henchman Unit Type"></i>
+                                {{/ifCond}}
+                            </td>
                             <td><a href="/units/unit/{{this._id}}">{{this.name}}</a></td>
-                            <td>{{this.qty}}</td>
                             <td>{{this.m}}</td>
                             <td>{{this.ws}}</td>
                             <td>{{this.bs}}</td>
@@ -149,7 +130,7 @@
                             <td>{{this.i}}</td>
                             <td>{{this.a}}</td>
                             <td>{{this.ld}}</td>
-                            <td>{{this.rating}}</td>
+                            <td>{{this.experience}}</td>
                             <td>{{this.gold}}</td>
                         </tr>
                     {{/each}}

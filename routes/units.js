@@ -34,12 +34,7 @@ router.get('/unit/:id', async (req, res) => {
       return res.status(404).json({ error: 'Unit not found' });
     }
 
-    const unitTypes = [
-      { value: '1', label: 'Hero' },
-      { value: '2', label: 'Henchman' }
-    ]
-
-    res.render('unit', { unit: item, warbands: warbands, unitTypes: unitTypes });
+    res.render('unit', { unit: item, warbands: warbands });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

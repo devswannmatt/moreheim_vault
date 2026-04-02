@@ -1,0 +1,9 @@
+<div class="input-field">
+    <select id="{{id}}" name="{{name}}">
+        <option value="" disabled>Select {{label}}</option>
+        {{#each list}}
+            <option value="{{@key}}" {{#ifCond @key '==' ../selected}}selected{{/ifCond}}>{{this.label}}</option>
+        {{/each}}
+    </select>
+    <label for="{{id}}" class="active">{{label}}</label>
+</div>

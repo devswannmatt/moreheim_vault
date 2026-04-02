@@ -1,0 +1,10 @@
+<div class="input-field">
+    <select id="{{id}}" name="{{name}}" multiple>
+        <option value="" disabled>Select {{label}}</option>
+        
+        {{#each list}}
+            <option value="{{this._id}}" {{#if (isInArray this._id ../selected)}}selected{{/if}}>{{this.name}}</option>
+        {{/each}}
+    </select>
+    <label for="{{id}}" class="active">{{label}}</label>
+</div>

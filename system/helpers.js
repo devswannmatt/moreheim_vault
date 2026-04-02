@@ -108,15 +108,20 @@ module.exports = {
       default: return "Unknown";
     }
   },
+  
+  unitTypes: function(type) {
+    var unitTypes = {
+      "1": { label: "Hero" },
+      "2": { label: "Henchman" }
+    };
 
-  formatUnitType: function(type) {
-    switch(type) {
-      case 1: return "Hero";
-      case 2: return "Henchman";
-      default: return "Unknown";
+    // If called with a type value (not the options hash)
+    if (type !== undefined && typeof type !== 'object') {
+      return unitTypes[type] || "Unknown";
     }
+    return unitTypes;
   },
-
+  
   formatEventType: function(type) {
     switch(type) {
       case 1: return "Level Up";
@@ -207,9 +212,11 @@ module.exports = {
 
   isInArray: function(value, array) {
     if (!Array.isArray(array)) return false;
-    // Check if array contains the value directly
     if (array.includes(value)) return true;
-    // Check if array contains objects with _id matching the value
     return array.some(item => item && item._id && item._id.toString() === value.toString());
+  },
+
+  parseInt: function(value) {
+    return parseInt(value, 10);
   }
 };

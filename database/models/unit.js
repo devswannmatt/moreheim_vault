@@ -9,7 +9,6 @@ const unitSchema = new mongoose.Schema({
   description: { type: String, default: '' },
   experience: { type: Number, default: 0 },
   gold: { type: Number, default: 0 },
-  warband: { type: mongoose.Schema.Types.ObjectId, ref: 'Warband', required: true }, 
   m: { type: Number, default: 0 },
   ws: { type: Number, default: 0 },
   bs: { type: Number, default: 0 },
@@ -30,7 +29,7 @@ function createUnit(data) {
 }
 
 function getUnitById(id) {
-  return Unit.findById(id).populate('warband').populate('traits').lean().exec();
+  return Unit.findById(id).populate('traits').lean().exec();
 }
 
 function updateUnit(id, patch = {}) {
@@ -39,7 +38,7 @@ function updateUnit(id, patch = {}) {
 }
 
 function findUnits(filter = {}, options = {}) {
-  return Unit.find(filter, null, options).populate('warband').populate('traits').lean().exec();
+  return Unit.find(filter, null, options).populate('traits').lean().exec();
 }
 
 module.exports = { createUnit, getUnitById, updateUnit, findUnits, COLLECTION };
