@@ -9,6 +9,20 @@ const trait   = require('../database/models/trait');
 
 const calc = require('../js/calc');
 
+async function findUnitsForWarband(warbandId) {
+  const allUnits = await unit.findUnits();
+  if (!warbandId) return allUnits;
+
+  const matchingUnits = allUnits.filter(u => {
+    if (!u.warband) return false;
+    const unitWarbandId = (u.warband && u.warband._id) ? u.warband._id : u.warband;
+    return String(unitWarbandId) === String(warbandId);
+  });
+
+  // Fallback for legacy data where warband mapping may be missing.
+  return matchingUnits.length === 0 ? allUnits : matchingUnits;
+}
+
 router.get('/', async (req, res) => {
   console.log("Rendering members view");
   try {
@@ -25,7 +39,7 @@ router.get('/member/create', async (req, res) => {
   console.log("Rendering create member view");
   const rosters  = await roster.findRosters();
   const warbands = await warband.findWarbands();
-  const units    = await unit.findUnits({warband: req.query.warband});
+  const units = [];
 
   rosters.map(r => {
     r.selected = (req.query.roster && req.query.roster === r._id.toString()) ? true : false;
@@ -37,6 +51,22 @@ router.get('/member/create', async (req, res) => {
 
   try {
     res.render('member_create', { rosters: rosters, units: units, warbands: warbands } );
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/unit-options', async (req, res) => {
+  try {
+    const units = await findUnitsForWarband(req.query.warband);
+    const options = units.map(u => ({
+      _id: u._id,
+      name: u.name,
+      type: u.type,
+      gold: u.gold
+    }));
+
+    res.json(options);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -55,6 +85,7 @@ router.get('/member/:id', async (req, res) => {
     result.expLevels = await calc.buildExpLevels(result.unit, calc.calcCurrentExp((result.unit.experience + result.experience), events));
     result.wealth    = await calc.wealth([result], result.items);
     result           = await calc.checkEvents(result, events);
+    result.unit.sv   = calc.calcSave(result.items);
 
     events.forEach(ev => {
       if (ev.injury) ev.details = calc.fetchInjuries(ev.injury);

@@ -221,6 +221,64 @@ async function checkEvents(result, events) {
   return result;
 };
 
+// Calculates Sv (armor save) from a member's equipped items.
+// Rules:
+//   - Only the best Body item (slot 5) sets the base threshold, e.g. "Save (5+)" → needs 5 or more.
+//   - A Shield (slot 3), if present, improves the save via a "+X" modifier, e.g. "Save (+1)".
+//   - Final save = base threshold - improvement, e.g. 5+ with +1 shield = 4+.
+//   - Returns the final threshold number (e.g. 4 for a 4+ save), or 0 if no body armor.
+function calcSave(items) {
+  if (!Array.isArray(items) || !items.length) return 0;
+
+  // Parse a single item's Save traits.
+  // Returns { base: N } for "X+" format  (e.g. "Save (5+)" → base 5)
+  //     or  { mod: N }  for "+X" format   (e.g. "Save (+1)"  → mod  1)
+  function parseSaveTrait(item) {
+    let base = 0;
+    let mod  = 0;
+    for (const trait of (item.traits || [])) {
+      if (!trait || !trait.name) continue;
+      if (!/save/i.test(trait.name)) continue;
+
+      // Base threshold: digit(s) before the "+" — e.g. "5+", "Save (5+)"
+      const baseMatch = trait.name.match(/(\d+)\+/);
+      if (baseMatch) {
+        base = parseInt(baseMatch[1], 10);
+        continue;
+      }
+
+      // Improvement: "+" before digit(s) — e.g. "+1", "Save (+1)"
+      const modMatch = trait.name.match(/\+\s*(\d+)/);
+      if (modMatch) {
+        mod += parseInt(modMatch[1], 10);
+      }
+    }
+    return { base, mod };
+  }
+
+  // Best body armor (slot 5): lowest base threshold = best save (4+ beats 5+).
+  let bodyBase = 0;
+  for (const item of items) {
+    if (!item || item.slot !== 5) continue;
+    const { base } = parseSaveTrait(item);
+    if (base > 0 && (!bodyBase || base < bodyBase)) bodyBase = base;
+  }
+
+  // No body armor = no save.
+  if (!bodyBase) return 0;
+
+  // Best shield (slot 3): highest improvement modifier wins; only one counts.
+  let shieldMod = 0;
+  for (const item of items) {
+    if (!item || item.slot !== 3) continue;
+    const { mod } = parseSaveTrait(item);
+    if (mod > shieldMod) shieldMod = mod;
+  }
+
+  // Subtract improvement from threshold; minimum save is 1+.
+  return Math.max(1, bodyBase - shieldMod);
+}
+
 exports.wealth = wealth;
 exports.fetchEventTypes = fetchEventTypes;
 exports.levelUp = levelUp;
@@ -234,3 +292,4 @@ exports.buildExpLevels = buildExpLevels;
 exports.processLevelUpEvent = processLevelUpEvent;
 exports.checkEvents = checkEvents;
 exports.fetchInjuries = fetchInjuries;
+exports.calcSave = calcSave;

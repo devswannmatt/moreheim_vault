@@ -1,6 +1,15 @@
 <form id="{{formId}}" method="{{method}}" action="{{action}}">
     {{> field label="Name" name="name" type="text" required=true}}
     {{> field_select label="Type" name="type" list=(unitTypes) selected=unit.type id="type" }}
+    <div class="input-field">
+        <select id="warband" name="warband" required>
+            <option value="" disabled selected>Select Warband</option>
+            {{#each warbands}}
+                <option value="{{this._id}}">{{this.name}}</option>
+            {{/each}}
+        </select>
+        <label for="warband" class="active">Warband</label>
+    </div>
     {{> field label="Description" name="description" type="text"}}
     {{> field label="Experience" name="experience" type="number" value="0" required=true col="s6"}}
     {{> field label="Gold" name="gold" type="number" value="0" required=true col="s6"}}

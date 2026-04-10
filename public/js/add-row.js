@@ -1,4 +1,17 @@
 (function () {
+    function readJsonDataScript(id, fallback) {
+        const node = document.getElementById(id);
+        if (!node) return fallback;
+        try {
+            return JSON.parse(node.textContent || 'null') || fallback;
+        } catch (e) {
+            return fallback;
+        }
+    }
+
+    const EXISTING_LIST = readJsonDataScript('existing-list-data', []);
+    const LOOKUP_LIST = readJsonDataScript('lookup-list-data', []);
+
     function createSelect(name, selectedValue) {
         const select = document.createElement('select');
         select.name = name;

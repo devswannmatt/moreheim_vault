@@ -5,6 +5,7 @@ const { engine } = require('express-handlebars');
 const app = express();
 
 const system = require('./system/functions');
+const warbandModel = require('./database/models/warband');
 
 const hbsHelpers = require('./system/helpers');
 const hbsPartials = [
@@ -26,6 +27,24 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.text({ type: 'text/*', limit: '1mb' }));
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(async (req, res, next) => {
+    res.locals.navWarbands = [];
+
+    // Only load nav data for HTML requests to avoid extra DB queries on JSON/API calls.
+    if (!req.accepts('html')) {
+        return next();
+    }
+
+    try {
+        const warbands = await warbandModel.findWarbands({}, { select: 'name', sort: { name: 1 } });
+        res.locals.navWarbands = warbands.map(w => ({ _id: w._id, name: w.name }));
+    } catch (err) {
+        console.error('Unable to load warband nav links:', err.message);
+    }
+
+    next();
+});
 
 system.checkEnvironmentVariables();
 system.start(app);

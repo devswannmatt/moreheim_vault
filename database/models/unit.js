@@ -6,6 +6,7 @@ const COLLECTION = 'units';
 const unitSchema = new mongoose.Schema({
   name: { type: String, required: true },
   type: { type: Number, required: true }, // 1 = Hero, 2 = Henchman
+  warband: { type: mongoose.Schema.Types.ObjectId, ref: 'Warband', required: true },
   description: { type: String, default: '' },
   experience: { type: Number, default: 0 },
   gold: { type: Number, default: 0 },
@@ -29,16 +30,16 @@ function createUnit(data) {
 }
 
 function getUnitById(id) {
-  return Unit.findById(id).populate('traits').lean().exec();
+  return Unit.findById(id).populate('traits').populate('warband').lean().exec();
 }
 
 function updateUnit(id, patch = {}) {
   patch.updatedAt = new Date();
-  return Unit.findByIdAndUpdate(id, { $set: patch }, { new: true }).lean().exec();
+  return Unit.findByIdAndUpdate(id, { $set: patch }, { new: true }).populate('traits').populate('warband').lean().exec();
 }
 
 function findUnits(filter = {}, options = {}) {
-  return Unit.find(filter, null, options).populate('traits').lean().exec();
+  return Unit.find(filter, null, options).populate('traits').populate('warband').lean().exec();
 }
 
 module.exports = { createUnit, getUnitById, updateUnit, findUnits, COLLECTION };

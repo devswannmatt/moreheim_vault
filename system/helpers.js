@@ -108,6 +108,14 @@ module.exports = {
       default: return "Unknown";
     }
   },
+
+  formatUnitType: function(type) {
+    switch(Number(type)) {
+      case 1: return "Hero";
+      case 2: return "Henchman";
+      default: return "Unknown";
+    }
+  },
   
   unitTypes: function(type) {
     var unitTypes = {

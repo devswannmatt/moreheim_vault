@@ -45,11 +45,17 @@ $(function () {
     }
 
     $.ajax(ajaxOptions).done(function (data, textStatus, jqXHR) {
+      // Forms submitted from popout iframe should close modal and refresh parent page.
+      if (window.self !== window.top) {
+        closeModal();
+        return;
+      }
+
       if ($form.data('redirect')) {
         if ($form.data('redirect') === 'self')  return window.location.reload();
         if ($form.data('redirect') === 'close') {
           closeModal();
-          return window.location.reload();
+          return;
         }
         return window.location.href = $form.data('redirect');
       }

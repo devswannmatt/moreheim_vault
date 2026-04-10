@@ -209,30 +209,4 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const elems = document.querySelectorAll('.exp-square-unearned');
-        console.log(elems);
-
-        elems.forEach(function (elem, index) {
-            elem.addEventListener('mouseover', function () {
-                console.log('hovered');
-
-                elem.classList.add('exp-square-level-pending');
-
-                elems.forEach(function (e, i) {
-                    if (i <= index) e.classList.add('exp-square-level-pending');
-                });
-            });
-
-            elem.addEventListener('mouseout', function () {
-                console.log('unhovered');
-
-                elem.classList.remove('exp-square-level-pending');
-                elems.forEach(function (elem) {
-                    elem.classList.remove('exp-square-level-pending');
-                });
-            });
-        });
-    });
-</script>
+<script src="/js/member-exp-hover.js"></script>

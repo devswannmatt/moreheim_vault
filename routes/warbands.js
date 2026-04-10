@@ -18,6 +18,11 @@ router.get('/warband/:id', async (req, res) => {
   console.log(`Fetching warband with ID: ${req.params.id}`);
   try {
     const item   = await warband.getWarbandById(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Warband not found' });
+
+    item.units = Array.isArray(item.units) ? item.units : [];
+    item.traits = Array.isArray(item.traits) ? item.traits : [];
+
     const units  = await unit.findUnits();
     const traits = await trait.findTraits({ type: 10 });
 
@@ -26,7 +31,6 @@ router.get('/warband/:id', async (req, res) => {
     item.units.sort((a, b) => a.type - b.type || b.experience - a.experience || a.name.localeCompare(b.name));
     item.traits.sort((a, b) => a.name.localeCompare(b.name));
 
-    if (!item) return res.status(404).json({ error: 'Roster not found' });
     res.render('warband', { warband: item, unitList: units, traitList: traits });
   } catch (err) {
     res.status(500).json({ error: err.message });

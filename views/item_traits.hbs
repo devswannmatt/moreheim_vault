@@ -43,9 +43,7 @@
     </div>
 </div>
 
-<script>
-    const EXISTING_LIST = {{#if existing}}{{{json existing}}}{{else}}[]{{/if}};
-    const LOOKUP_LIST = {{{json traits}}} || [];
-</script>
+<script id="existing-list-data" type="application/json">{{#if existing}}{{{json existing}}}{{else}}[]{{/if}}</script>
+<script id="lookup-list-data" type="application/json">{{{json traits}}}</script>
 
 <script src="/js/add-row.js"></script>

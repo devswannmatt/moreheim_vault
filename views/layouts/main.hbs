@@ -23,7 +23,14 @@
           <li><a href="/campaigns">Campaigns</a></li>
           <li><a href="/rosters">Rosters</a></li>
           <li><a href="/players">Players</a></li>
-          <li><a href="/warbands">Warbands</a></li>
+          <li class="nav-category">
+            <a href="/warbands">Warbands <span class="nav-caret">&#9662;</span></a>
+            <ul class="nav-submenu">
+              {{#each navWarbands}}
+              <li><a href="/warbands/warband/{{this._id}}">{{this.name}}</a></li>
+              {{/each}}
+            </ul>
+          </li>
           <li><a href="/units">Units</a></li>
           <li><a href="/traits">Traits</a></li>
           <li><a href="/events">Events</a></li>
@@ -39,6 +46,12 @@
       <li><a href="/rosters">Rosters</a></li>
       <li><a href="/players">Players</a></li>
       <li><a href="/warbands">Warbands</a></li>
+      {{#if navWarbands.length}}
+      <li class="sidenav-subheader">Warband Quick Links</li>
+      {{#each navWarbands}}
+      <li><a class="sidenav-sub-link" href="/warbands/warband/{{this._id}}">{{this.name}}</a></li>
+      {{/each}}
+      {{/if}}
       <li><a href="/units">Units</a></li>
       <li><a href="/traits">Traits</a></li>
       <li><a href="/events">Events</a></li>
@@ -55,8 +68,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     
     <!-- Modal placeholder used by popouts.modals.js (upgraded: iframe loader) -->
-    <div id="popouts-modal" class="modal">
+    <div id="popouts-modal" class="modal popouts-modal-window">
       <div class="modal-content" style="padding:0;">
+        <div class="popouts-titlebar">
+          <div id="popouts-modal-title" class="popouts-title">Popout</div>
+          <div class="popouts-controls">
+            <button id="popouts-minimize-btn" type="button" class="popouts-control-btn" title="Minimize" aria-label="Minimize">&#9472;</button>
+            <button id="popouts-maximize-btn" type="button" class="popouts-control-btn" title="Maximize" aria-label="Maximize">&#9723;</button>
+            <button id="popouts-close-btn" type="button" class="popouts-control-btn popouts-close-btn" title="Close" aria-label="Close">&times;</button>
+          </div>
+        </div>
         <div class="popouts-body" style="padding:0;">
           <div id="popouts-loader" style="display:flex;align-items:center;justify-content:center;height:60vh;">
             <div class="preloader-wrapper active small">
@@ -72,113 +93,8 @@
       </div>
     </div>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // init sidenav
-        var sidenavElems = document.querySelectorAll('.sidenav');
-        if (window.M && M.Sidenav && sidenavElems.length) M.Sidenav.init(sidenavElems);
-
-        // init selects (Materialize replaces select with styled dropdown)
-        var selectElems = document.querySelectorAll('select');
-        if (window.M && M.FormSelect && selectElems.length) M.FormSelect.init(selectElems);
-
-        // init modal, tooltip, etc. (if present)
-        var modalElems = document.querySelectorAll('.modal');
-        if (window.M && M.Modal && modalElems.length) M.Modal.init(modalElems);
-        // init tooltips
-        var tooltipElems = document.querySelectorAll('.tooltipped');
-        if (window.M && M.Tooltip && tooltipElems.length) M.Tooltip.init(tooltipElems);
-
-        // hide navigation when opened inside an iframe
-        if (window.self !== window.top) {
-          var topNav = document.querySelector('nav');
-          if (topNav) topNav.style.display = 'none';
-          var mobileSidenav = document.querySelector('#mobile-demo');
-          if (mobileSidenav) mobileSidenav.style.display = 'none';
-          document.body.classList.add('in-iframe');
-        }
-      });
-    </script>
-    <script>
-      // Helper to open the popouts modal and load a URL in the iframe
-      document.addEventListener('DOMContentLoaded', function () {
-        var modalEl = document.getElementById('popouts-modal');
-        if (!modalEl) return;
-        var loader = document.getElementById('popouts-loader');
-        var iframe = document.getElementById('popouts-iframe');
-
-        function ensureInstance() {
-          if (!window.M || !M.Modal) return null;
-          var inst = M.Modal.getInstance(modalEl);
-          if (!inst) inst = M.Modal.init(modalEl, {});
-          // attach cleanup on close
-          inst.options.onCloseEnd = function () {
-            iframe.src = 'about:blank';
-            iframe.style.display = 'none';
-            loader.style.display = 'none';
-            try {
-              window.location.reload();
-            } catch (e) {
-              // ignore reload errors
-            }
-          };
-          return inst;
-        }
-
-        window.openPopout = function (url, title) {
-          loader.style.display = '';
-          iframe.style.display = 'none';
-          // set src and wait for load
-          iframe.src = url;
-          var onLoad = function () {
-            loader.style.display = 'none';
-            iframe.style.display = 'block';
-            iframe.removeEventListener('load', onLoad);
-          };
-          iframe.addEventListener('load', onLoad);
-
-          var inst = ensureInstance();
-          if (inst) inst.open();
-        };
-
-        // Delegated handler: any link with `data-popout` or `.popout-link` will open in iframe
-        document.addEventListener('click', function (e) {
-          var el = e.target.closest && e.target.closest('[data-popout], a.popout-link');
-          if (!el) return;
-          e.preventDefault();
-          var url = el.getAttribute('data-popout') || el.getAttribute('href');
-          if (!url) return;
-          var title = el.getAttribute('data-popout-title') || el.getAttribute('title') || '';
-          if (typeof window.openPopout === 'function') window.openPopout(url, title);
-        }, false);
-      });
-      function closeModal(){
-          console.log('Closing modal');
-          if (window.self !== window.top && parent) {
-              try {
-                  var pm = parent.document.getElementById('popouts-modal');
-                  if (pm && parent.M && parent.M.Modal) {
-                      var inst = parent.M.Modal.getInstance(pm) || parent.M.Modal.init(pm, {});
-                      inst.close();
-                      var piframe = parent.document.getElementById('popouts-iframe');
-                      if (piframe) piframe.src = 'about:blank';
-                  }
-              } catch (e) {
-                  // cross-origin or other error - fallback to reload
-                  window.location.reload();
-              }
-          } else {
-              // not in an iframe - close local modal if present, otherwise reload
-              var el = document.querySelector('.modal');
-              if (el && window.M && M.Modal) {
-                  var inst2 = M.Modal.getInstance(el) || M.Modal.init(el, {});
-                  inst2.close();
-              } else {
-                  window.location.reload();
-              }
-          }
-      }
-    </script>
+    <script src="/js/layout-init.js"></script>
+    <script src="/js/popouts.js"></script>
     <script src="/js/ajax-methods.js"></script>
     <script src="/js/modals.js"></script>
     
