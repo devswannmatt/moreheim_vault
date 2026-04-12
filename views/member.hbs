@@ -1,4 +1,6 @@
+{{#unless isModal}}
 <a href="/rosters/roster/{{member.roster._id}}">&larr; {{member.roster.name}}</a>
+{{/unless}}
 <div class="row">
     <div class="col s12 m12">
         <div class="card">
@@ -73,7 +75,7 @@
                                 <div class="col s6" style="margin-bottom:8px;"></div>
                                 <div class="col s6" style="margin-bottom:8px;">
                                     <div class="btn-area" style="margin-top:4px; text-align:right;">
-                                        <button href="#popouts-modal" class="modal-trigger btn-small" data-popout="/members/member/{{member._id}}/inventory">
+                                        <button type="button" href="#content-modal" class="modal-trigger btn-small" data-modal-url="/members/member/{{member._id}}/inventory">
                                             {{!-- <i class="ra ra-round-shield"></i> --}}
                                             Add Item
                                         </button>
@@ -84,6 +86,18 @@
                         <div class="col s6" style="border-radius: 8px;">
                             <small class="grey-text text-darken-1">Skills</small>
                             <div class="border-bottom"></div>
+                            <div style="margin:6px 0 10px;">
+                                <small class="grey-text text-darken-1" style="display:block; margin-bottom:4px;">Allowed Skill Categories</small>
+                                {{#if member.unit.skillAccess.length}}
+                                    <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                                        {{#each member.unit.skillAccess}}
+                                            <span style="font-size:0.72rem; line-height:1; padding:4px 7px; border-radius:999px; background:#eceff1; color:#455a64; border:1px solid #cfd8dc;">{{formatTraitType (parseInt this)}}</span>
+                                        {{/each}}
+                                    </div>
+                                {{else}}
+                                    <span class="grey-text text-darken-1" style="font-size:0.8rem;">No skill access configured.</span>
+                                {{/if}}
+                            </div>
                             {{#each member.unit.traits}}
                                 {{> skill skill=this}}
                             {{/each}}
@@ -106,7 +120,7 @@
                             <div class="col s6" style="margin-bottom:8px;">
                                 <div class="btn-area" style="margin-top:4px; text-align:right;">
                                     <div class="btn-area" style="margin-top:4px;">
-                                        <button href="#popouts-modal" class="modal-trigger btn-small red" data-popout="/members/member/{{member._id}}/event/injury">
+                                        <button type="button" href="#content-modal" class="modal-trigger btn-small red" data-modal-url="/members/member/{{member._id}}/event/injury">
                                             {{!-- <i class="ra ra-droplet"></i> --}}
                                             Add Injury
                                         </button>
@@ -133,15 +147,25 @@
                     <div class="row" style="margin-bottom:0">
                         <div class="col s8">
                             <div class="btn-area">
-                                <button href="#popouts-modal" class="modal-trigger btn-small"
-                                    data-popout="/members/member/{{member._id}}/inventory">
+                                <button type="button" href="#content-modal" class="modal-trigger btn-small"
+                                    data-modal-url="/members/member/{{member._id}}/inventory">
                                     <i class="ra ra-round-shield"></i>
                                     Inventory
                                 </button>
+                                {{#if canEdit}}
+                                {{#ifEq member.unit.type 1}}
+                                <a href="/members/member/{{member._id}}/make-leader" data-method="patch" data-redirect="self"
+                                    class="btn-small amber darken-2 white-text" title="Promote this Hero to Leader">
+                                    <i class="fa fa-crown"></i>
+                                    Make Leader
+                                </a>
+                                {{/ifEq}}
+                                {{/if}}
                             </div>
                         </div>
                         <div class="col s4 right-align">
                             <div class="btn-area">
+                                {{#if canEdit}}
                                 <a href="/members/member/{{member._id}}" data-method="delete" id="delete-member-btn"
                                     class="btn-small waves-effect waves-light red" title="Refund member">
                                     <i class="fa fa-trash"></i>
@@ -154,6 +178,9 @@
                                 <button class="btn-small waves-effect waves-light" type="submit">
                                     <i class="ra ra-save"></i>
                                 </button>
+                                {{else}}
+                                <span class="grey-text" style="font-size:0.85rem;"><i class="fa fa-lock"></i> View Only</span>
+                                {{/if}}
                             </div>
                         </div>
                     </div>

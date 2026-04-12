@@ -1,100 +1,248 @@
+<style>
+    @keyframes rosterLevelUpPulse {
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.8;
+        }
+
+        50% {
+            transform: scale(1.22);
+            opacity: 1;
+        }
+    }
+
+    .roster-levelup-icon {
+        animation: rosterLevelUpPulse 1.2s ease-in-out infinite;
+        transform-origin: center;
+        display: inline-block;
+    }
+</style>
+
 <div class="row">
     <div class="col s12 m12">
         <div class="card">
             <form id="roster-name-form" data-method="PATCH" action="/rosters/roster/{{roster._id}}">
                 <div class="card-content">
-                    <div class="row">
-                        <div class="col s3">
+                    <!-- Header Row: Player & Warband -->
+                    <div class="row" style="margin-bottom:16px;">
+                        <div class="col s12 m3">
                             <div
-                                style="width:100%; height:140px; display:flex; align-items:center; justify-content:center; background:#e3f2fd;">
-                                <i class="ra ra-double-team" style="font-size:28px; color:#1565c0"></i>
+                                style="width:100%; height:120px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); border-radius:4px;">
+                                <i class="ra ra-double-team" style="font-size:36px; color:#fff;"></i>
                             </div>
-                            <div style="margin-top:8px; text-align:center">
-                                <div class="grey-text text-darken-1">{{roster.player.name}}</div>
+                            <div style="margin-top:12px; text-align:center;">
+                                <span class="grey-text text-darken-2"
+                                    style="font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; display:block; margin-bottom:2px;">Commander</span>
+                                <span style="display:block; font-weight:600;">{{roster.player.name}}</span>
                             </div>
                         </div>
-                        <div class="col s9">
-                            <div class="row">
-                                <div class="col s4">
-                                    <div class="input-field">
-                                        <select id="warband" name="warband" required>
-                                            {{#each warbands}}
-                                                <option value="{{this._id}}" {{#ifCond this._id '==' ../roster.warband}}selected{{/ifCond}}>{{this.name}}</option>
-                                            {{/each}}
-                                        </select>
-                                        <label for="warband" class="active">Warband</label> 
-                                    </div>
-                                </div>
-                                <div class="col s8">
-                                    <div class="input-field">
-                                        <input id="name" name="name" type="text" value="{{roster.name}}" required>
-                                        <label for="name" class="active">Name</label>
+                        <div class="col s12 m9">
+                            <div class="row" style="margin-bottom:8px;">
+                                <div class="col s12">
+                                    <div class="input-field" style="margin-top:0;">
+                                        <input id="roster-name" name="name" type="text" value="{{roster.name}}"
+                                            required>
+                                        <label for="roster-name" class="active">Roster Name</label>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col s9">
-                            <div class="row">
-                                <div class="col s2">
-                                    <div class="input-field">
-                                        <input id="gold" name="gold" type="number" value="{{roster.gold}}" required>
-                                        <label for="gold" class="active">Gold</label>
+                            <div class="row" style="margin-bottom:0;">
+                                <div class="col s12">
+                                    <div class="input-field" style="margin-top:0;">
+                                        <textarea id="description" name="description" class="materialize-textarea"
+                                            rows="2" style="min-height:48px;">{{roster.description}}</textarea>
+                                        <label for="description" class="active">Description</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row" style="margin-bottom:0">
+
+                    <!-- Divider -->
+                    <div style="border-top: 1px solid #e0e0e0; margin: 16px 0;"></div>
+
+                    <!-- Campaigns Section -->
+                    {{#if campaigns}}
+                    <div class="row" style="margin-bottom:16px;">
                         <div class="col s12">
-                            <div class="input-field">
-                                <textarea id="description" name="description" class="materialize-textarea" rows="2"
-                                    style="min-height:48px">{{roster.description}}</textarea>
-                                <label for="description" class="active">Description</label>
-                            </div>
-                        </div>
-                        <div class="col s6">
-                            <div class="input-field">
-                                <input id="rating" name="rating" type="number" value="{{wealth.rating}}" required>
-                                <label for="rating" class="active">
-                                    <i class="ra ra-podium" data-position="top" title="Rating"></i> Rating
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col s6">
-                            <div class="input-field">
-                                <input id="gold" name="gold" type="number" value="{{wealth.gold}}" disabled>
-                                <label for="gold" class="active">
-                                    <i class="ra ra-gold-bar" data-position="top" title="Gold"></i> Gold (Value)
-                                </label>
+                            <span style="font-size:0.75rem; font-weight:600; text-transform:uppercase; color:#666; letter-spacing:0.04em; display:block; margin-bottom:8px;">
+                                Active Campaigns
+                            </span>
+                            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                                {{#each campaigns}}
+                                <a href="/campaigns/campaign/{{this._id}}" class="btn btn-small grey darken-2" style="margin:0; font-size:0.75rem;">
+                                    {{this.name}}
+                                </a>
+                                {{/each}}
                             </div>
                         </div>
                     </div>
-                    <span class="grey-text text-darken-1" style="margin-right:12px">
-                        Last updated:
-                        {{formatDateTime roster.updatedAt}}
-                    </span>
+
+                    <!-- Divider -->
+                    <div style="border-top: 1px solid #e0e0e0; margin: 16px 0;"></div>
+                    {{/if}}
+
+                    <!-- Stats Row: Gold, Rating, Wealth -->
+                    <div class="row" style="margin-bottom:16px;">
+                        <div class="col s12 m3">
+                            <div
+                                style="background:#fff3e0; padding:12px; border-radius:4px; border-left:4px solid #ff9800;">
+                                <span style="font-size:0.75rem; font-weight:600; text-transform:uppercase; color:#e65100; letter-spacing:0.04em; display:block;">
+                                    Available Gold
+                                </span>
+                                <span
+                                    style="font-size:1.5rem; font-weight:700; color:#e65100; display:block;">{{roster.gold}}</span>
+                            </div>
+                        </div>
+                        <div class="col s12 m3">
+                            <div
+                                style="background:#e8f5e9; padding:12px; border-radius:4px; border-left:4px solid #4caf50;">
+                                <span
+                                    style="font-size:0.75rem; font-weight:600; text-transform:uppercase; color:#1b5e20; letter-spacing:0.04em; display:block;">Wyrdstone</span>
+                                <span
+                                    style="font-size:1.5rem; font-weight:700; color:#1b5e20; display:block;">{{wyrdstoneCount}}</span>
+                            </div>
+                        </div>
+                        <div class="col s12 m3">
+                            <div
+                                style="background:#e3f2fd; padding:12px; border-radius:4px; border-left:4px solid #2196f3;">
+                                <span
+                                    style="font-size:0.75rem; font-weight:600; text-transform:uppercase; color:#0d47a1; letter-spacing:0.04em; display:block;">Warband
+                                    Rating</span>
+                                <span
+                                    style="font-size:1.5rem; font-weight:700; color:#0d47a1; display:block;">{{wealth.rating}}</span>
+                            </div>
+                        </div>
+                        <div class="col s12 m3">
+                            <div
+                                style="background:#f3e5f5; padding:12px; border-radius:4px; border-left:4px solid #9c27b0;">
+                                <span
+                                    style="font-size:0.75rem; font-weight:600; text-transform:uppercase; color:#4a148c; letter-spacing:0.04em; display:block;">Last
+                                    Updated</span>
+                                <span
+                                    style="font-size:0.9rem; font-weight:600; color:#4a148c; display:block;">{{formatDateTime
+                                    roster.updatedAt}}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Divider -->
+                    <div style="border-top: 1px solid #e0e0e0; margin: 16px 0;"></div>
+
+                    <!-- Composition + Stockpile -->
+                    <div class="row" style="margin-bottom:0;">
+                        <!-- Warband Composition -->
+                        <div class="col s12 m6" style="margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                                <span style="font-size:0.9rem; font-weight:600; text-transform:uppercase; color:#666; letter-spacing:0.04em;">Warband Composition</span>
+                            </div>
+                            <span style="font-size:0.85rem; color:#555; display:block; margin-bottom:8px;">{{heroCount}} &times; Heroes &nbsp;&bull;&nbsp; {{henchmanCount}} &times; Henchmen &nbsp;&bull;&nbsp; {{totalCount}} &times; Total Members</span>
+                            <div style="background:#fafafa; padding:12px; border-radius:4px; border-left:4px solid #757575;">
+                                <div style="margin-bottom:8px;">
+                                    <span style="font-size:0.78rem; font-weight:700; text-transform:uppercase; color:#666; letter-spacing:0.04em; display:block; margin-bottom:3px;">{{memberCreateSetup.warbandName}}</span>
+                                    {{#if memberCreateSetup.warbandTraits.length}}
+                                    <div style="display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 6px;">
+                                        {{#each memberCreateSetup.warbandTraits}}
+                                        <div style="padding:5px 8px; border-radius:8px; background:#eceff1; border:1px solid #cfd8dc;">
+                                            <div style="font-size:0.72rem; font-weight:700; color:#455a64; line-height:1.1; margin-bottom:6px;">{{this.name}}</div>
+                                            {{#if this.description}}
+                                            <div style="font-size:0.68rem; color:#607d8b; margin-top:2px; line-height:1.2;">{{this.description}}</div>
+                                            {{/if}}
+                                        </div>
+                                        {{/each}}
+                                    </div>
+                                    {{/if}}
+                                </div>
+                                <table style="width:100%; table-layout:fixed;">
+                                    <tr>
+                                        <th style="width:100px; padding:2px 8px 4px 0; text-align:left; font-size:0.72rem; color:#777; text-transform:uppercase; letter-spacing:0.04em;">Type</th>
+                                        <th style="width:auto; padding:2px 8px 4px 0; text-align:left; font-size:0.72rem; color:#777; text-transform:uppercase; letter-spacing:0.04em;">Unit</th>
+                                        <th style="width:64px; padding:2px 8px 4px 0; text-align:right; font-size:0.72rem; color:#777; text-transform:uppercase; letter-spacing:0.04em;">Cost</th>
+                                        <th style="width:120px; padding:2px 0 4px; text-align:right; font-size:0.72rem; color:#777; text-transform:uppercase; letter-spacing:0.04em;">Current/Max</th>
+                                    </tr>
+                                {{#each memberCreateSetup.units}}
+                                    <tr>
+                                        <td style="width:100px; padding:2px 8px 2px 0; font-weight:600; white-space:nowrap;">
+                                            {{#ifEq this.type 1}}Hero{{else}}Henchman{{/ifEq}}
+                                        </td>
+                                        <td style="width:auto; padding:2px 8px 2px 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                            {{this.parsedName}}
+                                            {{#if this.parsedSubtype}}
+                                            <i class="fa fa-info-circle tooltipped" data-position="top" style="margin-left:6px; color:#78909c; font-size:0.8rem; cursor:help; vertical-align:middle;" data-tooltip="This is a special {{this.parsedSubtype}} version of this unit."></i>
+                                            {{/if}}
+                                        </td>
+                                        <td style="width:64px; padding:2px 8px 2px 0; text-align:right; white-space:nowrap; color:#666;">
+                                            {{this.gold}}g
+                                        </td>
+                                        <td style="width:120px; padding:2px 0; text-align:right; white-space:nowrap; color:#666;">
+                                            {{#ifEq this.maxCount 0}}{{this.currentCount}}/-{{else}}{{this.currentCount}}/{{this.maxCount}}{{/ifEq}}
+                                        </td>
+                                    </tr>
+                                {{/each}}
+                                </table>
+                            </div>
+                        </div>
+                        <!-- Stockpile Inventory -->
+                        <div class="col s12 m6" style="margin-bottom:12px;">
+                            <span style="font-size:0.9rem; font-weight:600; text-transform:uppercase; color:#666; letter-spacing:0.04em; display:block; margin-bottom:4px;">Stockpile</span>
+                            <span style="font-size:0.85rem; color:#555; display:block; margin-bottom:8px;">{{#if stockpileGroups.length}}Total value: <strong>{{stockpileValue}}g</strong>{{else}}No items in stockpile{{/if}}</span>
+                            <div style="background:#fafafa; padding:12px; border-radius:4px; border-left:4px solid #ff9800;">
+                                {{#if stockpileGroups.length}}
+                                {{#each stockpileTypeSections}}
+                                {{#if this.groups.length}}
+                                <div style="margin-bottom:8px;">
+                                    <span style="font-size:0.78rem; font-weight:700; text-transform:uppercase; color:#666; letter-spacing:0.04em; display:block; margin-bottom:3px;">{{this.label}}</span>
+                                    <table style="width:100%; table-layout:fixed;">
+                                        {{#each this.groups}}
+                                        <tr>
+                                            <td style="width:56px; padding:2px 8px 2px 0; font-weight:600; white-space:nowrap;">{{qty}}&times;</td>
+                                            <td style="width:auto; padding:2px 8px 2px 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><a href="/items/item/{{item._id}}">{{item.name}}</a></td>
+                                            <td style="width:86px; padding:2px 0; color:#888; font-size:0.85rem; text-align:right; white-space:nowrap;">{{item.gold}}g ea</td>
+                                        </tr>
+                                        {{/each}}
+                                    </table>
+                                </div>
+                                {{/if}}
+                                {{/each}}
+                                {{else}}
+                                <span class="grey-text" style="font-size:0.85rem;">Empty — use Inventory to add items.</span>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-action blue lighten-5">
                     <div class="row" style="margin-bottom:0">
                         <div class="col s6">
                             {{#if roster.warband}}
-                                <a href="#popouts-modal" class="btn-small green modal-trigger" data-popout="/members/member/create?warband={{roster.warband}}&roster={{roster._id}}">Add Member</a>
+                            <a href="#member-create-modal" class="btn-small green modal-trigger" title="Add Member">
+                                <i class="fa fa-user-plus"></i>
+                                </a>
                             {{else}}
-                                <span class="tooltipped" data-tooltip="Required: Select Warband" data-position="top" title="Add Member" tabindex="0" style="display:inline-block">
-                                    <a class="btn-small green disabled" aria-disabled="true" href="#" onclick="return false;">Add Member</a>
-                                </span>
+                            <span class="tooltipped" data-tooltip="Required: Select Warband" data-position="top"
+                                title="Add Member" tabindex="0" style="display:inline-block">
+                                <a class="btn-small green disabled" aria-disabled="true" href="#"
+                                    onclick="return false;"><i class="fa fa-user-plus"></i></a>
+                            </span>
                             {{/if}}
-                            <a class="btn-small blue" data-position="top" title="Inventory" href="/rosters/roster/{{roster._id}}/inventory">Inventory</a>
+                            <a href="#content-modal" class="btn-small blue modal-trigger" title="Stockpile Inventory"
+                                data-modal-url="/rosters/roster/{{roster._id}}/inventory"><i class="fa fa-archive"></i></a>
                         </div>
                         <div class="col s6 right-align">
                             <div class="btn-area">
-                                <a href="/rosters/roster/{{roster._id}}" data-method="delete" class="btn waves-effect waves-light red"
-                                    title="View roster"> 
-                                    <i class="ra ra-tombstone"></i>
+                                {{#if canEdit}}
+                                <a href="/rosters/roster/{{roster._id}}" data-method="delete"
+                                    class="btn waves-effect waves-light red" title="Delete roster">
+                                    <i class="fa fa-trash"></i>
                                 </a>
-                                <button class="btn waves-effect waves-light tooltipped" type="submit" data-tooltip="Save changes to this Roster!" data-position="top" title="Save roster">
-                                    <i class="ra ra-save"></i>
+                                <button class="btn waves-effect waves-light tooltipped" type="submit"
+                                    data-tooltip="Save changes to this Roster!" data-position="top" title="Save roster">
+                                    <i class="fa fa-save"></i>
                                 </button>
+                                {{else}}
+                                <span class="grey-text" style="font-size:0.9rem;"><i class="fa fa-lock"></i> View Only</span>
+                                {{/if}}
                             </div>
                         </div>
                     </div>
@@ -103,65 +251,180 @@
         </div>
         <div class="card">
             <div class="card-content">
-                <span class="card-title">Members</span>
-                <table class="striped" id="members-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>#</th>
-                            <th>Unit</th>
-                            <th class="tooltipped center" data-tooltip="Movement" data-position="top" title="Movement">M</th>
-                            <th class="tooltipped center" data-tooltip="Weapon Skill" data-position="top" title="Weapon Skill">WS</th>
-                            <th class="tooltipped center" data-tooltip="Ballistic Skill" data-position="top" title="Ballistic Skill">BS</th>
-                            <th class="tooltipped center" data-tooltip="Strength" data-position="top" title="Strength">S</th>
-                            <th class="tooltipped center" data-tooltip="Toughness" data-position="top" title="Toughness">T</th>
-                            <th class="tooltipped center" data-tooltip="Wounds" data-position="top" title="Wounds">W</th>
-                            <th class="tooltipped center" data-tooltip="Initiative" data-position="top" title="Initiative">I</th>
-                            <th class="tooltipped center" data-tooltip="Attacks" data-position="top" title="Attacks">A</th>
-                            <th class="tooltipped center" data-tooltip="Leadership" data-position="top" title="Leadership">LD</th>
-                            <th class="tooltipped center" data-tooltip="Rating" data-position="top" title="Rating">Rating</th>
-                            <th class="tooltipped center" data-tooltip="Gold" data-position="top" title="Gold">Gold</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                    <span class="card-title" style="margin-bottom:0;">Members</span>
+                    <div id="reorder-controls">
+                        <button id="reorder-toggle" type="button" class="btn-small blue waves-effect waves-light"
+                            title="Reorder Members">
+                            <i class="fa fa-arrows-alt"></i>
+                        </button>
+                        <button id="reorder-save" type="button" class="btn-small green waves-effect waves-light"
+                            style="display:none;" title="Save Order">
+                            <i class="fa fa-save"></i>
+                        </button>
+                        <button id="reorder-cancel" type="button" class="btn-small grey waves-effect waves-light"
+                            style="display:none;" title="Cancel">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row" id="members-grid" style="margin-bottom:0;">
                     {{#each members}}
-                        <tr>
-                            <td><a href="/members/member/{{this._id}}">{{this.name}}</a></td>
-                            <td>{{this.qty}}</td>
-                            <td>{{this.unit.name}}</td>
-                            <td class="center">{{> stat_square value=this.unit.m improved=this.unit.advance.m}}</td>
-                            <td class="center">{{> stat_square value=this.unit.ws improved=this.unit.advance.ws}}</td>
-                            <td class="center">{{> stat_square value=this.unit.bs improved=this.unit.advance.bs}}</td>
-                            <td class="center">{{> stat_square value=this.unit.s improved=this.unit.advance.s}}</td>
-                            <td class="center">{{> stat_square value=this.unit.t improved=this.unit.advance.t}}</td>
-                            <td class="center">{{> stat_square value=this.unit.w improved=this.unit.advance.w}}</td>
-                            <td class="center">{{> stat_square value=this.unit.i improved=this.unit.advance.i}}</td>
-                            <td class="center">{{> stat_square value=this.unit.a improved=this.unit.advance.a}}</td>
-                            <td class="center">{{> stat_square value=this.unit.ld improved=this.unit.advance.ld}}</td>
-                            <td class="center">{{this.wealth.rating}}</td>
-                            <td class="center">{{this.wealth.gold}}</td>
-                        </tr>
-                        {{#if this.items}}
-                            <tr>
-                                <td colspan="14" style="padding-left:32px;">
-                                    <strong>Equipment:</strong>
-                                    {{#each this.items}}
-                                        <a class="tooltipped pill" href="/items/item/{{this._id}}" data-tooltip="{{this.description}}">{{this.name}} ({{multiply this.gold ../this.qty}}g)</a>
-                                    {{/each}}
-                                    <strong>Skills:</strong>
-                                    {{#each this.unit.traits}}
-                                        <a class="tooltipped pill" href="/items/item/{{this._id}}" data-tooltip="{{this.description}}">{{this.name}}</a>
-                                    {{/each}}
-                                    {{#each this.traits}}
-                                        <a class="tooltipped pill" href="/items/item/{{this._id}}" data-tooltip="{{this.description}}">{{this.name}}</a>
-                                    {{/each}}
-                                </td>
-                            </tr>
-                        {{/if}}
+                    <div class="col s12 m12 l12" style="margin-bottom:4px;" data-member-id="{{this._id}}">
+                        <div class="card z-depth-1" style="margin:0; border-left: 4px solid #1565c0;">
+                            <div class="card-content" style="padding: 12px 16px 8px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                                    <div style="display:flex; align-items:flex-start; gap:8px;">
+                                        <div class="reorder-handle"
+                                            style="display:none; align-items:center; color:#aaa; cursor:grab; padding:2px 4px 0 0; font-size:1.2rem;"
+                                            title="Drag to reorder">
+                                            <i class="fa fa-arrows-alt"></i>
+                                        </div>
+                                        <div>
+                                            <a href="#content-modal" class="modal-trigger"
+                                                data-modal-url="/members/member/{{this._id}}"
+                                                style="font-size:1.05rem; font-weight:600; line-height:1.3; display:block; cursor:pointer;">{{this.name}}</a>
+                                            <span class="grey-text text-darken-1"
+                                                style="font-size:0.82rem;">{{this.qty}}&times; {{this.unit.name}}</span>
+                                        </div>
+                                    </div>
+                                    <div style="display:flex; align-items:flex-end; gap:4px;">
+                                        <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+                                            {{#if this.hasLevelUpsAvailable}}
+                                            <i class="fa fa-angles-up tooltipped roster-levelup-icon" data-tooltip="{{this.levelUpsAvailableCount}} Level-up{{#ifCond this.levelUpsAvailableCount '>' 1}}s{{/ifCond}} Available" data-position="top" style="color:#f9a825; font-size:0.75rem; line-height:1; margin-bottom:-2px;"></i>
+                                            {{/if}}
+                                            {{> value_square label="Experience" value=this.wealth.experience}}
+                                        </div>
+                                        {{> value_square label="Gold" value=this.wealth.gold}}
+                                        <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+                                            {{#if this.isTopRated}}
+                                            <i class="fa fa-crown tooltipped" data-tooltip="Highest rated member" data-position="top" style="color:#f9a825; font-size:0.75rem; line-height:1; margin-bottom:-2px;"></i>
+                                            {{/if}}
+                                            {{> value_square label="Rating" value=this.wealth.rating}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:4px;">
+                                    {{> stat_square label="M" value=this.unit.m improved=this.unit.advance.m}}
+                                    {{> stat_square label="WS" value=this.unit.ws improved=this.unit.advance.ws}}
+                                    {{> stat_square label="BS" value=this.unit.bs improved=this.unit.advance.bs}}
+                                    {{> stat_square label="S" value=this.unit.s improved=this.unit.advance.s}}
+                                    {{> stat_square label="T" value=this.unit.t improved=this.unit.advance.t}}
+                                    {{> stat_square label="W" value=this.unit.w improved=this.unit.advance.w}}
+                                    {{> stat_square label="I" value=this.unit.i improved=this.unit.advance.i}}
+                                    {{> stat_square label="A" value=this.unit.a improved=this.unit.advance.a}}
+                                    {{> stat_square label="LD" value=this.unit.ld improved=this.unit.advance.ld}}
+                                </div>
+                                {{#if this.items}}
+                                <div style="margin-top:8px; padding-top:8px; border-top:1px solid #e0e0e0;">
+                                    <div style="margin-bottom:4px;">
+                                        <span
+                                            style="font-size:0.75rem; font-weight:600; text-transform:uppercase; color:#888; letter-spacing:0.04em;">Equipment</span><br />
+                                        {{#each this.items}}
+                                            <a class="tooltipped pill modal-trigger" href="#item-edit-modal" data-modal-target="#item-edit-modal" data-modal-url="/items/item/{{this._id}}"
+                                            data-tooltip="{{formatItemTooltip this ../unit.s}}" data-position="top">{{this.name}}
+                                            ({{multiply this.gold ../this.qty}}g)</a>
+                                        {{/each}}
+                                    </div>
+                                    {{/if}}
+                                    {{#if this.hasSkillsOrInjuries}}
+                                    <div style="margin-bottom:4px;">
+                                        <span
+                                            style="font-size:0.75rem; font-weight:600; text-transform:uppercase; color:#888; letter-spacing:0.04em;">Skills & Injuries</span><br />
+                                        {{#each this.unit.traits}}
+                                        <a class="tooltipped pill" href="/items/item/{{this._id}}"
+                                            data-tooltip="{{this.description}}" data-position="top">{{this.name}}</a>
+                                        {{/each}}
+                                        {{#each this.traits}}
+                                        <a class="tooltipped pill" href="/items/item/{{this._id}}"
+                                            data-tooltip="{{this.description}}" data-position="top">{{this.name}}</a>
+                                        {{/each}}
+                                        {{#each this.injuries}}
+                                        <a class="tooltipped pill" href="/events/event/{{this._id}}"
+                                            style="background:#d32f2f; border-color:#b71c1c; color:#fff;"
+                                            data-tooltip="{{#if this.details}}{{this.details.description}}{{else}}{{this.name}}{{/if}}" data-position="top">{{#if this.details}}{{this.details.label}}{{else}}{{this.name}}{{/if}}</a>
+                                        {{/each}}
+                                    </div>
+                                    {{/if}}
+                                    {{#if this.items}}
+                                </div>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
                     {{/each}}
-                    </tbody>
-                </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<div id="item-edit-modal" class="modal content-modal-window">
+    <div class="modal-content">
+        <div id="item-edit-modal-body" class="content-modal-body"></div>
+    </div>
+</div>
+
+{{> member_create_inline_modal memberCreateSetup=memberCreateSetup}}
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
+<script src="/js/member-create.js"></script>
+<script>
+    (function () {
+        var sortable = null;
+        var originalOrder = [];
+
+        var grid = document.getElementById('members-grid');
+        var btnToggle = document.getElementById('reorder-toggle');
+        var btnSave = document.getElementById('reorder-save');
+        var btnCancel = document.getElementById('reorder-cancel');
+
+        function enterReorderMode() {
+            originalOrder = Array.from(grid.children).map(function (el) { return el.dataset.memberId; });
+            sortable = Sortable.create(grid, {
+                animation: 150,
+                handle: '.reorder-handle',
+                ghostClass: 'reorder-ghost'
+            });
+            grid.querySelectorAll('.reorder-handle').forEach(function (h) { h.style.display = 'flex'; });
+            btnToggle.style.display = 'none';
+            btnSave.style.display = '';
+            btnCancel.style.display = '';
+        }
+
+        function exitReorderMode(restore) {
+            if (sortable) { sortable.destroy(); sortable = null; }
+            grid.querySelectorAll('.reorder-handle').forEach(function (h) { h.style.display = 'none'; });
+            if (restore) {
+                originalOrder.forEach(function (id) {
+                    var el = grid.querySelector('[data-member-id="' + id + '"]');
+                    if (el) grid.appendChild(el);
+                });
+            }
+            btnToggle.style.display = '';
+            btnSave.style.display = 'none';
+            btnCancel.style.display = 'none';
+        }
+
+        btnToggle.addEventListener('click', enterReorderMode);
+        btnCancel.addEventListener('click', function () { exitReorderMode(true); });
+
+        btnSave.addEventListener('click', function () {
+            var payload = Array.from(grid.children).map(function (el, index) {
+                return { id: el.dataset.memberId, order: index };
+            });
+            fetch('/members/reorder', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(function (res) {
+                if (!res.ok) throw new Error('Save failed');
+                exitReorderMode(false);
+                M.toast({ html: 'Order saved!', classes: 'green' });
+            }).catch(function () {
+                M.toast({ html: 'Failed to save order', classes: 'red' });
+            });
+        });
+    }());
+</script>

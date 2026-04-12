@@ -10,7 +10,8 @@ const rosterSchema = new mongoose.Schema({
   player: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', required: true },
   warband: { type: mongoose.Schema.Types.ObjectId, ref: 'Warband', required: true },
   rating: { type: Number, default: 0 },
-  gold: { type: Number, default: 500 }
+  gold: { type: Number, default: 500 },
+  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
 }, { timestamps: true, collection: COLLECTION });
 
 const Roster = mongoose.models.Roster || mongoose.model('Roster', rosterSchema);
@@ -22,7 +23,7 @@ function createRoster(data) {
 
 function getRosterById(id) {
   // populate player details when fetching a single roster
-  return Roster.findById(id).populate('player').lean().exec();
+  return Roster.findById(id).populate('player').populate('items').lean().exec();
 }
 
 function updateRoster(id, patch = {}) {

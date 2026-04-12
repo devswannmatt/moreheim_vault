@@ -1,29 +1,29 @@
-{{#unless isModal}}
-<div class="container" style="margin-top: 24px;">
+<div style="margin-top: {{#if isModal}}0{{else}}24px{{/if}};">
 
+    {{#unless isModal}}
     <!-- Header -->
     <div class="row" style="margin-bottom: 8px;">
         <div class="col s12">
             <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                <a href="/members/member/{{member._id}}" class="btn-small blue waves-effect waves-light">
+                <a href="/rosters/roster/{{roster._id}}" class="btn-small blue waves-effect waves-light">
                     <i class="fa fa-arrow-left"></i>
                 </a>
                 <div>
-                    <h5 style="margin:0;">{{member.name}} — Inventory</h5>
-                    <span class="grey-text">Available Gold: <strong>{{member.roster.gold}}g</strong></span>
+                    <h5 style="margin:0;">{{roster.name}} — Stockpile</h5>
+                    <span class="grey-text">Available Gold: <strong>{{roster.gold}}g</strong></span>
                 </div>
             </div>
         </div>
     </div>
-{{/unless}}
+    {{/unless}}
 
-    <!-- Current Inventory -->
+    <!-- Current Stockpile -->
     <div class="row">
         <div class="col s12">
             <div class="card">
                 <div class="card-content">
-                    <span class="card-title">Current Inventory</span>
-                    {{#if inventoryGroups.length}}
+                    <span class="card-title">Current Stockpile</span>
+                    {{#if stockpileGroups.length}}
                     <table class="striped">
                         <thead>
                             <tr>
@@ -35,49 +35,61 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{#each inventoryGroups}}
+                            {{#each stockpileGroups}}
                             <tr>
                                 <td style="width:48px; font-weight:600;">{{qty}}&times;</td>
                                 <td><a href="/items/item/{{item._id}}">{{item.name}}</a></td>
                                 <td>{{item.description}}</td>
                                 <td>{{item.gold}}g</td>
-                                <td class="right-align" style="white-space:nowrap;">
-                                    <a data-method="PATCH" href="/members/member/{{../member._id}}/item?action=stash&item={{item._id}}"
-                                        class="btn-small blue white-text tooltipped"
-                                        data-tooltip="Send one to Stockpile" data-position="top">
-                                        <i class="fa fa-box"></i>
-                                    </a>
-                                    <a data-method="PATCH" href="/members/member/{{../member._id}}/item?action=sell&item={{item._id}}"
+                                <td class="right-align" style="white-space:nowrap; min-width:260px;">
+                                    {{#if ../canEdit}}
+                                    <form class="give-form" style="display:inline-flex; align-items:center; gap:4px; margin-right:4px;"
+                                        data-method="PATCH" data-redirect="self"
+                                        action="/rosters/roster/{{../roster._id}}/item?action=give&item={{item._id}}">
+                                        <select class="browser-default" name="member" required style="display:inline-block; width:auto; max-width:130px; height:32px; padding:0 4px; font-size:0.82rem; border:1px solid #ccc; border-radius:4px;">
+                                            <option value="" disabled selected>— Member —</option>
+                                            {{#each ../rosterMembers}}
+                                            <option value="{{this._id}}">{{this.name}}</option>
+                                            {{/each}}
+                                        </select>
+                                        <button type="submit" class="btn-small green white-text tooltipped" data-tooltip="Give one to selected member" data-position="top">
+                                            <i class="fa fa-hand-holding"></i>
+                                        </button>
+                                    </form>
+                                    <a data-method="PATCH" href="/rosters/roster/{{../roster._id}}/item?action=sell&item={{item._id}}"
                                         class="btn-small amber darken-2 white-text tooltipped"
                                         data-tooltip="Sell one for {{divide item.gold 2}}g" data-position="top">
-                                        <i class="fa fa-coins"></i> ({{divide item.gold 2}}g)
+                                        <i class="fa fa-coins"></i>({{divide item.gold 2}}g)
                                     </a>
-                                    <a data-method="PATCH" href="/members/member/{{../member._id}}/item?action=refund&item={{item._id}}"
+                                    <a data-method="PATCH" href="/rosters/roster/{{../roster._id}}/item?action=refund&item={{item._id}}"
                                         class="btn-small red white-text tooltipped"
                                         data-tooltip="Refund one for {{item.gold}}g" data-position="top">
                                         <i class="fa fa-undo"></i>
                                     </a>
+                                    {{else}}
+                                    <span class="grey-text" style="font-size:0.85rem;"><i class="fa fa-lock"></i> View Only</span>
+                                    {{/if}}
                                 </td>
                             </tr>
                             {{/each}}
                         </tbody>
                     </table>
                     {{else}}
-                    <p class="grey-text">No items in inventory.</p>
+                    <p class="grey-text">No items in stockpile.</p>
                     {{/if}}
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add to Inventory -->
+    <!-- Add to Stockpile -->
     <div class="row">
         <div class="col s12">
             <div class="card">
-                <form id="member-inventory-form" data-method="PATCH" data-redirect="self"
-                    action="/members/member/{{member._id}}/inventory">
+                <form id="roster-inventory-form" data-method="PATCH" data-redirect="self"
+                    action="/rosters/roster/{{roster._id}}/inventory">
                     <div class="card-content">
-                        <span class="card-title">Add to Inventory</span>
+                        <span class="card-title">Add to Stockpile</span>
                         <table class="striped tight-rows" id="items-table">
                             <thead>
                                 <tr>
@@ -94,18 +106,24 @@
                     <div class="card-action blue lighten-5">
                         <div class="row" style="margin-bottom:0">
                             <div class="col s6">
+                                {{#if canEdit}}
                                 <button id="add-item-btn" type="button" class="btn waves-effect waves-light"
                                     title="Add Item">
                                     <i class="ra ra-sword"></i>
                                     Add Item
                                 </button>
+                                {{/if}}
                             </div>
                             <div class="col s6 right-align">
                                 <span id="response-result"></span>
+                                {{#if canEdit}}
                                 <button class="btn waves-effect waves-light" type="submit">
                                     <i class="ra ra-save"></i>
                                     Purchase
                                 </button>
+                                {{else}}
+                                <span class="grey-text"><i class="fa fa-lock"></i> View Only</span>
+                                {{/if}}
                             </div>
                         </div>
                     </div>
@@ -114,9 +132,7 @@
         </div>
     </div>
 
-{{#unless isModal}}
 </div>
-{{/unless}}
 
 <script id="existing-list-data" type="application/json">[]</script>
 <script id="lookup-list-data" type="application/json">{{{json items}}}</script>

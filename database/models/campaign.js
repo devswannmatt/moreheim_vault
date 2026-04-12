@@ -7,6 +7,8 @@ const COLLECTION = 'campaigns';
 const campaignSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, default: '' },
+  creator: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', default: null },
+  privacy: { type: String, enum: ['public', 'private'], default: 'public' },
   players: { type: [mongoose.Schema.Types.ObjectId], ref: 'Player', default: [] },
   rosters: { type: [mongoose.Schema.Types.ObjectId], ref: 'Roster', default: [] }
 }, { timestamps: true, collection: COLLECTION });
@@ -17,6 +19,8 @@ function createCampaign(data = {}) {
   const doc = {
     name: data.name || 'Untitled Campaign',
     description: data.description || '',
+    creator: data.creator || null,
+    privacy: ['public', 'private'].includes(data.privacy) ? data.privacy : 'public',
     createdAt: new Date(),
     updatedAt: new Date()
   };

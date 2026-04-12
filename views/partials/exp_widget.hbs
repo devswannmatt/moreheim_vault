@@ -7,14 +7,14 @@
         {{else}}
             {{#if this.earned}}
                 {{#if this.level}}
-                    <a href="#popouts-modal" class="modal-trigger tooltipped" data-tooltip="Level Up Available! Click to spend level." data-position="top" data-popout="/members/member/{{member}}/event/levelup?experience={{experience}}" title="Level Up">
+                    <a href="#content-modal" class="modal-trigger tooltipped" data-tooltip="Level Up Available! Click to spend level." data-position="top" data-modal-url="/members/member/{{member}}/event/levelup?experience={{experience}}" title="Level Up">
                         <i class="ra ra-hospital-cross"></i>
                     </a>
                 {{else}}
                     <i class="fa-solid fa-check"></i>
                 {{/if}}
             {{else}}
-                <a href="#popouts-modal" class="modal-trigger tooltipped" data-tooltip="Click to add Experience." data-position="top" data-popout="/members/member/{{member}}/event/gainresource?experience={{gain}}" title="Level Up">
+                <a href="#content-modal" class="modal-trigger tooltipped" data-tooltip="Click to add Experience." data-position="top" data-modal-url="/members/member/{{member}}/event/gainresource?experience={{gain}}" title="Level Up">
                 </a>
             {{/if}}
         {{/if}}

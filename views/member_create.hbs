@@ -1,59 +1,165 @@
-<form id="create-member-form" data-method="POST" data-redirect="close" method="POST" action="/members/create">
-    <div class="row">
-        <div class="col s6">
-            <div class="input-field">
-                <select id="warband" name="warband" required>
-                    {{#each warbands}}
-                    <option value="{{this._id}}" {{#if this.selected}}selected{{else}} disabled{{/if}}>{{this.name}}</option>
-                    {{/each}}
-                </select>
-                <label for="warband">Warband</label>
-            </div>
-        </div>
-        <div class="col s6">
-            <div class="input-field">
-                <select id="roster" name="roster" required>
-                    <option value="" disabled selected>Choose roster</option>
-                    {{#each rosters}}
-                    <option value="{{this._id}}" {{#if this.selected}}selected{{else}} disabled{{/if}}>{{this.name}}</option>
-                    {{/each}}
-                </select>
-                <label for="roster">Roster</label>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col s12">
-            <div class="input-field">
-                <input id="name" name="name" type="text" required>
-                <label for="name">Name</label>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col s8">
-            <div class="input-field">
-                <select id="unit" name="unit" required>
-                    <option value="" disabled selected>Loading units...</option>
-                </select>
-                <label for="unit">Unit</label>
-            </div>
-        </div>
-        <div class="col s2">
-            <div class="input-field">
-                <input class="derived-field" id="qty" name="qty" type="number" value="1" min="1" data-derived-field="unittype=1" required>
-                <label for="qty">Quantity</label>
-            </div>
-        </div>
-        <div class="col s2">
-            <div class="input-field">
-                <input id="cost" name="cost" type="number" value="{{member.cost}}" min="1" required>
-                <label for="cost" class="active">Cost</label>
-            </div>
-        </div>
-    </div>
+<style>
+    .member-create {
+        --mc-ink: #17324a;
+        --mc-muted: #607182;
+        --mc-edge: #d9e2ec;
+        --mc-surface: #ffffff;
+        --mc-surface-soft: #f8fbff;
+        --mc-accent: #0b6ea8;
+        color: var(--mc-ink);
+    }
 
-    <button class="btn waves-effect waves-light" type="submit">Create Member</button>
-</form>
+    .member-create .create-card {
+        border: 1px solid var(--mc-edge);
+        border-radius: 12px;
+        background: var(--mc-surface);
+        overflow: hidden;
+    }
+
+    .member-create .create-card-head {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--mc-edge);
+        background:
+            radial-gradient(circle at 12% 0%, rgba(11, 110, 168, 0.14), rgba(11, 110, 168, 0) 42%),
+            linear-gradient(120deg, #f8fbff 0%, #ffffff 100%);
+    }
+
+    .member-create .create-title {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #12314b;
+    }
+
+    .member-create .create-subtitle {
+        margin: 4px 0 0;
+        color: var(--mc-muted);
+        font-size: 0.85rem;
+    }
+
+    .member-create .create-card-body {
+        padding: 14px;
+    }
+
+    .member-create .section-label {
+        margin: 6px 0 4px;
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--mc-muted);
+        font-weight: 700;
+    }
+
+    .member-create .row {
+        margin-bottom: 0;
+    }
+
+    .member-create .input-field {
+        margin-top: 6px;
+        margin-bottom: 14px;
+    }
+
+    .member-create .input-field .helper {
+        display: block;
+        margin-top: -8px;
+        color: #708292;
+        font-size: 0.75rem;
+    }
+
+    .member-create .actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 2px;
+    }
+
+    @media (max-width: 760px) {
+        .member-create .actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="member-create">
+    <form id="create-member-form" data-method="POST" data-redirect="close" method="POST" action="/members/create">
+        <div class="create-card">
+            <div class="create-card-head">
+                <h4 class="create-title">Recruit New Member</h4>
+                <p class="create-subtitle">Choose a warband and roster, then define the unit details.</p>
+            </div>
+
+            <div class="create-card-body">
+                <div class="section-label">Placement</div>
+                <div class="row">
+                    <div class="col s12 m6">
+                        <div class="input-field">
+                            <select id="warband" name="warband" required>
+                                {{#each warbands}}
+                                <option value="{{this._id}}" {{#if this.selected}}selected{{else}} disabled{{/if}}>{{this.name}}</option>
+                                {{/each}}
+                            </select>
+                            <label for="warband">Warband</label>
+                        </div>
+                    </div>
+                    <div class="col s12 m6">
+                        <div class="input-field">
+                            <select id="roster" name="roster" required>
+                                <option value="" disabled selected>Choose roster</option>
+                                {{#each rosters}}
+                                <option value="{{this._id}}" {{#if this.selected}}selected{{else}} disabled{{/if}}>{{this.name}}</option>
+                                {{/each}}
+                            </select>
+                            <label for="roster">Roster</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-label">Identity</div>
+                <div class="row">
+                    <div class="col s12">
+                        <div class="input-field">
+                            <input id="name" name="name" type="text" required>
+                            <label for="name">Member Name</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-label">Unit Setup</div>
+                <div class="row">
+                    <div class="col s12 m8">
+                        <div class="input-field">
+                            <select id="unit" name="unit" required>
+                                <option value="" disabled selected>Loading units...</option>
+                            </select>
+                            <label for="unit">Unit</label>
+                            <span class="helper">Available units update based on your selected warband.</span>
+                        </div>
+                    </div>
+                    <div class="col s6 m2">
+                        <div class="input-field">
+                            <input class="derived-field" id="qty" name="qty" type="number" value="1" min="1" data-derived-field="unittype=1" required>
+                            <label for="qty">Quantity</label>
+                        </div>
+                    </div>
+                    <div class="col s6 m2">
+                        <div class="input-field">
+                            <input id="cost" name="cost" type="number" value="{{member.cost}}" min="1" required>
+                            <label for="cost" class="active">Cost</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn-flat" type="button" onclick="closeModal(); return false;">Cancel</button>
+                    <button class="btn waves-effect waves-light" type="submit">
+                        <i class="fa fa-user-plus" style="margin-right:6px;"></i>Create Member
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
 
 <script src="/js/member-create.js"></script>

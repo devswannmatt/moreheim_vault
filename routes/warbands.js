@@ -24,7 +24,8 @@ router.get('/warband/:id', async (req, res) => {
     item.traits = Array.isArray(item.traits) ? item.traits : [];
 
     const units  = await unit.findUnits();
-    const traits = await trait.findTraits({ type: 10 });
+    const allTraits = await trait.findTraits();
+    const traits = (allTraits || []).filter(t => Number(t.type) === 10);
 
     console.log("Units available for warband:", units);
 
@@ -42,14 +43,17 @@ router.patch('/warband/:id', async (req, res) => {
   try {
     var traitPromises = [];
     var unitPromises = [];
-    
-    if (req.body.traits) {
-      if (!Array.isArray(req.body.traits)) { req.body.traits = [req.body.traits]; }
+
+    const selectedTraits = req.body.traits || req.body['traits[]'];
+    const selectedUnits = req.body.units || req.body['units[]'];
+
+    if (selectedTraits) {
+      req.body.traits = Array.isArray(selectedTraits) ? selectedTraits : [selectedTraits];
       traitPromises = req.body.traits.map(tId => trait.getTraitById(tId));
     }
 
-    if (req.body.units) {
-      if (!Array.isArray(req.body.units)) { req.body.units = [req.body.units]; }
+    if (selectedUnits) {
+      req.body.units = Array.isArray(selectedUnits) ? selectedUnits : [selectedUnits];
       unitPromises = req.body.units.map(uId => unit.getUnitById(uId));
     }
 
@@ -58,8 +62,8 @@ router.patch('/warband/:id', async (req, res) => {
       Promise.all(unitPromises)
     ]);
     
-    req.body.traits = traits.filter(t => t);
-    req.body.units = units.filter(u => u);
+    req.body.traits = traits.filter(t => t && Number(t.type) === 10).map(t => t._id);
+    req.body.units = units.filter(u => u).map(u => u._id);
     
     console.log("Updated traits:", req.body.traits);
     console.log("Updated units:", req.body.units);

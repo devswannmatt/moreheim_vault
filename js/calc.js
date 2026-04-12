@@ -2,13 +2,16 @@ function membersInRoster(rosterId, allMembers) {
   return allMembers.filter(m => String(m.roster) === String(rosterId));
 }
 
+function calculateRating(experience, gold, members = 1) {
+  return Math.round((5 * (members || 1)) + (experience || 0) + ((gold || 0) / 5));
+}
+
 async function wealth(members, items = []) {
   const wealth = { gold: 0, rating: 0, experience: 0, members: members.length };
   members.forEach(m => {
     if (m.unit && m.unit.gold && m.cost === undefined) {
       wealth.gold       += (m.gold + m.unit.gold) * m.qty;
       wealth.experience += (m.experience + m.unit.experience) * m.qty;
-      wealth.rating     += wealth.experience + (5 * m.qty);
       if (Array.isArray(items)) {
         items.forEach(i => {
           if (i && i.gold) {
@@ -19,6 +22,8 @@ async function wealth(members, items = []) {
     }
   });
 
+  wealth.rating = calculateRating(wealth.experience, wealth.gold, wealth.members);
+
   return wealth;
 }
 
@@ -27,7 +32,7 @@ function fetchEventTypes(type) {
     1: { value: 1, label:'Level Up' },
     2: { value: 2, label:'Injury' },
     3: { value: 3, label:'Gain Experience' },
-    4: { value: 4, label:'Purchase Item' },
+    4: { value: 4, label:'Item Transaction' },
     5: { value: 5, label:'Other' }
   }
   return type ? [eventTypes[type]] : eventTypes;
@@ -215,9 +220,15 @@ async function checkEvents(result, events) {
     if (ev.type === 3 && ev.wealth) {
       result.wealth.experience += ev.wealth.experience || 0;
       result.wealth.gold       += ev.wealth.gold || 0;
-      result.wealth.rating     += (ev.wealth.experience * result.qty) || 0;
     }
   }
+
+  result.wealth.rating = calculateRating(
+    result.wealth.experience,
+    result.wealth.gold,
+    result.wealth.members || 1
+  );
+
   return result;
 };
 

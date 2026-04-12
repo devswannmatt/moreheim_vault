@@ -6,7 +6,8 @@ const COLLECTION = 'units';
 const unitSchema = new mongoose.Schema({
   name: { type: String, required: true },
   type: { type: Number, required: true }, // 1 = Hero, 2 = Henchman
-  warband: { type: mongoose.Schema.Types.ObjectId, ref: 'Warband', required: true },
+  isUnique: { type: Boolean, default: false },
+  maxCount: { type: Number, default: 0 },
   description: { type: String, default: '' },
   experience: { type: Number, default: 0 },
   gold: { type: Number, default: 0 },
@@ -19,7 +20,9 @@ const unitSchema = new mongoose.Schema({
   i: { type: Number, default: 0 },
   a: { type: Number, default: 0 },
   ld: { type: Number, default: 0 },
-  traits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trait' }]
+  skillAccess: [{ type: Number }],
+  traits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trait' }],
+  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
 }, { timestamps: true, collection: COLLECTION });
 
 const Unit = mongoose.models.Unit || mongoose.model('Unit', unitSchema);
@@ -30,16 +33,28 @@ function createUnit(data) {
 }
 
 function getUnitById(id) {
-  return Unit.findById(id).populate('traits').populate('warband').lean().exec();
+  return Unit.findById(id)
+    .populate('traits')
+    .populate({ path: 'items', populate: { path: 'traits' } })
+    .lean()
+    .exec();
 }
 
 function updateUnit(id, patch = {}) {
   patch.updatedAt = new Date();
-  return Unit.findByIdAndUpdate(id, { $set: patch }, { new: true }).populate('traits').populate('warband').lean().exec();
+  return Unit.findByIdAndUpdate(id, { $set: patch }, { new: true })
+    .populate('traits')
+    .populate({ path: 'items', populate: { path: 'traits' } })
+    .lean()
+    .exec();
 }
 
 function findUnits(filter = {}, options = {}) {
-  return Unit.find(filter, null, options).populate('traits').populate('warband').lean().exec();
+  return Unit.find(filter, null, options)
+    .populate('traits')
+    .populate({ path: 'items', populate: { path: 'traits' } })
+    .lean()
+    .exec();
 }
 
 module.exports = { createUnit, getUnitById, updateUnit, findUnits, COLLECTION };

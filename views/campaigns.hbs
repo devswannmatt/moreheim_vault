@@ -18,6 +18,13 @@
                         <input id="name" name="name" type="text" required>
                         <label for="name">Name</label>
                     </div>
+                    <div class="input-field">
+                        <select id="privacy" name="privacy">
+                            <option value="public" selected>Public — anyone can view</option>
+                            <option value="private">Private — members only</option>
+                        </select>
+                        <label for="privacy">Visibility</label>
+                    </div>
                     <button class="btn waves-effect waves-light" type="submit">Create Campaign</button>
                 </form>
             </div>
@@ -27,7 +34,8 @@
     <table class="striped responsive-table" id="items-table">
         <thead>
         <tr>
-            <th>ID</th>
+            <th>Name</th>
+            <th>Visibility</th>
             <th>Created</th>
         </tr>
         </thead>
@@ -35,6 +43,13 @@
         {{#each campaigns}}
             <tr>
                 <td>{{{link this.name (concat '/campaigns/campaign/' this._id)}}}</td>
+                <td>
+                    {{#ifEq this.privacy "private"}}
+                    <span style="font-size:0.8rem;color:#a93226;"><i class="fa fa-lock"></i> Private</span>
+                    {{else}}
+                    <span style="font-size:0.8rem;color:#1e6e35;"><i class="fa fa-globe"></i> Public</span>
+                    {{/ifEq}}
+                </td>
                 <td>{{formatDateTime this.createdAt}}</td>
             </tr>
         {{/each}}

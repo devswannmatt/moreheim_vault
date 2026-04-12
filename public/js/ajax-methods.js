@@ -55,6 +55,7 @@ $(function () {
         if ($form.data('redirect') === 'self')  return window.location.reload();
         if ($form.data('redirect') === 'close') {
           closeModal();
+          if (window.self === window.top) window.location.reload();
           return;
         }
         return window.location.href = $form.data('redirect');

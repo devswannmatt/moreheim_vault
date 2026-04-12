@@ -1,6 +1,6 @@
 (function () {
-    function readJsonDataScript(id, fallback) {
-        const node = document.getElementById(id);
+    function readJsonDataScript(scope, id, fallback) {
+        const node = scope.querySelector('#' + id);
         if (!node) return fallback;
         try {
             return JSON.parse(node.textContent || 'null') || fallback;
@@ -9,10 +9,16 @@
         }
     }
 
-    const EXISTING_LIST = readJsonDataScript('existing-list-data', []);
-    const LOOKUP_LIST = readJsonDataScript('lookup-list-data', []);
+    function initAddRow(root) {
+        const scope = root || document;
+        const form = scope.querySelector('#member-inventory-form, #roster-inventory-form');
+        if (!form || form.dataset.addRowBound === '1') return;
+        form.dataset.addRowBound = '1';
 
-    function createSelect(name, selectedValue) {
+        const EXISTING_LIST = readJsonDataScript(scope, 'existing-list-data', []);
+        const LOOKUP_LIST = readJsonDataScript(scope, 'lookup-list-data', []);
+
+        function createSelect(name, selectedValue) {
         const select = document.createElement('select');
         select.name = name;
         select.required = true;
@@ -34,10 +40,10 @@
             select.appendChild(opt);
         });
         return select;
-    }
+        }
 
-    function appendRow(selectedItemId) {
-        const tbody = document.querySelector('#items-table tbody');
+        function appendRow(selectedItemId) {
+        const tbody = form.querySelector('#items-table tbody');
         const tr = document.createElement('tr');
 
         const tdName = document.createElement('td');
@@ -91,15 +97,22 @@
         btn.addEventListener('click', function () {
             tr.remove();
         });
-    }
+        }
 
-    document.addEventListener('DOMContentLoaded', function () {
         EXISTING_LIST.forEach(function (it) {
             var id = (it && it._id) ? it._id : it;
             appendRow(id);
         });
 
-        const addBtn = document.getElementById('add-item-btn');
+        const addBtn = form.querySelector('#add-item-btn');
         if (addBtn) addBtn.addEventListener('click', function () { appendRow(); });
-    });
+    }
+
+    window.initAddRow = initAddRow;
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { initAddRow(document); });
+    } else {
+        initAddRow(document);
+    }
 })();

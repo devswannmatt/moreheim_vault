@@ -13,7 +13,9 @@ const memberSchema = new mongoose.Schema({
   experience: { type: Number, default: 0 },
   gold: { type: Number, default: 0 },
   traits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trait' }],
-  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
+  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
+  order: { type: Number, default: 0 },
+  isLeader: { type: Boolean, default: false }
 }, { timestamps: true, collection: COLLECTION });
 
 const Member = mongoose.models.Member || mongoose.model('Member', memberSchema);

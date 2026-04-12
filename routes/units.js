@@ -1,14 +1,48 @@
 var router = require('express').Router();
 const unit = require('../database/models/unit');
+const item = require('../database/models/item');
 const warband = require('../database/models/warband');
 const trait = require('../database/models/trait');
 
+function getSkillTypeOptions() {
+  return [
+    { _id: 4, name: 'Skill: Combat' },
+    { _id: 5, name: 'Skill: Shooting' },
+    { _id: 6, name: 'Skill: Academic' },
+    { _id: 7, name: 'Skill: Strength' },
+    { _id: 8, name: 'Skill: Speed' },
+    { _id: 9, name: 'Skill: Special' }
+  ];
+}
+
+function normalizeUnitLimits(body) {
+  const max = parseInt(body.maxCount, 10);
+  const selectedSkills = body.skillAccess || body['skillAccess[]'];
+  const selectedItems = body.items || body['items[]'];
+  const skillAccess = selectedSkills
+    ? (Array.isArray(selectedSkills) ? selectedSkills : [selectedSkills])
+        .map(s => parseInt(s, 10))
+        .filter(n => !Number.isNaN(n) && n >= 4 && n <= 9)
+    : [];
+  const items = selectedItems
+    ? (Array.isArray(selectedItems) ? selectedItems : [selectedItems])
+        .filter(v => v !== undefined && v !== null && String(v).length > 0)
+    : [];
+
+  return {
+    ...body,
+    isUnique: body.isUnique === 'on' || body.isUnique === 'true' || body.isUnique === true,
+    maxCount: Number.isNaN(max) ? 0 : Math.max(0, max),
+    skillAccess,
+    items
+  };
+}
+
 router.get('/', async (req, res) => {
   console.log("Rendering units view");
-  const warbands = await warband.findWarbands();
   try {
     const items = await unit.findUnits();
-    res.render('units', { units: items, warbands: warbands });
+    res.render('units', { units: items, skillTypeList: getSkillTypeOptions() });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -16,9 +50,8 @@ router.get('/', async (req, res) => {
 
 router.get('/unit/create', async (req, res) => {
   console.log("Rendering create unit view");
-  const rosters = await roster.findRosters();
   try {
-    res.render('unit_create', { rosters: rosters } );
+    res.render('unit_create', { skillTypeList: getSkillTypeOptions() } );
   }
   catch (err) {
     res.status(500).json({ error: err.message });
@@ -28,13 +61,13 @@ router.get('/unit/create', async (req, res) => {
 router.get('/unit/:id', async (req, res) => {
   console.log(`Fetching unit with ID: ${req.params.id}`);
   try {
-    const item = await unit.getUnitById(req.params.id);
-    const warbands = await warband.findWarbands();
-    if (!item) {
+    const unitRecord = await unit.getUnitById(req.params.id);
+    const itemList = await item.findItems();
+    if (!unitRecord) {
       return res.status(404).json({ error: 'Unit not found' });
     }
 
-    res.render('unit', { unit: item, warbands: warbands });
+    res.render('unit', { unit: unitRecord, skillTypeList: getSkillTypeOptions(), itemList });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -43,7 +76,8 @@ router.get('/unit/:id', async (req, res) => {
 router.patch('/unit/:id', async (req, res) => {
   console.log(`Updating unit with ID: ${req.params.id} with data:`, req.body);
   try {
-    unit.updateUnit(req.params.id, req.body).then(updatedUnit => {
+    const patch = normalizeUnitLimits(req.body);
+    unit.updateUnit(req.params.id, patch).then(updatedUnit => {
       if (!updatedUnit) {
         return res.status(404).json({ error: 'Unit not found' });
       }
@@ -99,7 +133,8 @@ router.get('/json', async (req, res) => {
 router.post('/create', async (req, res) => {
   try {
     console.log("Creating new unit with data:", req.body);
-    unit.createUnit(req.body).then(result => {
+    const payload = normalizeUnitLimits(req.body);
+    unit.createUnit(payload).then(result => {
       res.status(201).redirect(`/units/unit/${result}`);
     }).catch(err => {
       res.status(500).json({ error: err.message });

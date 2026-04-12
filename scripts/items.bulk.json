@@ -1,0 +1,279 @@
+[
+  {
+    "name": "Mace",
+    "type": 1,
+    "description": "A common Mace",
+    "gold": 3,
+    "range": "Melee",
+    "strength": "+0",
+    "slot": 1,
+    "traits": [
+      "697152c85331b543248c11dd"
+    ]
+  },
+  {
+    "name": "Hammer",
+    "type": 1,
+    "description": "A Hammer",
+    "gold": 3,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Axe",
+    "type": 1,
+    "description": "A beardy Axe",
+    "gold": 5,
+    "range": "Melee",
+    "strength": "User",
+    "slot": 0,
+    "traits": [
+      "69597804e43b755ebd290d88"
+    ]
+  },
+  {
+    "name": "Sword",
+    "type": 1,
+    "description": "A sword is a balance between offence and defence.",
+    "gold": 10,
+    "range": "Melee",
+    "strength": "+0",
+    "slot": 1,
+    "traits": [
+      "695977524bf2b2ac3871c5ba"
+    ]
+  },
+  {
+    "name": "Light Armour",
+    "type": 3,
+    "description": "A suit of Light Armour",
+    "gold": 20,
+    "range": "-",
+    "strength": "6+",
+    "slot": 5,
+    "traits": [
+      "695991ea6a26a8fc74012e40"
+    ]
+  },
+  {
+    "name": "Heavy Armour",
+    "type": 3,
+    "description": "A suit of Heavy Armour",
+    "gold": 50,
+    "range": "Body",
+    "strength": "5+",
+    "slot": 5,
+    "traits": [
+      "695992916a26a8fc74012e76",
+      "695992d46a26a8fc74012e79"
+    ]
+  },
+  {
+    "name": "Shield",
+    "type": 3,
+    "description": "A one-handed Shield",
+    "gold": 5,
+    "range": "-",
+    "strength": "6+",
+    "slot": 3,
+    "traits": [
+      "695995ba6a26a8fc74012ee2"
+    ]
+  },
+  {
+    "name": "Crossbow",
+    "type": 2,
+    "description": "Move or Fire",
+    "gold": 25,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Pistol",
+    "type": 2,
+    "description": "Reload",
+    "gold": 15,
+    "range": "6\"",
+    "strength": "4",
+    "slot": 1,
+    "traits": [
+      "696fff0eec9e42eff0ea1318",
+      "69700057ec9e42eff0ea1343",
+      "697001d5ec9e42eff0ea1399"
+    ]
+  },
+  {
+    "name": "Pistol (Brace)",
+    "type": 2,
+    "description": "Fire Every Turn",
+    "gold": 30,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Halberd",
+    "type": 1,
+    "description": "Stick with an axe",
+    "gold": 15,
+    "range": "Melee",
+    "strength": "+1",
+    "slot": 2,
+    "traits": []
+  },
+  {
+    "name": "Healing Herbs",
+    "type": 4,
+    "description": "A Hero can use at the beginning of his recovery phases as long as not hand-to-hand combat. Restore all lost wounds.",
+    "gold": 20,
+    "range": "-",
+    "strength": "-",
+    "slot": 6,
+    "traits": []
+  },
+  {
+    "name": "Wyrdstone",
+    "type": 4,
+    "description": "A chunk of Wyrdstone",
+    "gold": 0,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Bow",
+    "type": 2,
+    "description": "A standard hunting bow",
+    "gold": 10,
+    "range": "24\"",
+    "strength": "3",
+    "slot": 2,
+    "traits": []
+  },
+  {
+    "name": "Dagger",
+    "type": 1,
+    "description": "Common sidearm. First dagger is free, additional daggers cost 2 gc.",
+    "gold": 2,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Morning Star",
+    "type": 1,
+    "description": "A spiked weighted weapon for crushing blows.",
+    "gold": 15,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Double-handed Weapon",
+    "type": 1,
+    "description": "A heavy two-handed melee weapon.",
+    "gold": 15,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Spear",
+    "type": 1,
+    "description": "A reach weapon for hand-to-hand combat.",
+    "gold": 10,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Duelling Pistol",
+    "type": 2,
+    "description": "Single duelling pistol. A brace costs 50 gc.",
+    "gold": 25,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Buckler",
+    "type": 3,
+    "description": "A small hand-held shield.",
+    "gold": 5,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Helmet",
+    "type": 3,
+    "description": "Head protection for close combat.",
+    "gold": 10,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Wolfcloak",
+    "type": 4,
+    "description": "Middenheim Heroes only.",
+    "gold": 10,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Long Bow",
+    "type": 2,
+    "description": "A long-ranged bow used by marksmen.",
+    "gold": 15,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Blunderbuss",
+    "type": 2,
+    "description": "Short-ranged firearm with devastating close output.",
+    "gold": 30,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Handgun",
+    "type": 2,
+    "description": "Powerful black powder firearm.",
+    "gold": 35,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  },
+  {
+    "name": "Hunting Rifle",
+    "type": 2,
+    "description": "A rare, highly accurate long-range firearm.",
+    "gold": 200,
+    "range": "",
+    "strength": "",
+    "slot": 0,
+    "traits": []
+  }
+]

@@ -135,7 +135,7 @@ module.exports = {
       case 1: return "Level Up";
       case 2: return "Injury";
       case 3: return "Gain Experience";
-      case 4: return "Purchase Item";
+      case 4: return "Item Transaction";
       case 5: return "Other";
       default: return "Unknown";
     }
@@ -221,10 +221,32 @@ module.exports = {
   isInArray: function(value, array) {
     if (!Array.isArray(array)) return false;
     if (array.includes(value)) return true;
+    if (array.some(item => item !== null && item !== undefined && String(item) === String(value))) return true;
     return array.some(item => item && item._id && item._id.toString() === value.toString());
   },
 
   parseInt: function(value) {
     return parseInt(value, 10);
+  },
+
+  formatItemTooltip: function(item, baseStrength) {
+    if (!item || typeof item !== 'object') return 'Range: - | Strength: - | Traits: -';
+
+    var range = item.range ? String(item.range) : '-';
+
+    var strength = item.strength ? String(item.strength) : '-';
+    if (strength !== '-' && strength.slice(0, 1) === '+') {
+      strength = (Number(baseStrength) || 0) + Number(strength);
+    }
+
+    var traits = Array.isArray(item.traits)
+      ? item.traits
+          .map(function (t) { return t && t.name ? String(t.name) : ''; })
+          .filter(function (n) { return n.length > 0; })
+          .join(', ')
+      : '';
+    if (!traits) traits = '-';
+
+    return 'Range: ' + range + ' | Strength: ' + strength + ' | Traits: ' + traits;
   }
 };

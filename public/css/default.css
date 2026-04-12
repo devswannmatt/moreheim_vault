@@ -3,6 +3,16 @@ table.tight-rows td, table.tight-rows th {
     line-height: 1.15;
 }
 
+.reorder-ghost {
+    opacity: 0.4;
+    background: #bbdefb;
+    border: 2px dashed #1565c0;
+}
+
+.reorder-handle:active {
+    cursor: grabbing;
+}
+
 .popouts-modal-window {
     width: min(1120px, 96vw);
     max-height: 92vh;
@@ -13,63 +23,7 @@ table.tight-rows td, table.tight-rows th {
     display: flex;
     flex-direction: column;
     height: 100%;
-}
-
-.popouts-titlebar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
-    background: #1e4f86;
-    color: #fff;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    cursor: grab;
-    user-select: none;
-}
-
-.popouts-titlebar:active {
-    cursor: grabbing;
-}
-
-.popouts-modal-window.is-maximized .popouts-titlebar {
-    cursor: default;
-}
-
-.popouts-title {
-    font-weight: 600;
-    font-size: 0.95rem;
-    letter-spacing: 0.02em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding-right: 12px;
-}
-
-.popouts-controls {
-    display: inline-flex;
-    gap: 6px;
-}
-
-.popouts-control-btn {
-    border: 0;
-    border-radius: 4px;
-    width: 28px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.16);
-    color: #fff;
-    line-height: 1;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.popouts-control-btn:hover,
-.popouts-control-btn:focus {
-    background: rgba(255, 255, 255, 0.28);
-}
-
-.popouts-close-btn:hover,
-.popouts-close-btn:focus {
-    background: #d32f2f;
+    padding: 0;
 }
 
 .popouts-modal-window .popouts-body {
@@ -79,27 +33,24 @@ table.tight-rows td, table.tight-rows th {
 
 .popouts-modal-window .popouts-body iframe {
     width: 100%;
-    height: calc(92vh - 62px);
+    height: 92vh;
     min-height: 420px;
 }
 
-.popouts-modal-window.is-maximized {
-    width: 98vw;
-    max-height: 98vh;
-    top: 1% !important;
+.content-modal-window {
+    width: min(1120px, 96vw);
+    max-height: 92vh;
+    top: 4% !important;
 }
 
-.popouts-modal-window.is-maximized .popouts-body iframe {
-    height: calc(98vh - 62px);
+.content-modal-window .modal-content {
+    padding: 0;
+    max-height: 92vh;
+    overflow: auto;
 }
 
-.popouts-modal-window.is-minimized {
-    max-height: none;
-    width: min(540px, 96vw);
-}
-
-.popouts-modal-window.is-minimized .popouts-body {
-    display: none;
+.content-modal-body {
+    padding: 14px;
 }
 
 /* Top-nav category foldout */

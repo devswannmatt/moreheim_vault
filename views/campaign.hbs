@@ -1,53 +1,402 @@
-<div class="section">
-<h3>Campaign</h3>
-<p>ID: {{campaign._id}}</p>
-<p>Data: {{campaign}}</p>
-<p>Created At: {{campaign.createdAt}}</p>
-</div>
+<style>
+    .campaign-page {
+        --campaign-ink: #0f172a;
+        --campaign-muted: #516173;
+        --campaign-edge: #d9e2ec;
+        --campaign-surface: #ffffff;
+        --campaign-accent: #0b6ea8;
+        --campaign-accent-soft: #e8f4fb;
+        --campaign-gold-soft: #fff7df;
+        --campaign-gold: #9a6b05;
+        margin-top: 16px;
+        color: var(--campaign-ink);
+    }
 
-<div class="row">
-    <div class="col-12 col-md-12">
-        <div class="card">
-            <div class="card-content">
-                <span class="card-title">Add Roster</span>
-                <form id="create-campaign-form" data-method="PATCH" action="/campaigns/campaign/{{campaign._id}}">
-                    <div class="row">
-                        <div class="col-12 col-md-12">
-                            <div class="input-field">
-                                <select id="roster" name="roster" required>
-                                    <option value="" disabled selected>Choose roster</option>
-                                    {{#each rostersList}}
-                                        <option value="{{this._id}}">{{this.name}}</option>
-                                    {{/each}}
-                                </select>
-                                <label for="roster">Roster</label>
-                            </div>
-                            <button class="btn waves-effect waves-light" type="submit">Add Roster</button>
-                        </div>
-                    </div>
-                </form>
+    .campaign-hero {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(11, 110, 168, 0.14), rgba(11, 110, 168, 0) 45%),
+            linear-gradient(120deg, #f8fbff 0%, #fdfdfd 100%);
+        border: 1px solid var(--campaign-edge);
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 14px;
+    }
+
+    .campaign-kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #2563a5;
+        margin-bottom: 2px;
+    }
+
+    .campaign-title {
+        font-size: 1.85rem;
+        line-height: 1.1;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .campaign-subtitle {
+        margin-top: 8px;
+        color: var(--campaign-muted);
+        font-size: 0.92rem;
+    }
+
+    .campaign-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(120px, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .campaign-metric {
+        border: 1px solid var(--campaign-edge);
+        border-radius: 10px;
+        background: #fff;
+        padding: 10px 12px;
+    }
+
+    .campaign-metric .label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #607182;
+        font-weight: 700;
+    }
+
+    .campaign-metric .value {
+        margin-top: 4px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #12314b;
+    }
+
+    .campaign-card {
+        background: var(--campaign-surface);
+        border: 1px solid var(--campaign-edge);
+        border-radius: 12px;
+        margin: 0 0 14px 0;
+        overflow: hidden;
+    }
+
+    .campaign-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--campaign-edge);
+        background: #fbfdff;
+    }
+
+    .campaign-card-title {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #14354f;
+    }
+
+    .campaign-card-subtitle {
+        margin: 2px 0 0;
+        color: #637688;
+        font-size: 0.85rem;
+    }
+
+    .campaign-card-body {
+        padding: 12px 14px;
+    }
+
+    .campaign-add-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .campaign-table {
+        margin: 0;
+    }
+
+    .campaign-table thead th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #5f7182;
+        background: #f8fbff;
+        border-bottom: 1px solid var(--campaign-edge);
+    }
+
+    .campaign-table tbody td {
+        border-bottom: 1px solid #edf1f5;
+        vertical-align: middle;
+    }
+
+    .campaign-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .rating-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 58px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 0.86rem;
+        font-weight: 700;
+        background: var(--campaign-accent-soft);
+        color: #0f5f8c;
+        border: 1px solid #b6d8ee;
+    }
+
+    .gold-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 58px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 0.86rem;
+        font-weight: 700;
+        background: var(--campaign-gold-soft);
+        color: var(--campaign-gold);
+        border: 1px solid #f5df9e;
+    }
+
+    .rank-chip {
+        display: inline-flex;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        background: #163f61;
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .empty-row {
+        color: #6e7d8b;
+        text-align: center;
+        padding: 16px 8px;
+    }
+
+    .privacy-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        margin-top: 8px;
+    }
+
+    .privacy-badge.privacy-public {
+        background: #e6f4ea;
+        color: #1e6e35;
+        border: 1px solid #a8d5b0;
+    }
+
+    .privacy-badge.privacy-private {
+        background: #fce8e8;
+        color: #a93226;
+        border: 1px solid #f1b0b0;
+    }
+
+    @media (max-width: 760px) {
+        .campaign-metrics {
+            grid-template-columns: 1fr;
+        }
+
+        .campaign-add-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="campaign-page">
+    <section class="campaign-hero">
+        <div class="campaign-kicker">Campaign Ledger</div>
+        <h3 class="campaign-title">
+            {{#if campaign.name}}{{campaign.name}}{{else}}Campaign Overview{{/if}}
+        </h3>
+        <div class="campaign-subtitle">
+            Tracking warband performance and hero standings across this campaign.
+        </div>
+        {{#ifEq campaign.privacy "private"}}
+        <span class="privacy-badge privacy-private"><i class="fa fa-lock"></i> Private</span>
+        {{else}}
+        <span class="privacy-badge privacy-public"><i class="fa fa-globe"></i> Public</span>
+        {{/ifEq}}
+
+        <div class="campaign-metrics">
+            <div class="campaign-metric">
+                <div class="label">Campaign ID</div>
+                <div class="value">{{campaign._id}}</div>
+            </div>
+            <div class="campaign-metric">
+                <div class="label">Rosters In Campaign</div>
+                <div class="value">{{rosters.length}}</div>
+            </div>
+            <div class="campaign-metric">
+                <div class="label">Top Heroes Tracked</div>
+                <div class="value">{{topHeroes.length}}</div>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<table class="striped responsive-table" id="items-table">
-    <thead>
-    <tr>
-        <th>Roster</th>
-        <th>Rating</th>
-        <th>Gold Value</th>
-        <th>Created</th>
-    </tr>
-    </thead>
-    <tbody>
-    {{#each rosters}}
-        <tr>
-            <td>{{{link this.name (concat '/rosters/roster/' this._id)}}}</td>
-            <td>{{this.wealth.rating}}</td>
-            <td>{{this.wealth.gold}}</td>
-            <td>{{formatDateTime this.createdAt}}</td>
-        </tr>
-    {{/each}}
-    </tbody>
-</table>
+    {{#if isCreator}}
+    <section class="campaign-card">
+        <div class="campaign-card-header">
+            <div>
+                <h4 class="campaign-card-title">Add Roster To Campaign</h4>
+                <p class="campaign-card-subtitle">Attach another roster and include it in rankings.</p>
+            </div>
+        </div>
+        <div class="campaign-card-body">
+            <form id="create-campaign-form" data-method="PATCH" action="/campaigns/campaign/{{campaign._id}}">
+                <div class="campaign-add-row">
+                    <div class="input-field" style="margin:0;">
+                        <select id="roster" name="roster" required>
+                            <option value="" disabled selected>Choose roster</option>
+                            {{#each rostersList}}
+                            <option value="{{this._id}}">{{this.name}}</option>
+                            {{/each}}
+                        </select>
+                        <label for="roster">Roster</label>
+                    </div>
+                    <button class="btn waves-effect waves-light" type="submit">
+                        <i class="fa fa-plus" style="margin-right:6px;"></i>Add Roster
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+    {{/if}}
+
+    <section class="campaign-card">
+        <div class="campaign-card-header">
+            <div>
+                <h4 class="campaign-card-title">Campaign Rosters</h4>
+                <p class="campaign-card-subtitle">Sorted by highest rating first.</p>
+            </div>
+        </div>
+        <div class="campaign-card-body" style="padding:0;">
+            <table class="striped responsive-table campaign-table" id="items-table">
+                <thead>
+                    <tr>
+                        <th>Roster</th>
+                        <th>Player</th>
+                        <th>Rating</th>
+                        <th>Gold Value</th>
+                        <th>Created</th>
+                        {{#if @root.isCreator}}<th></th>{{/if}}
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#if rosters.length}}
+                    {{#each rosters}}
+                    <tr>
+                        <td>{{{link this.name (concat '/rosters/roster/' this._id)}}}</td>
+                        <td>{{> player_name_badge fullName=this.playerDisplay.fullName username=this.playerDisplay.username}}</td>
+                        <td><span class="rating-pill">{{this.wealth.rating}}</span></td>
+                        <td><span class="gold-pill">{{this.wealth.gold}}g</span></td>
+                        <td>{{formatDateTime this.createdAt}}</td>
+                        {{#if @root.isCreator}}
+                        <td style="text-align:right;">
+                            <a href="/campaigns/campaign/{{@root.campaign._id}}/roster/{{this._id}}"
+                               data-method="DELETE"
+                               data-redirect="self"
+                               class="btn btn-small red lighten-1 waves-effect waves-light"
+                               style="padding:0 10px;height:28px;line-height:28px;font-size:0.8rem;"
+                               title="Remove from campaign">
+                                <i class="fa fa-times"></i> Remove
+                            </a>
+                        </td>
+                        {{/if}}
+                    </tr>
+                    {{/each}}
+                    {{else}}
+                    <tr>
+                        <td colspan="6" class="empty-row">No rosters are currently attached to this campaign.</td>
+                    </tr>
+                    {{/if}}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="campaign-card">
+        <div class="campaign-card-header">
+            <div>
+                <h4 class="campaign-card-title">Top 10 Heroes</h4>
+                <p class="campaign-card-subtitle">Best active heroes in this campaign by rating.</p>
+            </div>
+        </div>
+        <div class="campaign-card-body" style="padding:0;">
+            <table class="striped responsive-table campaign-table" id="top-heroes-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Hero</th>
+                        <th>Roster</th>
+                        <th>Player</th>
+                        <th>Rating</th>
+                        <th>Experience</th>
+                        <th>Gold Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#if topHeroes.length}}
+                    {{#each topHeroes}}
+                    <tr>
+                        <td><span class="rank-chip">{{add @index 1}}</span></td>
+                        <td>{{{link this.name (concat '/members/member/' this._id)}}}</td>
+                        <td>{{{link this.roster.name (concat '/rosters/roster/' this.roster._id)}}}</td>
+                        <td>{{> player_name_badge fullName=this.playerDisplay.fullName username=this.playerDisplay.username}}</td>
+                        <td><span class="rating-pill">{{this.wealth.rating}}</span></td>
+                        <td>{{this.wealth.experience}}</td>
+                        <td><span class="gold-pill">{{this.wealth.gold}}g</span></td>
+                    </tr>
+                    {{/each}}
+                    {{else}}
+                    <tr>
+                        <td colspan="7" class="empty-row">No active heroes found in this campaign.</td>
+                    </tr>
+                    {{/if}}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    {{#if isCreator}}
+    <section class="campaign-card">
+        <div class="campaign-card-header">
+            <div>
+                <h4 class="campaign-card-title">Campaign Settings</h4>
+                <p class="campaign-card-subtitle">Only you, as the campaign creator, can change these settings.</p>
+            </div>
+        </div>
+        <div class="campaign-card-body">
+            <form data-method="PATCH" action="/campaigns/campaign/{{campaign._id}}/settings" data-redirect="self">
+                <div class="campaign-add-row">
+                    <div class="input-field" style="margin:0;">
+                        <select name="privacy">
+                            <option value="public" {{#ifEq campaign.privacy "public"}}selected{{/ifEq}}>Public — anyone can view</option>
+                            <option value="private" {{#ifEq campaign.privacy "private"}}selected{{/ifEq}}>Private — members only</option>
+                        </select>
+                        <label>Visibility</label>
+                    </div>
+                    <button class="btn waves-effect waves-light" type="submit">
+                        <i class="fa fa-save" style="margin-right:6px;"></i>Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+    {{/if}}
+</div>

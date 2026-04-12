@@ -6,7 +6,15 @@ const COLLECTION = 'players';
 const playerSchema = new mongoose.Schema({
   name: { type: String, required: true },
   meta: { type: mongoose.Schema.Types.Mixed, default: {} },
-  rosters: { type: [mongoose.Schema.Types.ObjectId], default: [] }
+  rosters: { type: [mongoose.Schema.Types.ObjectId], default: [] },
+  account: {
+    provider: { type: String, default: '' },
+    subject: { type: String, default: '' },
+    email: { type: String, default: '' },
+    name: { type: String, default: '' },
+    nickname: { type: String, default: '' },
+    picture: { type: String, default: '' }
+  }
 }, { timestamps: true, collection: COLLECTION });
 
 const Player = mongoose.models.Player || mongoose.model('Player', playerSchema);
@@ -15,9 +23,14 @@ function createPlayer(data) {
     if (!data) return Promise.reject(new Error('No data provided for creating player'));
     const doc = {
         name: data.name,
-        meta: data.meta
+        meta: data.meta,
+        account: data.account || {}
     };
     return Player.create(doc).then(created => created._id);
+}
+
+function findPlayerByAuthSubject(subject) {
+  return Player.findOne({ 'account.subject': subject }).lean().exec();
 }
 
 function getPlayerById(id) {
@@ -34,4 +47,4 @@ function updatePlayer(id, patch = {}) {
   return Player.updateOne({ _id }, { $set: patch }).then(() => getPlayerById(_id));
 }
 
-module.exports = { createPlayer, getPlayerById, updatePlayer, findPlayers, COLLECTION };
+module.exports = { createPlayer, getPlayerById, updatePlayer, findPlayers, findPlayerByAuthSubject, COLLECTION };

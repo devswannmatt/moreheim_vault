@@ -1,6 +1,7 @@
 var router = require('express').Router();
 const player = require('../database/models/player');
 const roster = require('../database/models/roster');
+const auth   = require('../system/auth');
 
 router.get('/', async (req, res) => {
   console.log("Rendering players view");
@@ -27,13 +28,17 @@ router.get('/player/:id', async (req, res) => {
   }
 });
 
-router.patch('/player/:id', async (req, res) => {
+router.patch('/player/:id', auth.requireAuthenticated, async (req, res) => {
   console.log(`Updating player with ID: ${req.params.id} with data:`, req.body);
   try {
+    if (auth.isAuthEnabledForRequest(req) && String(req.currentPlayer._id) !== String(req.params.id)) {
+      return res.status(403).json({ error: 'You can only modify your own player account.' });
+    }
     player.updatePlayer(req.params.id, req.body).then(updatedPlayer => {
       if (!updatedPlayer) {
         return res.status(404).json({ error: 'Player not found' });
       }
+      res.status(200).json(updatedPlayer);
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -50,8 +55,11 @@ router.get('/json', async (req, res) => {
   }
 });
 
-router.post('/create', async (req, res) => {
+router.post('/create', auth.requireAuthenticated, async (req, res) => {
   try {
+    if (auth.isAuthEnabledForRequest(req)) {
+      return res.status(403).json({ error: 'Player accounts are created automatically on first login.' });
+    }
     console.log("Creating new player with data:", req.body);
     player.createPlayer(req.body).then(result => {
       res.status(201).redirect(`/players/player/${result}`);

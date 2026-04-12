@@ -11,7 +11,8 @@
         for (var i = 0; i < subFieldData.length; i++) {
           var option = document.createElement('option');
           option.value = subFieldData[i]._id;
-          option.text = String(subFieldData[i].name);
+          var typeLabel = subFieldData[i].typeLabel ? String(subFieldData[i].typeLabel) : 'Skill';
+          option.text = typeLabel + ' - ' + String(subFieldData[i].name);
           subFieldSelect.appendChild(option);
         }
       } else {
@@ -44,8 +45,13 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    var skillDataEl = document.getElementById('skill-list-data');
+  function initEventLevelUp(root) {
+    var scope = root || document;
+    var form = scope.querySelector('#create-event-form');
+    if (!form || form.dataset.eventLevelUpBound === '1') return;
+    form.dataset.eventLevelUpBound = '1';
+
+    var skillDataEl = scope.querySelector('#skill-list-data');
     var skillList = [];
     if (skillDataEl) {
       try {
@@ -56,8 +62,8 @@
     }
 
     try {
-      var advEl = document.getElementById('advance');
-      var advLinked = document.getElementById('advance_linked');
+      var advEl = form.querySelector('#advance');
+      var advLinked = form.querySelector('#advance_linked');
       if (window.M && M.FormSelect) {
         if (advEl) M.FormSelect.init(advEl);
         if (advLinked) M.FormSelect.init(advLinked);
@@ -65,7 +71,7 @@
     } catch (e2) {
     }
 
-    var nodes = document.querySelectorAll('[data-linkedfield]');
+    var nodes = form.querySelectorAll('[data-linkedfield]');
     nodes.forEach(function (node) {
       node.addEventListener('change', function () {
         var subfield = node.getAttribute('data-linkedfield');
@@ -93,5 +99,13 @@
       var ev = new Event('change', { bubbles: true });
       node.dispatchEvent(ev);
     });
-  });
+  }
+
+  window.initEventLevelUp = initEventLevelUp;
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { initEventLevelUp(document); });
+  } else {
+    initEventLevelUp(document);
+  }
 })();

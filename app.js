@@ -5,6 +5,7 @@ const { engine } = require('express-handlebars');
 const app = express();
 
 const system = require('./system/functions');
+const auth = require('./system/auth');
 const warbandModel = require('./database/models/warband');
 
 const hbsHelpers = require('./system/helpers');
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.text({ type: 'text/*', limit: '1mb' }));
 
 app.use(express.static(path.join(__dirname, 'public')));
+auth.applyAuth(app);
 
 app.use(async (req, res, next) => {
     res.locals.navWarbands = [];

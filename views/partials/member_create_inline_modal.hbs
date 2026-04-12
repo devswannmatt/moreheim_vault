@@ -1,0 +1,143 @@
+<style>
+    .member-create-inline {
+        --mci-ink: #17324a;
+        --mci-muted: #607182;
+        --mci-edge: #d9e2ec;
+        color: var(--mci-ink);
+    }
+
+    .member-create-inline .section-label {
+        margin: 6px 0 4px;
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--mci-muted);
+        font-weight: 700;
+    }
+
+    .member-create-inline .row {
+        margin-bottom: 0;
+    }
+
+    .member-create-inline .input-field {
+        margin-top: 6px;
+        margin-bottom: 12px;
+    }
+
+    .member-create-inline .helper {
+        display: block;
+        margin-top: -8px;
+        color: #708292;
+        font-size: 0.75rem;
+    }
+
+    .member-create-inline .select-wrapper input.select-dropdown,
+    .member-create-inline .dropdown-content li > span {
+        font-family: Consolas, "Courier New", monospace;
+        white-space: pre;
+        font-size: 0.88rem;
+    }
+
+    .member-create-inline .actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 8px;
+        border-top: 1px solid var(--mci-edge);
+        padding-top: 12px;
+    }
+
+    @media (max-width: 760px) {
+        .member-create-inline .actions .btn,
+        .member-create-inline .actions .btn-flat {
+            width: 100%;
+        }
+    }
+</style>
+
+<div id="member-create-modal" class="modal">
+    <div class="modal-content" style="padding:14px;">
+        <div class="member-create-inline">
+            <form id="create-member-form" data-method="POST" data-redirect="close" method="POST" action="/members/create">
+                <div class="section-label">Identity</div>
+                <div class="row">
+                    <div class="col s12">
+                        <div class="input-field">
+                            <input id="name" name="name" type="text" required>
+                            <label for="name">Member Name</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <div class="input-field">
+                            <textarea id="description" name="description" class="materialize-textarea" rows="3" style="min-height:72px;"></textarea>
+                            <label for="description">Description</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-label">Unit Details</div>
+                <div class="row">
+                    <div class="col s12 m4">
+                        <div class="input-field">
+                            <input id="warband_display" type="text" value="{{memberCreateSetup.warbandName}}" readonly>
+                            <label for="warband_display" class="active">Warband</label>
+                            <input id="warband" name="warband" type="hidden" value="{{memberCreateSetup.warbandId}}">
+                        </div>
+                    </div>
+                    <div class="col s12 m4">
+                        <div class="input-field">
+                            <input id="roster_display" type="text" value="{{memberCreateSetup.rosterName}}" readonly>
+                            <label for="roster_display" class="active">Roster</label>
+                            <input id="roster" name="roster" type="hidden" value="{{memberCreateSetup.rosterId}}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col s12">
+                        <div class="input-field">
+                            <select id="unit" name="unit" required>
+                                <option value="" disabled selected>Loading units...</option>
+                            </select>
+                            <label for="unit">Unit</label>
+                            <span class="helper">Available units update based on your selected warband.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col s12 m4">
+                        <div class="input-field">
+                            <input class="derived-field" id="qty" name="qty" type="number" value="1" min="1" data-derived-field="unittype=1" required>
+                            <label for="qty">Quantity</label>
+                        </div>
+                    </div>
+                    <div class="col s12 m4">
+                        <div class="input-field">
+                            <input id="cost" name="cost" type="number" value="1" min="1" readonly required>
+                            <label for="cost" class="active">Cost</label>
+                        </div>
+                    </div>
+                    <div class="col s12 m4">
+                        <div class="input-field">
+                            <input id="remaining-gold" type="text" value="{{memberCreateSetup.rosterGold}}g" readonly>
+                            <label for="remaining-gold" class="active">Remaining Gold</label>
+                            <input id="roster-gold" type="hidden" value="{{memberCreateSetup.rosterGold}}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn-flat modal-close" type="button">Cancel</button>
+                    <button class="btn waves-effect waves-light" type="submit">
+                        <i class="fa fa-user-plus" style="margin-right:6px;"></i>Create Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
