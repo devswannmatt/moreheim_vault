@@ -16,6 +16,17 @@ const eventSchema = new mongoose.Schema({
     experience: { type: Number, default: 0 },
     rating: { type: Number, default: 0 }
   },
+  resource: {
+    type: {
+      type: Number,
+      enum: [1, 2],
+      required: false
+    },
+    quantity: {
+      type: Number,
+      default: 0
+    }
+  },
   advance: { type: String, default: '' },
   advance_linked: { type: String, default: '' },
   injury: { type: Number, default: 0 }

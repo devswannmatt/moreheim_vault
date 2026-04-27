@@ -66,6 +66,34 @@
                         <div class="col s12">
                             {{> field_select_multi list=itemList selected=unit.items id="items" name="items" label="Allowed Items"}}
                         </div>
+                        <div class="col s12" style="margin-top:6px;">
+                            <div class="row" style="margin-bottom:0;">
+                                <div class="col s12 m8">
+                                    {{#if copySourceUnits.length}}
+                                    <div class="input-field">
+                                        <select id="sourceUnitId" name="sourceUnitId" required>
+                                            <option value="" disabled selected>Select Copy Item Restrictions From</option>
+                                            {{#each copySourceUnits}}
+                                            <option value="{{this._id}}">{{this.name}}</option>
+                                            {{/each}}
+                                        </select>
+                                        <label for="sourceUnitId" class="active">Copy Item Restrictions From</label>
+                                    </div>
+                                    {{else}}
+                                    <small class="grey-text">No other units available to copy from.</small>
+                                    {{/if}}
+                                </div>
+                                <div class="col s12 m4" style="margin-top:18px;">
+                                    {{#if copySourceUnits.length}}
+                                    <button id="copy-items-btn" class="btn-small blue-grey darken-1 waves-effect waves-light" type="button">
+                                        <i class="fa fa-copy"></i>
+                                        Copy Items
+                                    </button>
+                                    <div id="copy-items-result" class="grey-text text-darken-1" style="font-size:0.8rem; margin-top:6px;"></div>
+                                    {{/if}}
+                                </div>
+                            </div>
+                        </div>
 
                         {{> stat_block_form unit=unit}}
                     </div>
@@ -98,3 +126,48 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        var copyBtn = document.getElementById('copy-items-btn');
+        var sourceSelect = document.getElementById('sourceUnitId');
+        var resultEl = document.getElementById('copy-items-result');
+        if (!copyBtn || !sourceSelect) return;
+
+        copyBtn.addEventListener('click', function () {
+            var sourceUnitId = sourceSelect.value;
+            if (!sourceUnitId) {
+                if (resultEl) {
+                    resultEl.innerText = 'Select a source unit first.';
+                    resultEl.style.color = '#c62828';
+                }
+                return;
+            }
+
+            if (resultEl) {
+                resultEl.innerText = 'Copying...';
+                resultEl.style.color = '#455a64';
+            }
+
+            $.ajax({
+                url: '/units/unit/{{unit._id}}/items/copy',
+                method: 'PATCH',
+                dataType: 'json',
+                data: { sourceUnitId: sourceUnitId },
+                xhrFields: { withCredentials: true }
+            }).done(function () {
+                window.location.reload();
+            }).fail(function (jqXHR) {
+                var msg = 'Copy failed.';
+                try {
+                    var parsed = JSON.parse(jqXHR.responseText || '{}');
+                    if (parsed && parsed.error) msg = parsed.error;
+                } catch (e) {}
+                if (resultEl) {
+                    resultEl.innerText = msg;
+                    resultEl.style.color = '#c62828';
+                }
+            });
+        });
+    })();
+</script>

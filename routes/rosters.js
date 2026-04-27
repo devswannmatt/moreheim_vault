@@ -160,6 +160,7 @@ router.get('/roster/:id', async (req, res) => {
     const stockpileValue  = stockpileGroups.reduce((sum, g) => sum + (g.item.gold || 0) * g.qty, 0);
     const wyrdstoneCount = countWyrdstone(stockpileGroups);
     const canEdit = isOwnedByCurrentPlayer(req, rosters.player && rosters.player._id ? rosters.player._id : rosters.player);
+    const rosterEvents = await event.findEvents({ 'entities.id': rosters._id }, { sort: { createdAt: -1 } });
 
     const selectedWarband = (warbands || []).find(w => String(w._id) === String(rosters.warband));
     
@@ -217,7 +218,87 @@ router.get('/roster/:id', async (req, res) => {
       }) : []
     };
 
-    res.render('roster', { roster: rosters, members: members, warbands: warbands, wealth: wealth, heroCount, henchmanCount, totalCount, stockpileGroups, stockpileTypeSections, stockpileValue, wyrdstoneCount, canEdit, memberCreateSetup, campaigns });
+    res.render('roster', { roster: rosters, members: members, warbands: warbands, wealth: wealth, heroCount, henchmanCount, totalCount, stockpileGroups, stockpileTypeSections, stockpileValue, wyrdstoneCount, canEdit, memberCreateSetup, campaigns, rosterEvents });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/roster/:id/event/gainresource', async (req, res) => {
+  try {
+    const r = await roster.getRosterById(req.params.id);
+    if (!r) return res.status(404).json({ error: 'Roster not found' });
+
+    renderView(req, res, 'event_roster_gain_resource', {
+      roster: r,
+      resourceTypes: [
+        { value: 1, label: 'Gold' },
+        { value: 2, label: 'Wyrdstone' }
+      ]
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/roster/:id/event/gainresource', auth.requireAuthenticated, async (req, res) => {
+  try {
+    const r = await loadOwnedRoster(req, res, req.params.id);
+    if (!r) return;
+
+    const rawResourceType =
+      (req.body && req.body.resource && req.body.resource.type)
+      ?? (req.body && req.body['resource.type'])
+      ?? (req.body && req.body.type);
+    const rawQuantity =
+      (req.body && req.body.resource && req.body.resource.quantity)
+      ?? (req.body && req.body['resource.quantity'])
+      ?? (req.body && req.body.quantity);
+
+    const resourceType = parseInt(rawResourceType, 10);
+    const quantity = parseInt(rawQuantity, 10);
+    const notes = req.body && req.body.description ? String(req.body.description).trim() : '';
+
+    if (![1, 2].includes(resourceType)) {
+      return res.status(400).json({ error: 'Resource type must be Gold or Wyrdstone.' });
+    }
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return res.status(400).json({ error: 'Quantity must be a positive whole number.' });
+    }
+
+    if (resourceType === 1) {
+      await roster.updateRoster(req.params.id, { gold: (r.gold || 0) + quantity });
+      await event.createEvent({
+        type: 3,
+        entities: [{ id: r._id, kind: 'Roster' }],
+        name: `Gained ${quantity} Gold`,
+        description: notes,
+        wealth: { gold: quantity },
+        resource: { type: 1, quantity }
+      });
+      return res.status(201).json({ success: true });
+    }
+
+    const wyrdstoneOptions = await item.findItems({ name: { $regex: /wyrdstone/i } }, { sort: { gold: 1, name: 1 } });
+    if (!wyrdstoneOptions || wyrdstoneOptions.length === 0) {
+      return res.status(400).json({ error: 'Unable to add Wyrdstone because no Wyrdstone item exists.' });
+    }
+
+    const wyrdstoneItem = wyrdstoneOptions[0];
+    const currentItems = (r.items || []).map(i => String(i && i._id ? i._id : i));
+    const itemsToAdd = Array.from({ length: quantity }, () => String(wyrdstoneItem._id));
+
+    await roster.updateRoster(req.params.id, { items: [...currentItems, ...itemsToAdd] });
+    await event.createEvent({
+      type: 3,
+      entities: [{ id: r._id, kind: 'Roster' }],
+      name: `Gained ${quantity} Wyrdstone`,
+      description: notes,
+      wealth: { gold: 0 },
+      resource: { type: 2, quantity }
+    });
+
+    res.status(201).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -257,6 +338,22 @@ router.post('/create', auth.requireAuthenticated, async (req, res) => {
     if (auth.isAuthEnabledForRequest(req)) {
       req.body.player = req.currentPlayer._id;
     }
+
+    const selectedWarbandId = req.body && req.body.warband;
+    if (!selectedWarbandId) {
+      return res.status(400).json({ error: 'Warband is required.' });
+    }
+
+    const selectedWarband = await warband.getWarbandById(selectedWarbandId);
+    if (!selectedWarband) {
+      return res.status(400).json({ error: 'Invalid warband selected.' });
+    }
+
+    const startingGold = Number(selectedWarband.gold);
+    if (Number.isFinite(startingGold)) {
+      req.body.gold = startingGold;
+    }
+
     roster.createRoster(req.body).then(result => {
       res.status(201).redirect(`/rosters/roster/${result}`);
     }).catch(err => {

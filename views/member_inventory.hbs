@@ -1,17 +1,108 @@
 {{#unless isModal}}
+<style>
+    .inventory-page {
+        margin-top: 24px;
+    }
+
+    .inventory-hero {
+        border: 1px solid #e3eaf3;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+        padding: 14px 16px;
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.08);
+    }
+
+    .inventory-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #0d47a1;
+        background: #e3f2fd;
+        border: 1px solid #bbdefb;
+        border-radius: 999px;
+        padding: 5px 10px;
+    }
+
+    .inventory-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #eceff1;
+        box-shadow: 0 5px 16px rgba(38, 50, 56, 0.08);
+    }
+
+    .inventory-card .card-content {
+        padding: 18px;
+    }
+
+    .inventory-card .card-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #263238;
+        margin-bottom: 8px;
+    }
+
+    .inventory-card table thead th {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #607d8b;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .inventory-card table tbody td {
+        vertical-align: middle;
+    }
+
+    .inventory-empty {
+        border: 1px dashed #b0bec5;
+        border-radius: 10px;
+        background: #fafcfd;
+        color: #607d8b;
+        padding: 14px;
+        margin-top: 6px;
+    }
+
+    .inventory-actions {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .inventory-actions .btn-small {
+        margin: 0;
+    }
+
+    @media (max-width: 600px) {
+        .inventory-card .card-content {
+            padding: 14px;
+        }
+
+        .inventory-actions {
+            justify-content: flex-start;
+        }
+    }
+</style>
 <div class="container" style="margin-top: 24px;">
+
+    <div class="inventory-page">
 
     <!-- Header -->
     <div class="row" style="margin-bottom: 8px;">
         <div class="col s12">
-            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div class="inventory-hero" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
                 <a href="/members/member/{{member._id}}" class="btn-small blue waves-effect waves-light">
                     <i class="fa fa-arrow-left"></i>
                 </a>
                 <div>
                     <h5 style="margin:0;">{{member.name}} — Inventory</h5>
-                    <span class="grey-text">Available Gold: <strong>{{member.roster.gold}}g</strong></span>
+                    <span class="grey-text text-darken-1">Manage equipment, purchases, and sales.</span>
                 </div>
+                </div>
+                <span class="inventory-chip"><i class="fa fa-coins"></i> Available Gold: {{member.roster.gold}}g</span>
             </div>
         </div>
     </div>
@@ -20,7 +111,7 @@
     <!-- Current Inventory -->
     <div class="row">
         <div class="col s12">
-            <div class="card">
+            <div class="card inventory-card">
                 <div class="card-content">
                     <span class="card-title">Current Inventory</span>
                     {{#if inventoryGroups.length}}
@@ -42,6 +133,7 @@
                                 <td>{{item.description}}</td>
                                 <td>{{item.gold}}g</td>
                                 <td class="right-align" style="white-space:nowrap;">
+                                    <div class="inventory-actions">
                                     <a data-method="PATCH" href="/members/member/{{../member._id}}/item?action=stash&item={{item._id}}"
                                         class="btn-small blue white-text tooltipped"
                                         data-tooltip="Send one to Stockpile" data-position="top">
@@ -57,13 +149,14 @@
                                         data-tooltip="Refund one for {{item.gold}}g" data-position="top">
                                         <i class="fa fa-undo"></i>
                                     </a>
+                                    </div>
                                 </td>
                             </tr>
                             {{/each}}
                         </tbody>
                     </table>
                     {{else}}
-                    <p class="grey-text">No items in inventory.</p>
+                    <div class="inventory-empty">No items in inventory yet.</div>
                     {{/if}}
                 </div>
             </div>
@@ -73,11 +166,22 @@
     <!-- Add to Inventory -->
     <div class="row">
         <div class="col s12">
-            <div class="card">
+            <div class="card inventory-card">
                 <form id="member-inventory-form" data-method="PATCH" data-redirect="self"
                     action="/members/member/{{member._id}}/inventory">
                     <div class="card-content">
                         <span class="card-title">Add to Inventory</span>
+                        {{#if hasItemRestrictions}}
+                        {{#if allowedItemCount}}
+                        <p class="grey-text" style="margin-top:0; margin-bottom:12px;">
+                            Item choices are restricted for this unit ({{allowedItemCount}} allowed).
+                        </p>
+                        {{else}}
+                        <p class="amber-text text-darken-3" style="margin-top:0; margin-bottom:12px;">
+                            This unit has no allowed items configured.
+                        </p>
+                        {{/if}}
+                        {{/if}}
                         <table class="striped tight-rows" id="items-table">
                             <thead>
                                 <tr>
@@ -94,18 +198,33 @@
                     <div class="card-action blue lighten-5">
                         <div class="row" style="margin-bottom:0">
                             <div class="col s6">
-                                <button id="add-item-btn" type="button" class="btn waves-effect waves-light"
+                                {{#if allowedItemCount}}
+                                <button id="add-item-btn" type="button" class="btn blue waves-effect waves-light"
                                     title="Add Item">
                                     <i class="ra ra-sword"></i>
                                     Add Item
                                 </button>
+                                {{else}}
+                                <button type="button" class="btn waves-effect waves-light disabled" disabled
+                                    title="No allowed items configured for this unit">
+                                    <i class="ra ra-sword"></i>
+                                    Add Item
+                                </button>
+                                {{/if}}
                             </div>
                             <div class="col s6 right-align">
                                 <span id="response-result"></span>
-                                <button class="btn waves-effect waves-light" type="submit">
+                                {{#if allowedItemCount}}
+                                <button class="btn green darken-1 waves-effect waves-light" type="submit">
                                     <i class="ra ra-save"></i>
                                     Purchase
                                 </button>
+                                {{else}}
+                                <button class="btn waves-effect waves-light disabled" type="submit" disabled>
+                                    <i class="ra ra-save"></i>
+                                    Purchase
+                                </button>
+                                {{/if}}
                             </div>
                         </div>
                     </div>
@@ -115,6 +234,7 @@
     </div>
 
 {{#unless isModal}}
+</div>
 </div>
 {{/unless}}
 

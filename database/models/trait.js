@@ -7,6 +7,7 @@ const traitSchema = new mongoose.Schema({
   name: { type: String, required: true },
   type: { type: Number, required: true },
   description: { type: String, default: '' },
+  range: { type: String, default: '' },
   modifier: { type: Boolean, default: false }
 }, { timestamps: true, collection: COLLECTION });
 

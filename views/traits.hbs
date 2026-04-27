@@ -17,6 +17,7 @@
         <tr>
             <th>Name</th>
             <th>Type</th>
+            <th>Range</th>
             <th>Description</th>
         </tr>
         </thead>
@@ -25,6 +26,7 @@
             <tr>
                 <td><a href="/traits/trait/{{this._id}}">{{this.name}}</a></td>
                 <td>{{formatTraitType this.type}}</td>
+                <td>{{formatRange this.range '-'}}</td>
                 <td>{{this.description}}</td>
             </tr>
         {{/each}}

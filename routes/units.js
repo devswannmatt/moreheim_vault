@@ -62,12 +62,52 @@ router.get('/unit/:id', async (req, res) => {
   console.log(`Fetching unit with ID: ${req.params.id}`);
   try {
     const unitRecord = await unit.getUnitById(req.params.id);
-    const itemList = await item.findItems();
+    const itemList = (await item.findItems()).sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    const copySourceUnits = (await unit.findUnits())
+      .filter(u => String(u._id) !== String(req.params.id))
+      .filter(u => String(u && u.name ? u.name : '').trim().length > 0)
+      .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
     if (!unitRecord) {
       return res.status(404).json({ error: 'Unit not found' });
     }
 
-    res.render('unit', { unit: unitRecord, skillTypeList: getSkillTypeOptions(), itemList });
+    res.render('unit', { unit: unitRecord, skillTypeList: getSkillTypeOptions(), itemList, copySourceUnits });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.patch('/unit/:id/items/copy', async (req, res) => {
+  console.log(`Copying unit items into unit with ID: ${req.params.id}`, req.body);
+  try {
+    const sourceUnitId = req.body.sourceUnitId || req.body.sourceUnit;
+    if (!sourceUnitId) {
+      return res.status(400).json({ error: 'A source unit is required.' });
+    }
+    if (String(sourceUnitId) === String(req.params.id)) {
+      return res.status(400).json({ error: 'Cannot copy item restrictions from the same unit.' });
+    }
+
+    const targetUnit = await unit.getUnitById(req.params.id);
+    if (!targetUnit) {
+      return res.status(404).json({ error: 'Target unit not found.' });
+    }
+
+    const sourceUnit = await unit.getUnitById(sourceUnitId);
+    if (!sourceUnit) {
+      return res.status(404).json({ error: 'Source unit not found.' });
+    }
+
+    const sourceItems = Array.isArray(sourceUnit.items)
+      ? sourceUnit.items.map(i => (i && i._id ? i._id : i)).filter(Boolean)
+      : [];
+
+    const updatedUnit = await unit.updateUnit(req.params.id, { items: sourceItems });
+    if (!updatedUnit) {
+      return res.status(404).json({ error: 'Unit not found.' });
+    }
+
+    return res.status(200).json({ success: true, copiedCount: sourceItems.length });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

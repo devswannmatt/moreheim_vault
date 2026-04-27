@@ -30,6 +30,7 @@ function getMemberById(id) {
     .populate('roster')
     .populate('unit')
     .populate({ path: 'unit', populate: { path: 'traits' } })
+    .populate({ path: 'unit', populate: { path: 'items' } })
     .populate({ path: 'items', populate: { path: 'traits' } })
     .lean()
     .exec();
@@ -51,7 +52,7 @@ function findMembers(filter = {}, options = {}) {
     .populate('unit')
     .populate({ path: 'items', populate: { path: 'traits' } })
     .populate({ path: 'unit', populate: { path: 'traits' } })
-    .populate({ path: 'unit', populate: { path: 'traits' } })
+    .populate({ path: 'unit', populate: { path: 'items' } })
     .populate({ path: 'traits' })
     .lean()
     .exec();

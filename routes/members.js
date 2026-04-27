@@ -391,12 +391,23 @@ router.get('/member/:id/inventory', async (req, res) => {
   console.log(`Fetching member with ID: ${req.params.id}`);
   try {
     const result = await member.getMemberById(req.params.id);
-    const items  = await item.findItems();
 
     if (!result) return res.status(404).json({ error: 'Member not found' });
 
+    const unitItems = Array.isArray(result.unit && result.unit.items)
+      ? result.unit.items.filter(i => i && i._id)
+      : [];
+    const hasItemRestrictions = true;
+    const items = unitItems.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
     const inventoryGroups = buildInventoryGroups(result.items);
-    renderView(req, res, 'member_inventory', { member: result, items: items, inventoryGroups });
+    renderView(req, res, 'member_inventory', {
+      member: result,
+      items: items,
+      inventoryGroups,
+      hasItemRestrictions,
+      allowedItemCount: items.length
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -413,6 +424,19 @@ router.patch('/member/:id/inventory', auth.requireAuthenticated, async (req, res
     itemsToAdd = itemsToAdd.filter(v => v !== undefined && v !== null && String(v).length > 0);
 
     if (itemsToAdd.length === 0) return res.status(400).json({ error: 'No items submitted.' });
+
+    const allowedUnitItemIds = Array.isArray(m.unit && m.unit.items)
+      ? m.unit.items.map(i => String(i && i._id ? i._id : i)).filter(Boolean)
+      : [];
+    if (allowedUnitItemIds.length === 0) {
+      return res.status(400).json({ error: 'This unit has no allowed items configured.' });
+    }
+
+    const allowedSet = new Set(allowedUnitItemIds);
+    const invalidItems = itemsToAdd.filter(id => !allowedSet.has(String(id)));
+    if (invalidItems.length > 0) {
+      return res.status(400).json({ error: 'One or more selected items are not allowed for this unit.' });
+    }
 
     let itemCost = 0;
     const rosterId = (m.roster && m.roster._id) ? m.roster._id : m.roster;

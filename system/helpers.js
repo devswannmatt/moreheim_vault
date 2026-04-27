@@ -2,6 +2,16 @@
 
 const { link } = require("../app");
 
+function formatRangeDisplay(range, fallback) {
+  var empty = fallback === undefined ? '' : fallback;
+  if (range === undefined || range === null) return empty;
+
+  var value = String(range).trim();
+  if (!value) return empty;
+
+  return /^\d+(\.\d+)?$/.test(value) ? value + '"' : value;
+}
+
 // Require this file where you configure your view engine (ex: in app.js)
 module.exports = {
   ifEq: function(a, b, options) {
@@ -134,7 +144,7 @@ module.exports = {
     switch(type) {
       case 1: return "Level Up";
       case 2: return "Injury";
-      case 3: return "Gain Experience";
+      case 3: return "Gain Resource";
       case 4: return "Item Transaction";
       case 5: return "Other";
       default: return "Unknown";
@@ -229,10 +239,14 @@ module.exports = {
     return parseInt(value, 10);
   },
 
+  formatRange: function(range, fallback) {
+    return formatRangeDisplay(range, fallback);
+  },
+
   formatItemTooltip: function(item, baseStrength) {
     if (!item || typeof item !== 'object') return 'Range: - | Strength: - | Traits: -';
 
-    var range = item.range ? String(item.range) : '-';
+    var range = formatRangeDisplay(item.range, '-');
 
     var strength = item.strength ? String(item.strength) : '-';
     if (strength !== '-' && strength.slice(0, 1) === '+') {
@@ -248,5 +262,44 @@ module.exports = {
     if (!traits) traits = '-';
 
     return 'Range: ' + range + ' | Strength: ' + strength + ' | Traits: ' + traits;
+  },
+
+  formatItemPill: function(item, baseStrength) {
+    if (!item || typeof item !== 'object') return '';
+
+    var name = item.name ? String(item.name).trim() : '';
+
+    var strength = item.strength ? String(item.strength).trim() : '';
+    if (!strength) {
+      strength = '-';
+    } else if (strength.slice(0, 1) === '+') {
+      strength = String((Number(baseStrength) || 0) + Number(strength));
+    }
+
+    var range = formatRangeDisplay(item.range, '');
+
+    var sep = '<span class="pill-divider"></span>';
+    var rangeLabel = range ? sep + range : '';
+    return name + sep + 'S' + strength + rangeLabel;
+  },
+
+  formatTraitTooltip: function(trait) {
+    if (!trait || typeof trait !== 'object') return 'Traits: - | Range: -';
+
+    var description = trait.description ? String(trait.description) : '-';
+    var range = formatRangeDisplay(trait.range, '-');
+
+    return description + ' | Range: ' + range;
+  },
+
+  formatTraitPill: function(trait) {
+    if (!trait || typeof trait !== 'object') return '';
+
+    var name = trait.name ? String(trait.name).trim() : '';
+    var range = formatRangeDisplay(trait.range, '');
+
+    var sep = '<span class="pill-divider"></span>';
+    var rangeLabel = range ? sep + range : '';
+    return  name + rangeLabel;
   }
 };

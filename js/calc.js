@@ -31,7 +31,7 @@ function fetchEventTypes(type) {
   const eventTypes = {
     1: { value: 1, label:'Level Up' },
     2: { value: 2, label:'Injury' },
-    3: { value: 3, label:'Gain Experience' },
+    3: { value: 3, label:'Gain Resource' },
     4: { value: 4, label:'Item Transaction' },
     5: { value: 5, label:'Other' }
   }
