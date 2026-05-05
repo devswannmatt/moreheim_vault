@@ -32,10 +32,46 @@ function buildPlayerName(profile) {
   return 'New Player';
 }
 
+function getAdminSubjects() {
+  const raw = process.env.ADMIN_SUBJECTS || '';
+  if (!raw) return new Set();
+  return new Set(
+    raw
+      .split(',')
+      .map(function (entry) { return String(entry || '').trim(); })
+      .filter(function (entry) { return entry.length > 0; })
+  );
+}
+
+function normalizeRoles(input) {
+  const list = Array.isArray(input) ? input : (input ? [input] : []);
+  return Array.from(new Set(
+    list
+      .map(function (role) { return String(role || '').trim().toLowerCase(); })
+      .filter(function (role) { return role.length > 0; })
+  ));
+}
+
+function buildRolesForSubject(subject) {
+  const roles = ['player'];
+  const adminSubjects = getAdminSubjects();
+  if (subject && adminSubjects.has(String(subject))) {
+    roles.push('admin');
+  }
+  return normalizeRoles(roles);
+}
+
+function isAdminFromPlayer(playerRecord) {
+  if (!playerRecord || !playerRecord.meta) return false;
+  const roles = normalizeRoles(playerRecord.meta.roles);
+  return roles.includes('admin');
+}
+
 async function ensurePlayerAccount(profile) {
   if (!profile || !profile.sub) return null;
 
   const existing = await player.findPlayerByAuthSubject(profile.sub);
+  const roles = buildRolesForSubject(profile.sub);
   const account = {
     provider: 'auth0',
     subject: profile.sub,
@@ -46,21 +82,29 @@ async function ensurePlayerAccount(profile) {
   };
 
   if (existing) {
+    const existingRoles = normalizeRoles(existing.meta && existing.meta.roles);
+    const mergedMeta = Object.assign({}, existing.meta || {}, {
+      email: profile.email || '',
+      authProvider: 'auth0',
+      roles
+    });
     const needsUpdate =
       (existing.account && existing.account.email) !== account.email ||
       (existing.account && existing.account.name) !== account.name ||
       (existing.account && existing.account.nickname) !== account.nickname ||
-      (existing.account && existing.account.picture) !== account.picture;
+      (existing.account && existing.account.picture) !== account.picture ||
+      JSON.stringify(existingRoles) !== JSON.stringify(roles);
 
     if (!needsUpdate) return existing;
-    return player.updatePlayer(existing._id, { account });
+    return player.updatePlayer(existing._id, { account, meta: mergedMeta });
   }
 
   const playerId = await player.createPlayer({
     name: buildPlayerName(profile),
     meta: {
       email: profile.email || '',
-      authProvider: 'auth0'
+      authProvider: 'auth0',
+      roles
     },
     account
   });
@@ -72,10 +116,28 @@ function isAuthEnabledForRequest(req) {
   return Boolean(req && req.app && req.app.locals && req.app.locals.authEnabled);
 }
 
+function isAdmin(req) {
+  if (!isAuthEnabledForRequest(req)) return true;
+  return Boolean(req && req.currentPlayer && isAdminFromPlayer(req.currentPlayer));
+}
+
+function canManagePlayer(req, playerId) {
+  if (!isAuthEnabledForRequest(req)) return true;
+  if (isAdmin(req)) return true;
+  return Boolean(req.currentPlayer && String(req.currentPlayer._id) === String(playerId));
+}
+
 function requireAuthenticated(req, res, next) {
   if (!isAuthEnabledForRequest(req)) return next();
   if (req.currentPlayer) return next();
   return res.status(401).json({ error: 'Authentication required' });
+}
+
+function requireAdmin(req, res, next) {
+  if (!isAuthEnabledForRequest(req)) return next();
+  if (!req.currentPlayer) return res.status(401).json({ error: 'Authentication required' });
+  if (isAdmin(req)) return next();
+  return res.status(403).json({ error: 'Admin privileges required' });
 }
 
 function applyAuth(app) {
@@ -86,6 +148,7 @@ function applyAuth(app) {
       res.locals.authEnabled = false;
       res.locals.isAuthenticated = false;
       res.locals.currentPlayer = null;
+      res.locals.isAdmin = false;
       res.locals.currentUser = null;
       next();
     });
@@ -120,6 +183,7 @@ function applyAuth(app) {
     res.locals.authEnabled = true;
     res.locals.isAuthenticated = Boolean(req.oidc && req.oidc.isAuthenticated());
     res.locals.currentPlayer = null;
+    res.locals.isAdmin = false;
     res.locals.currentUser = req.oidc ? req.oidc.user : null;
 
     if (!res.locals.isAuthenticated || !req.oidc.user) return next();
@@ -128,6 +192,7 @@ function applyAuth(app) {
       const linkedPlayer = await ensurePlayerAccount(req.oidc.user);
       req.currentPlayer = linkedPlayer;
       res.locals.currentPlayer = linkedPlayer;
+      res.locals.isAdmin = isAdminFromPlayer(linkedPlayer);
     } catch (err) {
       console.error('[AUTH] Unable to provision player account:', err.message);
     }
@@ -136,4 +201,13 @@ function applyAuth(app) {
   });
 }
 
-module.exports = { applyAuth, isAuthConfigured, ensurePlayerAccount, requireAuthenticated, isAuthEnabledForRequest };
+module.exports = {
+  applyAuth,
+  isAuthConfigured,
+  ensurePlayerAccount,
+  requireAuthenticated,
+  requireAdmin,
+  isAuthEnabledForRequest,
+  isAdmin,
+  canManagePlayer
+};

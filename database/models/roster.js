@@ -11,7 +11,8 @@ const rosterSchema = new mongoose.Schema({
   warband: { type: mongoose.Schema.Types.ObjectId, ref: 'Warband', required: true },
   rating: { type: Number, default: 0 },
   gold: { type: Number, default: 500 },
-  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
+  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
+  effects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Effect' }]
 }, { timestamps: true, collection: COLLECTION });
 
 const Roster = mongoose.models.Roster || mongoose.model('Roster', rosterSchema);
@@ -23,17 +24,17 @@ function createRoster(data) {
 
 function getRosterById(id) {
   // populate player details when fetching a single roster
-  return Roster.findById(id).populate('player').populate('items').lean().exec();
+  return Roster.findById(id).populate('player').populate('items').populate('effects').lean().exec();
 }
 
 function updateRoster(id, patch = {}) {
   patch.updatedAt = new Date();
-  return Roster.findByIdAndUpdate(id, { $set: patch }, { new: true }).lean().exec();
+  return Roster.findByIdAndUpdate(id, { $set: patch }, { new: true }).populate('effects').lean().exec();
 }
 
 function findRosters(filter = {}, options = {}) {
   // populate player details for listing
-  return Roster.find(filter, null, options).populate('player').lean().exec();
+  return Roster.find(filter, null, options).populate('player').populate('effects').lean().exec();
 }
 
 function deleteRoster(id) {

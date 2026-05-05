@@ -12,6 +12,33 @@ function formatRangeDisplay(range, fallback) {
   return /^\d+(\.\d+)?$/.test(value) ? value + '"' : value;
 }
 
+function normalizePlayerDisplay(playerLike, fullNameOverride, usernameOverride) {
+  var player = (playerLike && typeof playerLike === 'object') ? playerLike : null;
+
+  var fullName = fullNameOverride;
+  if (!fullName && player) {
+    fullName = player.fullName || player.name;
+  }
+  fullName = fullName ? String(fullName).trim() : 'Unknown Player';
+
+  var username = usernameOverride;
+  if (!username && player) {
+    username = player.username
+      || (player.account && player.account.nickname)
+      || (player.meta && player.meta.username)
+      || (player.account && player.account.email ? String(player.account.email).split('@')[0] : '')
+      || (player.email ? String(player.email).split('@')[0] : '');
+  }
+
+  username = username ? String(username).trim() : 'unknown';
+  username = username.replace(/^#/, '') || 'unknown';
+
+  return {
+    fullName: fullName,
+    username: username
+  };
+}
+
 // Require this file where you configure your view engine (ex: in app.js)
 module.exports = {
   ifEq: function(a, b, options) {
@@ -147,8 +174,17 @@ module.exports = {
       case 3: return "Gain Resource";
       case 4: return "Item Transaction";
       case 5: return "Other";
+      case 6: return "Exploration";
+      case 7: return "Result";
       default: return "Unknown";
     }
+  },
+
+  formatEffectDuration: function(duration) {
+    var numeric = Number(duration);
+    if (numeric === 1) return 'Next Game';
+    if (Number.isFinite(numeric)) return String(numeric);
+    return String(duration || '');
   },
 
   formatItemSlot: function(slot) {
@@ -301,5 +337,12 @@ module.exports = {
     var sep = '<span class="pill-divider"></span>';
     var rangeLabel = range ? sep + range : '';
     return  name + rangeLabel;
+  },
+
+  playerDisplayName: function(playerLike, options) {
+    var opts = options && typeof options === 'object' ? options : {};
+    var hash = opts.hash || {};
+    var display = normalizePlayerDisplay(playerLike, hash.fullName, hash.username);
+    return display.fullName + ' #' + display.username;
   }
 };

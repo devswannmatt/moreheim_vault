@@ -1,9 +1,11 @@
 var router = require('express').Router();
 const campaign = require('../database/models/campaign');
+const game = require('../database/models/game');
 const player = require('../database/models/player');
 const roster = require('../database/models/roster');
 const member = require('../database/models/member');
 const event = require('../database/models/event');
+const auth = require('../system/auth');
 
 const calc = require('../js/calc');
 
@@ -25,7 +27,7 @@ router.get('/campaign/:id', async (req, res) => {
     const authEnabled = req.app.locals.authEnabled;
     const currentPlayerId = req.currentPlayer ? String(req.currentPlayer._id) : null;
     const creatorId = result.creator ? String(result.creator) : null;
-    const isCreator = !authEnabled || (!!currentPlayerId && currentPlayerId === creatorId);
+    const isCreator = !authEnabled || auth.isAdmin(req) || (!!currentPlayerId && currentPlayerId === creatorId);
 
     // Privacy check
     if (authEnabled && result.privacy === 'private') {
@@ -35,8 +37,14 @@ router.get('/campaign/:id', async (req, res) => {
       }
     }
 
-    const rostersList = await roster.findRosters();
-    const rosters = await roster.findRosters({ _id: { $in: result.rosters } });
+    const [rostersList, rosters, games, playersList] = await Promise.all([
+      roster.findRosters(),
+      roster.findRosters({ _id: { $in: result.rosters } }),
+      game.findGames({ campaign: result._id }, { sort: { createdAt: -1 } }),
+      player.findPlayers()
+    ]);
+    const campaignPlayerIds = Array.isArray(result.players) ? result.players.map(String) : [];
+    const campaignPlayers = playersList.filter(p => campaignPlayerIds.includes(String(p._id)));
     const topHeroes = [];
 
     function buildPlayerDisplay(playerRecord) {
@@ -90,7 +98,7 @@ router.get('/campaign/:id', async (req, res) => {
     rosters.sort((a, b) => (b.wealth?.rating || 0) - (a.wealth?.rating || 0));
     topHeroes.sort((a, b) => (b.wealth?.rating || 0) - (a.wealth?.rating || 0));
 
-    res.render('campaign', { campaign: result, rostersList, rosters, topHeroes: topHeroes.slice(0, 10), isCreator });
+    res.render('campaign', { campaign: result, rostersList, rosters, games, topHeroes: topHeroes.slice(0, 10), isCreator, playersList, campaignPlayers });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -105,15 +113,19 @@ router.patch('/campaign/:id', async (req, res) => {
     const authEnabled = req.app.locals.authEnabled;
     const currentPlayerId = req.currentPlayer ? String(req.currentPlayer._id) : null;
     const creatorId = result.creator ? String(result.creator) : null;
-    const isCreator = !authEnabled || (!!currentPlayerId && currentPlayerId === creatorId);
+    const isCreator = !authEnabled || auth.isAdmin(req) || (!!currentPlayerId && currentPlayerId === creatorId);
     if (!isCreator) return res.status(403).json({ error: 'Only the campaign creator can add rosters.' });
 
     const rosterData = req.body || {};
-    campaign.addRosterToCampaign(campaignId, rosterData.roster).then((rosterId) => {
-      res.status(200).json({ rosterId });
-    }).catch(err => {
-      res.status(500).json({ error: err.message });
-    });
+    const rosterIds = Array.isArray(rosterData.roster) ? rosterData.roster : (rosterData.roster ? [rosterData.roster] : []);
+    if (!rosterIds.length) return res.status(400).json({ error: 'At least one roster is required.' });
+    const results = await Promise.all(rosterIds.map(rosterId =>
+      campaign.addRosterToCampaign(campaignId, rosterId).catch(err => {
+        if (err.status === 400) return null; // already in campaign, skip
+        throw err;
+      })
+    ));
+    res.status(200).json({ rosterIds: results.filter(Boolean) });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -127,10 +139,73 @@ router.delete('/campaign/:id/roster/:rosterId', async (req, res) => {
     const authEnabled = req.app.locals.authEnabled;
     const currentPlayerId = req.currentPlayer ? String(req.currentPlayer._id) : null;
     const creatorId = result.creator ? String(result.creator) : null;
-    const isCreator = !authEnabled || (!!currentPlayerId && currentPlayerId === creatorId);
+    const isCreator = !authEnabled || auth.isAdmin(req) || (!!currentPlayerId && currentPlayerId === creatorId);
     if (!isCreator) return res.status(403).json({ error: 'Only the campaign creator can remove rosters.' });
 
     await campaign.removeRosterFromCampaign(req.params.id, req.params.rosterId);
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/campaign/:id', async (req, res) => {
+  try {
+    const result = await campaign.getCampaignById(req.params.id);
+    if (!result) return res.status(404).json({ error: 'Campaign not found' });
+
+    const authEnabled = req.app.locals.authEnabled;
+    const currentPlayerId = req.currentPlayer ? String(req.currentPlayer._id) : null;
+    const creatorId = result.creator ? String(result.creator) : null;
+    const isCreator = !authEnabled || auth.isAdmin(req) || (!!currentPlayerId && currentPlayerId === creatorId);
+    if (!isCreator) return res.status(403).json({ error: 'Only the campaign creator can delete this campaign.' });
+
+    await campaign.deleteCampaign(req.params.id);
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.patch('/campaign/:id/player', async (req, res) => {
+  try {
+    const result = await campaign.getCampaignById(req.params.id);
+    if (!result) return res.status(404).json({ error: 'Campaign not found' });
+
+    const authEnabled = req.app.locals.authEnabled;
+    const currentPlayerId = req.currentPlayer ? String(req.currentPlayer._id) : null;
+    const creatorId = result.creator ? String(result.creator) : null;
+    const isCreator = !authEnabled || auth.isAdmin(req) || (!!currentPlayerId && currentPlayerId === creatorId);
+    if (!isCreator) return res.status(403).json({ error: 'Only the campaign creator can add players.' });
+
+    const playerIds = Array.isArray(req.body.player) ? req.body.player : (req.body.player ? [req.body.player] : []);
+    if (!playerIds.length) return res.status(400).json({ error: 'Player ID is required.' });
+
+    await Promise.all(playerIds.map(playerId =>
+      campaign.addPlayerToCampaign(req.params.id, playerId).catch(err => {
+        if (err.status === 400) return null; // already in campaign, skip
+        throw err;
+      })
+    ));
+    res.status(200).json({ success: true });
+  } catch (err) {
+    const status = err.status || 500;
+    res.status(status).json({ error: err.message });
+  }
+});
+
+router.delete('/campaign/:id/player/:playerId', async (req, res) => {
+  try {
+    const result = await campaign.getCampaignById(req.params.id);
+    if (!result) return res.status(404).json({ error: 'Campaign not found' });
+
+    const authEnabled = req.app.locals.authEnabled;
+    const currentPlayerId = req.currentPlayer ? String(req.currentPlayer._id) : null;
+    const creatorId = result.creator ? String(result.creator) : null;
+    const isCreator = !authEnabled || auth.isAdmin(req) || (!!currentPlayerId && currentPlayerId === creatorId);
+    if (!isCreator) return res.status(403).json({ error: 'Only the campaign creator can remove players.' });
+
+    await campaign.removePlayerFromCampaign(req.params.id, req.params.playerId);
     res.status(200).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -145,7 +220,7 @@ router.patch('/campaign/:id/settings', async (req, res) => {
     const authEnabled = req.app.locals.authEnabled;
     const currentPlayerId = req.currentPlayer ? String(req.currentPlayer._id) : null;
     const creatorId = result.creator ? String(result.creator) : null;
-    const isCreator = !authEnabled || (!!currentPlayerId && currentPlayerId === creatorId);
+    const isCreator = !authEnabled || auth.isAdmin(req) || (!!currentPlayerId && currentPlayerId === creatorId);
     if (!isCreator) return res.status(403).json({ error: 'Only the campaign creator can edit settings.' });
 
     const body = req.body || {};

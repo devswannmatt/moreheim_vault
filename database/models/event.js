@@ -7,7 +7,7 @@ const eventSchema = new mongoose.Schema({
   type: { type: Number, required: true },
   entities: [{
     id: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'entities.kind' },
-    kind: { type: String, required: true, enum: ['Roster','Member','Campaign'] }
+    kind: { type: String, required: true, enum: ['Roster','Member','Campaign','Game'] }
   }],
   name: { type: String, required: true },
   description: { type: String, default: '' },
@@ -27,6 +27,15 @@ const eventSchema = new mongoose.Schema({
       default: 0
     }
   },
+  rewards: {
+    gold: { type: Number, default: 0 },
+    wyrdstone: { type: Number, default: 0 }
+  },
+  result: {
+    draw: { type: Boolean, default: false },
+    winners: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Roster' }],
+    losers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Roster' }]
+  },
   advance: { type: String, default: '' },
   advance_linked: { type: String, default: '' },
   injury: { type: Number, default: 0 }
@@ -39,12 +48,7 @@ function createEvent(data) {
 }
 
 function getEventById(id) {
-  // populate the referenced docs
-  Event.findById(id)
-    .populate('entities.id')
-    .then(ev => {
-      // ev.entities[i].id is populated document (Roster/Member/Campaign)
-    });
+  return Event.findById(id).populate('entities.id').lean().exec();
 }
 
 function updateEvent(id, patch = {}) {

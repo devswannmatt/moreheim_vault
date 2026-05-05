@@ -1,7 +1,10 @@
 var router = require('express').Router();
-const player = require('../database/models/player');
-const roster = require('../database/models/roster');
-const auth   = require('../system/auth');
+const player   = require('../database/models/player');
+const roster   = require('../database/models/roster');
+const warband  = require('../database/models/warband');
+const campaign = require('../database/models/campaign');
+const member   = require('../database/models/member');
+const auth     = require('../system/auth');
 
 router.get('/', async (req, res) => {
   console.log("Rendering players view");
@@ -18,11 +21,43 @@ router.get('/player/:id', async (req, res) => {
   console.log(`Fetching player with ID: ${req.params.id}`);
   try {
     const item = await player.getPlayerById(req.params.id);
-    const rosters = await roster.findRosters({ player: req.params.id });
     if (!item) {
       return res.status(404).json({ error: 'Player not found' });
     }
-    res.render('player', { player: item, rosters: rosters });
+    const [rosters, warbands, campaigns] = await Promise.all([
+      roster.findRosters({ player: req.params.id }, { sort: { createdAt: -1 } }),
+      warband.findWarbands({}, { sort: { name: 1 } }),
+      campaign.findCampaigns({
+        $or: [
+          { creator: req.params.id },
+          { players: req.params.id }
+        ]
+      }, { sort: { updatedAt: -1 } })
+    ]);
+
+    // Flag each campaign with whether this player is the creator
+    campaigns.forEach(c => {
+      c.isCreatedByPlayer = c.creator && String(c.creator) === String(req.params.id);
+    });
+
+    // Compute member counts per roster
+    const rosterIds = rosters.map(r => r._id);
+    const allMembers = rosterIds.length
+      ? await member.findMembers({ roster: { $in: rosterIds } })
+      : [];
+    const memberCountByRoster = new Map();
+    allMembers.forEach(m => {
+      const rid = String(m.roster && m.roster._id ? m.roster._id : m.roster);
+      memberCountByRoster.set(rid, (memberCountByRoster.get(rid) || 0) + (m.qty || 1));
+    });
+    rosters.forEach(r => { r.memberCount = memberCountByRoster.get(String(r._id)) || 0; });
+
+    const isOwnProfile = auth.isAuthEnabledForRequest(req)
+      ? (req.currentPlayer && String(req.currentPlayer._id) === String(req.params.id))
+      : true;
+    const canEdit = auth.canManagePlayer(req, req.params.id);
+
+    res.render('player', { player: item, rosters, warbands, campaigns, isOwnProfile, canEdit });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -31,7 +66,7 @@ router.get('/player/:id', async (req, res) => {
 router.patch('/player/:id', auth.requireAuthenticated, async (req, res) => {
   console.log(`Updating player with ID: ${req.params.id} with data:`, req.body);
   try {
-    if (auth.isAuthEnabledForRequest(req) && String(req.currentPlayer._id) !== String(req.params.id)) {
+    if (!auth.canManagePlayer(req, req.params.id)) {
       return res.status(403).json({ error: 'You can only modify your own player account.' });
     }
     player.updatePlayer(req.params.id, req.body).then(updatedPlayer => {

@@ -14,6 +14,7 @@ PORT=4000 npm start
 Environment
 - Environment variables are loaded from `.env` (use `.env.example` as a template). The app uses `dotenv` to auto-load variables on start.
 - Requires PORT and MONGODB_URI to be set, otherwise system will not start.
+- Optional: set `ADMIN_SUBJECTS` to a comma-separated list of Auth0 subject IDs (`sub`) that should receive the `admin` role on login (example: `auth0|abc123,google-oauth2|xyz789`).
 
 MongoDB
 - Set `MONGODB_URI` to point to your MongoDB server.

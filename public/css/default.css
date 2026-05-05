@@ -766,3 +766,10 @@ table.tight-rows td, table.tight-rows th {
     border-color: #b71c1c;
     color: #fff;
 }
+
+.roster-pill-effect {
+    background: #6a1b9a;
+    border-color: #4a148c;
+    color: #fff;
+    cursor: default;
+}

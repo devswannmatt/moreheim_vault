@@ -41,7 +41,7 @@
     <tbody>
     {{#each players}}
         <tr>
-            <td>{{{link this.name (concat '/players/player/' this._id)}}}</td>
+            <td>{{{link (playerDisplayName this) (concat '/players/player/' this._id)}}}</td>
             <td>{{this}}</td>
             <td>{{this.createdAt}}</td>
         </tr>

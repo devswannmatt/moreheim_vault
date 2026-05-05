@@ -1,0 +1,32 @@
+<div class="card">
+    <div class="card-content">
+        <span class="card-title">Effects: {{member.name}}</span>
+
+        {{#if canEdit}}
+        <form id="member-effects-form" data-method="PATCH" data-redirect="close" action="/effects/member/{{member._id}}/effects">
+            <div class="row" style="margin-bottom:8px;">
+                <div class="col s12">
+                    {{#if effects.length}}
+                    <p class="grey-text text-darken-1" style="margin-top:0;">Select effects to apply. Uncheck to remove.</p>
+                    {{#each effects}}
+                    <p style="margin:8px 0;">
+                        <label>
+                            <input type="checkbox" name="effects" value="{{this._id}}" {{#if (isInArray this._id ../member.effects)}}checked{{/if}}>
+                            <span>{{this.name}} ({{formatEffectDuration this.duration}}){{#if this.description}} - {{this.description}}{{/if}}</span>
+                        </label>
+                    </p>
+                    {{/each}}
+                    {{else}}
+                    <span class="grey-text text-darken-1">No effects exist yet. Create some first from the Effects page.</span>
+                    {{/if}}
+                </div>
+            </div>
+
+            <button class="btn waves-effect waves-light" type="submit">Save Effects</button>
+            <a href="/effects" target="_blank" rel="noopener" class="btn-flat">Create New Effect</a>
+        </form>
+        {{else}}
+        <span class="grey-text text-darken-1">You can only edit effects for members in your own roster.</span>
+        {{/if}}
+    </div>
+</div>

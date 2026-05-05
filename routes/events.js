@@ -3,6 +3,7 @@ const event = require('../database/models/event');
 const roster = require('../database/models/roster');
 const member = require('../database/models/member');
 const campaign = require('../database/models/campaign');
+const game = require('../database/models/game');
 const trait = require('../database/models/trait');
 const auth = require('../system/auth');
 const calc = require('../js/calc');
@@ -11,7 +12,7 @@ async function playerOwnsRoster(req, rosterId) {
   const r = await roster.getRosterById(rosterId);
   if (!r) return false;
   const ownerId = (r.player && r.player._id) ? r.player._id : r.player;
-  return String(req.currentPlayer._id) === String(ownerId);
+  return auth.canManagePlayer(req, ownerId);
 }
 
 async function playerOwnsMember(req, memberId) {
@@ -21,12 +22,24 @@ async function playerOwnsMember(req, memberId) {
   return playerOwnsRoster(req, rosterId);
 }
 
+async function playerOwnsGame(req, gameId) {
+  const g = await game.getGameById(gameId);
+  if (!g) return false;
+  const rosters = Array.isArray(g.rosters) ? g.rosters : [];
+  for (const entry of rosters) {
+    const rosterId = entry && entry._id ? entry._id : entry;
+    if (await playerOwnsRoster(req, rosterId)) return true;
+  }
+  return false;
+}
+
 async function assertOwnedEvent(req, res, eventId) {
   if (!auth.isAuthEnabledForRequest(req)) return true;
   if (!req.currentPlayer) {
     res.status(401).json({ error: 'Authentication required' });
     return false;
   }
+  if (auth.isAdmin(req)) return true;
   const events = await event.findEvents({ _id: eventId });
   const targetEvent = events[0];
   if (!targetEvent) {
@@ -46,6 +59,10 @@ async function assertOwnedEvent(req, res, eventId) {
       res.status(403).json({ error: 'Campaign events are not editable through player ownership.' });
       return false;
     }
+    if (entity.kind === 'Game' && !(await playerOwnsGame(req, entity.id && entity.id._id ? entity.id._id : entity.id))) {
+      res.status(403).json({ error: 'You can only modify events attached to games containing one of your rosters.' });
+      return false;
+    }
   }
   return true;
 }
@@ -56,16 +73,18 @@ router.get('/', async (req, res) => {
     const events = await event.findEvents();
 
     // fetch rosters, members and campaigns in parallel and build an entities list
-    const [rosters, members, campaigns] = await Promise.all([
+    const [rosters, members, campaigns, games] = await Promise.all([
       roster.findRosters(),
       member.findMembers(),
-      campaign.findCampaigns()
+      campaign.findCampaigns(),
+      game.findGames()
     ]);
 
     const entities = [];
     rosters.forEach(r => entities.push({ _id: r._id, name: r.name, type: 'Roster' }));
     members.forEach(m => entities.push({ _id: m._id, name: m.name, type: 'Member' }));
     campaigns.forEach(c => entities.push({ _id: c._id, name: c.name, type: 'Campaign' }));
+    games.forEach(g => entities.push({ _id: g._id, name: g.name, type: 'Game' }));
 
     res.render('events', { events: events, entities: entities, eventTypes: calc.fetchEventTypes() });
   } catch (err) {
@@ -155,6 +174,9 @@ router.post('/create', auth.requireAuthenticated, async (req, res) => {
       }
       if (entity.kind === 'Campaign') {
         return res.status(403).json({ error: 'Campaign events are not editable through player ownership.' });
+      }
+      if (entity.kind === 'Game' && !(await playerOwnsGame(req, entity.id))) {
+        return res.status(403).json({ error: 'You can only create events for games containing one of your rosters.' });
       }
     }
 

@@ -1,0 +1,426 @@
+<div class="row">
+    <div class="col s12 m12">
+        <div class="card">
+            <form id="game-form" data-method="PATCH" action="/games/game/{{game._id}}">
+                <div class="card-content" style="padding-bottom:0;">
+                    <span class="card-title"><i class="fa fa-shield" style="margin-right:8px; color:#546e7a;"></i>Game</span>
+                    <div class="row">
+                        <div class="col s12 m8">
+                            <div class="input-field">
+                                <input id="name" name="name" type="text" value="{{game.name}}" required>
+                                <label for="name" class="active">Name</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m4">
+                            <div class="input-field">
+                                <select id="campaign" name="campaign">
+                                    <option value="" {{#unless game.campaign}}selected{{/unless}}>No Campaign</option>
+                                    {{#each campaignList}}
+                                    <option value="{{this._id}}" {{#ifCond this._id '==' ../game.campaign._id}}selected{{/ifCond}}>{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                                <label for="campaign" class="active">Campaign</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="input-field">
+                                <textarea id="description" name="description" class="materialize-textarea">{{game.description}}</textarea>
+                                <label for="description" class="active">Description</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12">
+                            {{> field_select_multi list=rosterList selected=game.rosters id="rosters" name="rosters" label="Rosters"}}
+                        </div>
+                    </div>
+                    {{#if game.rosters.length}}
+                    <div class="row">
+                        <div class="col s12">
+                            <span class="grey-text text-darken-1">Selected Rosters</span>
+                            <table class="striped responsive-table">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Player</th>
+                                    <th>Warband</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{#each game.rosters}}
+                                <tr>
+                                    <td><a href="/rosters/roster/{{this._id}}">{{this.name}}</a></td>
+                                    <td>{{#if this.player}}{{playerDisplayName this.player}}{{else}}-{{/if}}</td>
+                                    <td>{{#if this.warband}}{{this.warband.name}}{{else}}-{{/if}}</td>
+                                </tr>
+                                {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {{/if}}
+                </div>
+                <div class="card-action blue lighten-5">
+                    <div class="row" style="margin-bottom:0;">
+                        <div class="col s6">
+                            {{#if game.campaign}}
+                            <a href="/campaigns/campaign/{{game.campaign._id}}" class="btn-small grey lighten-4 black-text">View Campaign</a>
+                            {{/if}}
+                        </div>
+                        <div class="col s6 right-align">
+                            <div class="btn-area">
+                                <a href="/games/game/{{game._id}}" data-method="delete" class="btn waves-effect waves-light red" title="Delete game">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                                <button class="btn waves-effect waves-light" type="submit" title="Save game">
+                                    <i class="fa fa-save"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="row">
+        <div class="col s12 m6">
+        <div class="card">
+            <div class="red darken-2" style="padding:14px 24px; border-radius:2px 2px 0 0;">
+                <span class="white-text" style="font-size:1.2rem; font-weight:500;"><i class="fa fa-heartbeat" style="margin-right:8px;"></i>Injury</span>
+            </div>
+            <div class="card-content">
+                {{#if canEdit}}
+                <form id="injury-form" method="POST" action="/games/game/{{game._id}}/event/injury">
+                    <div class="row">
+                        <div class="col s12 m6">
+                            <div class="input-field">
+                                <select id="injury-roster" name="injuryRoster" required>
+                                    <option value="" disabled selected>Choose roster</option>
+                                    {{#each game.rosters}}
+                                    <option value="{{this._id}}">{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                                <label for="injury-roster">Roster</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m6">
+                            <div class="input-field">
+                                <select id="injury-member" name="member" required>
+                                    <option value="" disabled selected>Choose member</option>
+                                    {{#each injuryMembers}}
+                                    <option value="{{this._id}}" data-roster-id="{{this.rosterId}}" data-unit-type="{{this.unitType}}">{{this.name}} ({{this.rosterName}})</option>
+                                    {{/each}}
+                                </select>
+                                <label for="injury-member">Member</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12 m8">
+                            <div class="input-field">
+                                <select id="injury-type" name="injury" required>
+                                    <option value="" disabled selected>Choose injury</option>
+                                    {{#each injuryOptions}}
+                                    <option value="{{this.id}}">{{this.roll}} - {{this.label}}</option>
+                                    {{/each}}
+                                </select>
+                                <label for="injury-type">Injury</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m4">
+                            <div class="input-field">
+                                <select id="injury-game" disabled>
+                                    <option value="{{game._id}}" selected>{{game.name}}</option>
+                                </select>
+                                <label for="injury-game">Game</label>
+                            </div>
+                            <input type="hidden" name="game" value="{{game._id}}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="input-field">
+                                <input id="injury-description" name="description" type="text">
+                                <label for="injury-description">Notes</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn waves-effect waves-light" type="submit">
+                        <i class="fa fa-heartbeat" style="margin-right:6px;"></i>Create Injury Event
+                    </button>
+                </form>
+                {{else}}
+                <span class="grey-text text-darken-1">You need one of your rosters in this game to add injury events.</span>
+                {{/if}}
+            </div>
+        </div>
+        </div><!-- end col injury -->
+
+        <div class="col s12 m6">
+        <div class="card">
+            <div class="indigo darken-1" style="padding:14px 24px; border-radius:2px 2px 0 0;">
+                <span class="white-text" style="font-size:1.2rem; font-weight:500;"><i class="fa fa-flag-checkered" style="margin-right:8px;"></i>Result</span>
+            </div>
+            <div class="card-content">
+                {{#if canEdit}}
+                <form method="POST" action="/games/game/{{game._id}}/event/result">
+                    <div class="row">
+                        <div class="col s12 m5">
+                            {{> field_select_multi list=game.rosters selected=null id="result-winners" name="winners" label="Winners"}}
+                        </div>
+                        <div class="col s12 m5">
+                            {{> field_select_multi list=game.rosters selected=null id="result-losers" name="losers" label="Losers"}}
+                        </div>
+                        <div class="col s12 m2" style="padding-top:24px;">
+                            <label>
+                                <input type="checkbox" name="draw" />
+                                <span>Draw</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="input-field">
+                                <input id="result-description" name="description" type="text">
+                                <label for="result-description">Notes</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn waves-effect waves-light" type="submit">
+                        <i class="fa fa-flag-checkered" style="margin-right:6px;"></i>Create Result Event
+                    </button>
+                </form>
+                {{else}}
+                <span class="grey-text text-darken-1">You need one of your rosters in this game to add result events.</span>
+                {{/if}}
+            </div>
+        </div>
+        </div><!-- end col result -->
+        </div><!-- end row injury+result -->
+
+        <script id="exploration-roster-members-data" type="application/json">{{{json explorationRosterMembers}}}</script>
+        <script id="game-result-data" type="application/json">{{{json gameResultData}}}</script>
+
+        <div class="card">
+            <div class="teal darken-1" style="padding:14px 24px; border-radius:2px 2px 0 0;">
+                <span class="white-text" style="font-size:1.2rem; font-weight:500;"><i class="fa fa-compass" style="margin-right:8px;"></i>Exploration</span>
+            </div>
+            <div class="card-content">
+                {{#if gameResultEvent}}
+                    {{#if gameResultDraw}}
+                    <div class="card-panel teal lighten-5" style="margin-bottom:12px;">
+                        <strong>Result:</strong> Draw — all rosters explore normally (no win bonus).
+                    </div>
+                    {{else}}
+                    <div class="card-panel teal lighten-5" style="margin-bottom:12px;">
+                        <strong>Result recorded.</strong> Selecting a roster below will automatically set the win bonus.
+                    </div>
+                    {{/if}}
+                {{else}}
+                <div class="card-panel orange lighten-4" style="margin-bottom:12px;">
+                    <i class="fa fa-exclamation-triangle" style="margin-right:6px;"></i>
+                    A <strong>Result Event</strong> must be recorded above before exploration can be entered.
+                </div>
+                {{/if}}
+                {{#if canEdit}}
+                {{#if gameResultEvent}}
+                <form id="exploration-form" method="POST" action="/games/game/{{game._id}}/event/exploration">
+                    <div class="row">
+                        <div class="col s12 m3">
+                            <div class="input-field">
+                                <select id="exploration-roster" name="roster" required>
+                                    <option value="" disabled selected>Choose roster</option>
+                                    {{#each game.rosters}}
+                                    <option value="{{this._id}}" data-hero-count="{{this.heroCount}}" data-warband-name="{{#if this.warband}}{{this.warband.name}}{{else}}-{{/if}}">{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                                <label for="exploration-roster">Roster</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m2">
+                            <div class="input-field">
+                                <input id="exploration-warband" type="text" value="" readonly>
+                                <label for="exploration-warband" class="active">Warband</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m3">
+                            <div class="input-field">
+                                <input id="exploration-hero-count" name="exploration.heroDice" type="number" min="0" value="0" required>
+                                <label for="exploration-hero-count" class="active tooltipped" data-tooltip="Number of Heroes and any bonuses, Win bonus will be applied at the time of rolling.">Exploration Dice</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m2" style="padding-top:24px;">
+                            <label>
+                                <input id="exploration-win-bonus" type="checkbox" name="exploration.winBonus" value="1" />
+                                <span>Won This Game (+1 die)</span>
+                            </label>
+                        </div>
+                        <div class="col s12 m2" style="padding-top:12px;">
+                            <button id="roll-exploration-dice" class="btn waves-effect waves-light blue" type="button">
+                                <i class="fa fa-dice" style="margin-right:6px;"></i>Roll Dice
+                            </button>
+                            <button id="enter-exploration-dice" class="btn waves-effect waves-light grey darken-2" type="button" style="margin-top:8px;">
+                                <i class="fa fa-keyboard" style="margin-right:6px;"></i>Enter Real Dice
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col s12">
+                            <div id="exploration-roll-output" class="card-panel blue-grey lighten-5" style="margin-top:0; display:none;">
+                                <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+                                    <strong>Rolls:</strong>
+                                    <span id="exploration-roll-list"></span>
+                                </div>
+                                <div style="margin-top:8px;">
+                                    <strong>Total:</strong>
+                                    <span id="exploration-roll-total">0</span>
+                                </div>
+                                <div style="margin-top:8px;">
+                                    <strong>Matches:</strong>
+                                    <span id="exploration-roll-matches">None</span>
+                                </div>
+                                <div id="exploration-roll-outcomes" style="margin-top:8px; display:none;"></div>
+                                <div style="margin-top:8px;">
+                                    <strong>Shards Found:</strong>
+                                    <span id="exploration-roll-shards">0</span>
+                                </div>
+                                <div style="margin-top:8px;">
+                                    <strong>Total Rewards:</strong>
+                                    <span id="exploration-total-rewards">0 gc + 0 shards</span>
+                                </div>
+                                <div class="grey-text text-darken-1" style="margin-top:4px;">
+                                    Special location outcomes are resolved automatically from matching dice.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input id="exploration-rolls-hidden" type="hidden" name="exploration.rolls" value="">
+                    <input id="exploration-total-hidden" type="hidden" name="exploration.total" value="0">
+                    <input id="exploration-dice-hidden" type="hidden" name="exploration.totalDice" value="0">
+
+                    <div class="row">
+                        <div class="col s12 m3">
+                            <div class="input-field">
+                                <input id="rewards-gold-base" name="rewards.baseGold" type="number" min="0" value="0" required>
+                                <label for="rewards-gold-base" class="active">Gold (Base)</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m4">
+                            <div class="input-field">
+                                <input id="rewards-wyrdstone-base" name="rewards.baseWyrdstone" type="number" min="0" value="0" required readonly>
+                                <label for="rewards-wyrdstone-base" class="active">Wyrdstone (Base Auto)</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m5">
+                            <div class="input-field">
+                                <input id="exploration-items" name="exploration.items" type="text" value="">
+                                <label for="exploration-items" class="active">Items (CSV)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col s12 m3">
+                            <div class="input-field">
+                                <input id="submission-rewards-gold" name="rewards.gold" type="number" min="0" value="0" required readonly>
+                                <label for="submission-rewards-gold" class="active">Gold (Final)</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m4">
+                            <div class="input-field">
+                                <input id="submission-rewards-wyrdstone" name="rewards.wyrdstone" type="number" min="0" value="0" required readonly>
+                                <label for="submission-rewards-wyrdstone" class="active">Wyrdstone (Final)</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m2">
+                            <div class="input-field">
+                                <input id="exploration-description" name="description" type="text">
+                                <label for="exploration-description">Notes</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn waves-effect waves-light" type="submit">
+                        <i class="fa fa-compass" style="margin-right:6px;"></i>Create Exploration Event
+                    </button>
+                </form>
+                {{else}}
+                <span class="grey-text text-darken-1">Record the Result above to unlock exploration entry.</span>
+                {{/if}}
+                {{else}}
+                <span class="grey-text text-darken-1">You need one of your rosters in this game to add exploration events.</span>
+                {{/if}}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="blue-grey darken-2" style="padding:14px 24px; border-radius:2px 2px 0 0;">
+                <span class="white-text" style="font-size:1.2rem; font-weight:500;"><i class="fa fa-list" style="margin-right:8px;"></i>Game Events</span>
+            </div>
+            <div class="card-content">
+                <table class="striped responsive-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Roster</th>
+                            <th>Rewards</th>
+                            <th>Notes</th>
+                            <th>Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#if gameEvents.length}}
+                        {{#each gameEvents}}
+                        <tr>
+                            <td>{{formatEventType this.type}}</td>
+                            <td>
+                                {{#each this.entities}}
+                                    {{#ifEq this.kind 'Roster'}}
+                                        <a href="/rosters/roster/{{this.id._id}}">{{this.id.name}}</a>
+                                    {{else}}
+                                        {{#ifEq this.kind 'Member'}}
+                                            <a href="#content-modal" class="modal-trigger" data-modal-url="/members/member/{{this.id._id}}">{{this.id.name}}</a>
+                                        {{/ifEq}}
+                                    {{/ifEq}}
+                                {{/each}}
+                            </td>
+                            <td>
+                                {{#ifEq this.type 6}}
+                                    Gold x{{this.rewards.gold}} | Wyrdstone x{{this.rewards.wyrdstone}}
+                                {{else}}
+                                    {{#ifEq this.type 7}}
+                                        {{#if this.resultSummary}}{{this.resultSummary}}{{else}}Result{{/if}}
+                                    {{else}}
+                                        {{this.name}}
+                                    {{/ifEq}}
+                                {{/ifEq}}
+                            </td>
+                            <td>{{this.description}}</td>
+                            <td>{{formatDateTime this.createdAt}}</td>
+                            <td class="center-align">
+                                {{#if this.canDelete}}
+                                <a href="/events/event/{{this._id}}" class="tooltipped" data-method="delete"
+                                    data-tooltip="Delete event" data-position="top" title="Delete event">
+                                    <i class="fa fa-trash red-text"></i>
+                                </a>
+                                {{/if}}
+                            </td>
+                        </tr>
+                        {{/each}}
+                        {{else}}
+                        <tr>
+                            <td colspan="6" class="center-align grey-text text-darken-1">No events logged for this game yet.</td>
+                        </tr>
+                        {{/if}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/event-exploration.js"></script>

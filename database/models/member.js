@@ -15,7 +15,8 @@ const memberSchema = new mongoose.Schema({
   traits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trait' }],
   items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
   order: { type: Number, default: 0 },
-  isLeader: { type: Boolean, default: false }
+  isLeader: { type: Boolean, default: false },
+  effects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Effect' }],
 }, { timestamps: true, collection: COLLECTION });
 
 const Member = mongoose.models.Member || mongoose.model('Member', memberSchema);
@@ -29,6 +30,7 @@ function getMemberById(id) {
   return Member.findById(id)
     .populate('roster')
     .populate('unit')
+    .populate('effects')
     .populate({ path: 'unit', populate: { path: 'traits' } })
     .populate({ path: 'unit', populate: { path: 'items' } })
     .populate({ path: 'items', populate: { path: 'traits' } })
@@ -41,6 +43,7 @@ function updateMember(id, patch = {}) {
   return Member.findByIdAndUpdate(id, { $set: patch }, { new: true })
     .populate('roster')
     .populate('unit')
+    .populate('effects')
     .populate({ path: 'items', populate: { path: 'traits' } })
     .lean()
     .exec();
@@ -50,6 +53,7 @@ function findMembers(filter = {}, options = {}) {
   return Member.find(filter, null, options)
     .populate('roster')
     .populate('unit')
+    .populate('effects')
     .populate({ path: 'items', populate: { path: 'traits' } })
     .populate({ path: 'unit', populate: { path: 'traits' } })
     .populate({ path: 'unit', populate: { path: 'items' } })

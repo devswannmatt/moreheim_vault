@@ -11,9 +11,10 @@ const auth    = require('../system/auth');
 const calc = require('../js/calc');
 
 function renderView(req, res, view, data) {
+  const isModal = req.query && (req.query.modal === '1' || req.query.modal === 'true');
   return res.render(view, Object.assign({}, data, {
-    isModal: req.query && (req.query.modal === '1' || req.query.modal === 'true'),
-    layout: !(req.query && (req.query.modal === '1' || req.query.modal === 'true'))
+    isModal: isModal,
+    layout: isModal ? false : undefined
   }));
 }
 
@@ -45,8 +46,7 @@ async function findUnitsForWarband(warbandId) {
 }
 
 function isOwnedByCurrentPlayer(req, playerId) {
-  if (!auth.isAuthEnabledForRequest(req)) return true;
-  return Boolean(req.currentPlayer && String(req.currentPlayer._id) === String(playerId));
+  return auth.canManagePlayer(req, playerId);
 }
 
 function buildMemberItemEvent(action, itemName, goldAmount, qty) {
@@ -219,15 +219,51 @@ router.get('/member/:id', async (req, res) => {
 
     events.forEach(ev => {
       if (ev.injury) ev.details = calc.fetchInjuries(ev.injury);
+
+      const gameEntity = Array.isArray(ev.entities)
+        ? ev.entities.find(function (entity) { return entity && entity.kind === 'Game'; })
+        : null;
+      const gameValue = gameEntity && gameEntity.id;
+      const gameId = gameValue && gameValue._id ? String(gameValue._id) : (gameValue ? String(gameValue) : '');
+      const gameName = gameValue && gameValue.name ? String(gameValue.name) : '';
+      ev.gameId = gameId;
+      ev.gameName = gameName;
     });
 
-    var injuries = events.filter(ev => ev.type === 2);
+    var injuries = events.filter(function (ev) {
+      return Number(ev.type) === 2;
+    });
+    var injuryStacksMap = new Map();
+    injuries.forEach(function (ev) {
+      var injuryId = Number(ev.injury);
+      var details = ev.details || calc.fetchInjuries(ev.injury);
+      var key = Number.isNaN(injuryId)
+        ? String(details && details.label ? details.label : '').trim().toLowerCase()
+        : String(injuryId);
+      if (!key) return;
+
+      if (!injuryStacksMap.has(key)) {
+        injuryStacksMap.set(key, {
+          injury: Number.isNaN(injuryId) ? 999 : injuryId,
+          details: details,
+          count: 0,
+          eventIds: []
+        });
+      }
+
+      var stack = injuryStacksMap.get(key);
+      stack.count += 1;
+      stack.eventIds.push(ev._id);
+    });
+    var injuryStacks = Array.from(injuryStacksMap.values()).sort(function (a, b) {
+      return (a.injury || 0) - (b.injury || 0);
+    });
     
     const memberRosterId = (result.roster && result.roster._id) ? result.roster._id : result.roster;
     const memberRoster = await roster.getRosterById(memberRosterId);
     const canEdit = isOwnedByCurrentPlayer(req, memberRoster && memberRoster.player && memberRoster.player._id ? memberRoster.player._id : memberRoster?.player);
 
-    renderView(req, res, 'member', { member: result, rosters: rosters, units: units, events: events, injuries: injuries, canEdit });
+    renderView(req, res, 'member', { member: result, rosters: rosters, units: units, events: events, injuries: injuries, injuryStacks: injuryStacks, canEdit });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

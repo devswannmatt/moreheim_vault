@@ -92,6 +92,11 @@ function updateCampaign(id, patch = {}) {
   return Campaign.updateOne({ _id }, { $set: patch }).then(() => getCampaignById(_id));
 }
 
+function deleteCampaign(id) {
+  const _id = typeof id === 'string' ? new mongoose.Types.ObjectId(id) : id;
+  return Campaign.findByIdAndDelete(_id).lean().exec();
+}
+
 function findCampaigns(filter = {}, options = {}) {
   return Campaign.find(filter, null, options).lean().exec();
 }
@@ -104,6 +109,7 @@ module.exports = {
   addRosterToCampaign,
   removeRosterFromCampaign,
   updateCampaign,
+  deleteCampaign,
   findCampaigns,
   COLLECTION
 };

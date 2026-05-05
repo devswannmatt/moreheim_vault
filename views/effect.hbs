@@ -1,0 +1,56 @@
+<div class="row">
+    <div class="col s12 m6">
+        <div class="card">
+            <form id="effect-form" data-method="PATCH" action="/effects/effect/{{effect._id}}">
+                <div class="card-content">
+                    <span class="card-title">Edit Effect</span>
+                    <div class="row">
+                        <div class="col s12 m6">
+                            <div class="input-field">
+                                <input id="name" name="name" type="text" value="{{effect.name}}" required>
+                                <label for="name" class="active">Name</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m3">
+                            <div class="input-field">
+                                <input id="duration" name="duration" type="number" min="1" value="{{effect.duration}}" required>
+                                <label for="duration" class="active">Duration</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m3">
+                            <div class="input-field">
+                                <input id="icon" name="icon" type="text" value="{{effect.icon}}">
+                                <label for="icon" class="active">Icon</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="input-field">
+                                <input id="description" name="description" type="text" value="{{effect.description}}">
+                                <label for="description" class="active">Description</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-action blue lighten-5">
+                    <div class="row" style="margin-bottom:0;">
+                        <div class="col s6">
+                            <a href="/effects" class="btn-small grey lighten-4 black-text">Back to Effects</a>
+                        </div>
+                        <div class="col s6 right-align">
+                            <div class="btn-area">
+                                <a href="/effects/effect/{{effect._id}}" data-method="delete" class="btn waves-effect waves-light red" title="Delete effect">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                                <button class="btn waves-effect waves-light" type="submit" title="Save effect">
+                                    <i class="fa fa-save"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

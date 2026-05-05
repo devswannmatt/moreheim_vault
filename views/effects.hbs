@@ -1,0 +1,71 @@
+<div class="section">
+    <h3>Effects</h3>
+
+    <div class="row">
+        <div class="col s12 m5">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Create Effect</span>
+                    <form id="create-effect-form" method="POST" action="/effects/create">
+                        <div class="row">
+                            <div class="col s12 m6">
+                                <div class="input-field">
+                                    <input id="name" name="name" type="text" required>
+                                    <label for="name" class="active">Name</label>
+                                </div>
+                            </div>
+                            <div class="col s12 m3">
+                                <div class="input-field">
+                                    <input id="duration" name="duration" type="number" min="1" value="1" required>
+                                    <label for="duration" class="active">Duration</label>
+                                </div>
+                            </div>
+                            <div class="col s12 m3">
+                                <div class="input-field">
+                                    <input id="icon" name="icon" type="text">
+                                    <label for="icon" class="active">Icon</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <div class="input-field">
+                                    <input id="description" name="description" type="text">
+                                    <label for="description" class="active">Description</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn waves-effect waves-light" type="submit">Create Effect</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="striped responsive-table" id="effects-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Duration</th>
+                <th>Icon</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each effects}}
+            <tr>
+                <td>{{this.name}}</td>
+                <td>{{formatEffectDuration this.duration}}</td>
+                <td>{{this.icon}}</td>
+                <td>{{this.description}}</td>
+                <td class="right-align">
+                    <a href="/effects/effect/{{this._id}}" class="btn-small waves-effect waves-light grey darken-1" title="Edit effect">
+                        <i class="fa fa-pencil"></i>
+                    </a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>

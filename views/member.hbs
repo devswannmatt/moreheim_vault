@@ -108,10 +108,17 @@
                         <div class="col s6" style="border-radius: 8px;">
                             <small class="grey-text text-darken-1">Injuries</small>
                             <div class="border-bottom"></div>
-                            {{#each injuries}}
+                            {{#each injuryStacks}}
                                 <div style="margin-bottom:8px">
                                     <div>
-                                        <a href="/events/event/{{_id}}">{{this.details.label}}</a> <small class="grey-text text-darken-1" style="float:right;">Result: {{this.details.value}}</small>
+                                        <a href="/events/event/{{this.eventIds.[0]}}">
+                                            {{#ifCond this.count '>' 1}}
+                                                {{this.count}} x {{this.details.label}}
+                                            {{else}}
+                                                {{this.details.label}}
+                                            {{/ifCond}}
+                                        </a>
+                                        <small class="grey-text text-darken-1" style="float:right;">Result: {{this.details.value}}</small>
                                     </div>
                                     <div class="grey-text text-darken-1" style="font-size:0.9em">{{this.details.description}}</div>
                                 </div>
@@ -152,6 +159,13 @@
                                     <i class="ra ra-round-shield"></i>
                                     Inventory
                                 </button>
+                                {{#if canEdit}}
+                                <button type="button" href="#content-modal" class="modal-trigger btn-small blue-grey darken-1"
+                                    data-modal-url="/effects/member/{{member._id}}">
+                                    <i class="fa fa-wand-magic-sparkles"></i>
+                                    Add/Remove Effect
+                                </button>
+                                {{/if}}
                                 {{#if canEdit}}
                                 {{#ifEq member.unit.type 1}}
                                 <a href="/members/member/{{member._id}}/make-leader" data-method="patch" data-redirect="self"
@@ -200,6 +214,7 @@
                             <th>Type</th>
                             <th>Options</th>
                             <th>Notes</th>
+                            <th>Game</th>
                             <th>Date</th>
                             <th></th>
                         </tr>
@@ -219,6 +234,19 @@
                             </td>
                             <td>
                                 {{description}}
+                            </td>
+                            <td>
+                                {{#if gameId}}
+                                    <a href="/games/game/{{gameId}}">
+                                        {{#if gameName}}
+                                            {{gameName}}
+                                        {{else}}
+                                            {{gameId}}
+                                        {{/if}}
+                                    </a>
+                                {{else}}
+                                    -
+                                {{/if}}
                             </td>
                             <td>{{formatDateTime createdAt}}</td>
                             <td class="center-align">

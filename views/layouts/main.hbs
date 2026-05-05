@@ -18,11 +18,14 @@
         <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
           <li><a href="/">Home</a></li>
-          <li><a href="/dashboard">Dashboard</a></li>
-          <li><a href="/items">Items</a></li>
-          <li><a href="/campaigns">Campaigns</a></li>
-          <li><a href="/rosters">Rosters</a></li>
-          <li><a href="/players">Players</a></li>
+          <li class="nav-category">
+            <a href="/campaigns">Campaigns <span class="nav-caret">&#9662;</span></a>
+            <ul class="nav-submenu">
+              <li><a href="/games">Games</a></li>
+              <li><a href="/rosters">Rosters</a></li>
+              <li><a href="/players">Players</a></li>
+            </ul>
+          </li>
           <li class="nav-category">
             <a href="/warbands">Warbands <span class="nav-caret">&#9662;</span></a>
             <ul class="nav-submenu">
@@ -31,20 +34,29 @@
               {{/each}}
             </ul>
           </li>
-          <li><a href="/units">Units</a></li>
-          <li><a href="/traits">Traits</a></li>
-          <li><a href="/events">Events</a></li>
+          <li class="nav-category">
+            <a href="/campaigns">Configuration <span class="nav-caret">&#9662;</span></a>
+            <ul class="nav-submenu">
+              <li><a href="/units">Units</a></li>
+              <li><a href="/traits">Traits</a></li>
+              <li><a href="/items">Items</a></li>
+              <li><a href="/effects">Effects</a></li>
+              <li><a href="/events">Events</a></li>
+            </ul>
+          </li>
           {{#if authEnabled}}
-          {{#if isAuthenticated}}
-          {{#if currentPlayer}}
-          <li><a href="/players/player/{{currentPlayer._id}}">{{currentPlayer.name}}</a></li>
-          {{else}}
-          <li><a href="#">{{currentUser.name}}</a></li>
-          {{/if}}
-          <li><a href="/logout">Logout</a></li>
-          {{else}}
-          <li><a href="/login">Login</a></li>
-          {{/if}}
+            {{#if isAuthenticated}}
+              {{#if currentPlayer}}
+                <li>
+                  <a class="tooltipped" href="/players/player/{{currentPlayer._id}}" data-tooltip="{{currentPlayer.name}}"><i class="fas fa-user"></i> </a>
+                </li>
+              {{else}}
+                <li><a href="#"><i class="fas fa-user"></i> {{currentUser.name}}</a></li>
+              {{/if}}
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i></a></li>
+            {{else}}
+            <li><a href="/login"><i class="fas fa-sign-in-alt"></i></a></li>
+            {{/if}}
           {{/if}}
         </ul>
       </div>
@@ -52,9 +64,9 @@
 
     <ul class="sidenav" id="mobile-demo">
       <li><a href="/">Home</a></li>
-      <li><a href="/dashboard">Dashboard</a></li>
       <li><a href="/items">Items</a></li>
       <li><a href="/campaigns">Campaigns</a></li>
+      <li><a href="/games">Games</a></li>
       <li><a href="/rosters">Rosters</a></li>
       <li><a href="/players">Players</a></li>
       <li><a href="/warbands">Warbands</a></li>
@@ -66,11 +78,12 @@
       {{/if}}
       <li><a href="/units">Units</a></li>
       <li><a href="/traits">Traits</a></li>
+      <li><a href="/effects">Effects</a></li>
       <li><a href="/events">Events</a></li>
       {{#if authEnabled}}
       {{#if isAuthenticated}}
       {{#if currentPlayer}}
-      <li><a href="/players/player/{{currentPlayer._id}}">{{currentPlayer.name}}</a></li>
+      <li><a href="/players/player/{{currentPlayer._id}}">{{playerDisplayName currentPlayer}}</a></li>
       {{else}}
       <li><a href="#">{{currentUser.name}}</a></li>
       {{/if}}

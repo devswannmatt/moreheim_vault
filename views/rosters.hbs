@@ -23,7 +23,7 @@
                         <select id="player" name="player" required>
                             <option value="" disabled selected>Choose player</option>
                             {{#each players}}
-                                <option value="{{this._id}}">{{this.name}}</option>
+                                <option value="{{this._id}}">{{playerDisplayName this}}</option>
                             {{/each}}
                         </select>
                         <label for="player">Player</label>
@@ -56,7 +56,7 @@
     {{#each rosters}}
         <tr>
             <td><a href="/rosters/roster/{{this._id}}">{{this.name}}</a></td>
-            <td>{{#if this.player}}<a href="/players/player/{{this.player._id}}">{{this.player.name}}</a>{{else}}(no player){{/if}}</td>
+            <td>{{#if this.player}}<a href="/players/player/{{this.player._id}}">{{playerDisplayName this.player}}</a>{{else}}(no player){{/if}}</td>
             <td>{{this.createdAt}}</td>
         </tr>
     {{/each}}

@@ -83,6 +83,8 @@ $(function () {
   $(document).on('click', 'a[data-method]', function (e) {
     e.preventDefault();
     var $a = $(this);
+    var confirmMsg = $a.data('confirm');
+    if (confirmMsg && !window.confirm(confirmMsg)) return;
     var method = ($a.data('method') || 'GET').toUpperCase();
     var href = $a.prop('href');
     $.ajax({ url: href, method: method, xhrFields: { withCredentials: true } }).done(function (data) {

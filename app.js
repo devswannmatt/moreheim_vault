@@ -76,12 +76,14 @@ app.get('/dashboard', (req, res) => {
 
 app.use('/items', require('./routes/items'));
 app.use('/rosters', require('./routes/rosters'));
+app.use('/games', require('./routes/games'));
 app.use('/campaigns', require('./routes/campaigns'));
 app.use('/players', require('./routes/players'));
 app.use('/members', require('./routes/members'));
 app.use('/units', require('./routes/units'));
 app.use('/warbands', require('./routes/warbands'));
 app.use('/traits', require('./routes/traits'));
+app.use('/effects', require('./routes/effects'));
 app.use('/events', require('./routes/events'));
 
 app.use((req, res) => {

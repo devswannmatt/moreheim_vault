@@ -11,7 +11,7 @@
                             </div>
                             <div class="roster-commander-block">
                                 <span class="grey-text text-darken-2 roster-commander-label">Commander</span>
-                                <span class="roster-commander-name">{{roster.player.name}}</span>
+                                {{> player_name_badge fullName=roster.playerDisplay.fullName username=roster.playerDisplay.username}}
                             </div>
                         </div>
                         <div class="col s12 m9">
@@ -85,13 +85,24 @@
                         </div>
                         <div class="col s12 m3">
                             <div class="roster-stat-card roster-stat-card-updated">
-                                <span class="roster-stat-label roster-stat-label-updated">Last
-                                    Updated</span>
-                                <span class="roster-updated-value">{{formatDateTime
-                                    roster.updatedAt}}</span>
+                                <span class="roster-stat-label roster-stat-label-updated">Win/Loss/Draw</span>
+                                <span class="roster-stat-value roster-stat-value-updated">{{gameRecord.wins}}/{{gameRecord.losses}}/{{gameRecord.draws}}</span>
                             </div>
                         </div>
                     </div>
+
+                    {{#if roster.effects.length}}
+                    <div class="row roster-row-none" style="margin-top:8px;">
+                        <div class="col s12">
+                            <span class="roster-member-mini-label">Roster Effects</span><br />
+                            {{#each roster.effects}}
+                            <span class="tooltipped pill roster-pill-effect" data-tooltip="Duration: {{formatEffectDuration this.duration}}{{#if this.description}} | {{this.description}}{{/if}}" data-position="top">
+                                {{#if this.icon}}<i class="{{this.icon}}" style="margin-right:4px;"></i>{{/if}}{{this.name}}
+                            </span>
+                            {{/each}}
+                        </div>
+                    </div>
+                    {{/if}}
 
                     <!-- Divider -->
                     <div class="roster-divider"></div>
@@ -197,6 +208,8 @@
                                 data-modal-url="/rosters/roster/{{roster._id}}/inventory"><i class="fa fa-archive"></i></a>
                             <a href="#content-modal" class="btn-small amber darken-2 modal-trigger" title="Gain Resource"
                                 data-modal-url="/rosters/roster/{{roster._id}}/event/gainresource"><i class="fa fa-coins"></i></a>
+                            <a href="#content-modal" class="btn-small blue-grey darken-1 modal-trigger" title="Add/Remove Effects"
+                                data-modal-url="/effects/roster/{{roster._id}}"><i class="fa fa-wand-magic-sparkles"></i></a>
                         </div>
                         <div class="col s6 right-align">
                             <div class="btn-area">
@@ -220,150 +233,207 @@
         </div>
         <div class="card">
             <div class="card-content">
-                <div class="roster-members-header">
-                    <span class="card-title roster-card-title-tight">Members</span>
-                    <div id="reorder-controls">
-                        <button id="reorder-toggle" type="button" class="btn-small blue waves-effect waves-light"
-                            title="Reorder Members">
-                            <i class="fa fa-arrows-alt"></i>
-                        </button>
-                        <button id="reorder-save" type="button" class="btn-small green waves-effect waves-light"
-                            style="display:none;" title="Save Order">
-                            <i class="fa fa-save"></i>
-                        </button>
-                        <button id="reorder-cancel" type="button" class="btn-small grey waves-effect waves-light"
-                            style="display:none;" title="Cancel">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="row roster-row-none" id="members-grid">
-                    {{#each members}}
-                    <div class="col s12 m12 l12 roster-member-col" data-member-id="{{this._id}}">
-                        <div class="card z-depth-1 roster-member-card">
-                            <div class="card-content roster-member-content">
-                                <div class="roster-member-top">
-                                    <div class="roster-member-id">
-                                        <div class="reorder-handle roster-reorder-handle"
-                                            title="Drag to reorder">
-                                            <i class="fa fa-arrows-alt"></i>
-                                        </div>
-                                        <div>
-                                            <a href="#content-modal" class="modal-trigger roster-member-link"
-                                                data-modal-url="/members/member/{{this._id}}">{{this.name}}</a>
-                                            <span class="grey-text text-darken-1 roster-member-subline">{{this.qty}}&times; {{this.unit.name}}</span>
-                                        </div>
-                                    </div>
-                                    <div class="roster-member-values">
-                                        <div class="roster-member-stack">
-                                            {{#if this.hasLevelUpsAvailable}}
-                                            <i class="fa fa-angles-up tooltipped roster-levelup-icon roster-highlight-icon" data-tooltip="{{this.levelUpsAvailableCount}} Level-up{{#ifCond this.levelUpsAvailableCount '>' 1}}s{{/ifCond}} Available" data-position="top"></i>
-                                            {{/if}}
-                                            {{> value_square label="Experience" value=this.wealth.experience}}
-                                        </div>
-                                        {{> value_square label="Gold" value=this.wealth.gold}}
-                                        <div class="roster-member-stack">
-                                            {{#if this.isTopRated}}
-                                            <i class="fa fa-crown tooltipped roster-highlight-icon" data-tooltip="Highest rated member" data-position="top"></i>
-                                            {{/if}}
-                                            {{> value_square label="Rating" value=this.wealth.rating}}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="roster-stats-wrap">
-                                    {{> stat_square label="M" value=this.unit.m improved=this.unit.advance.m}}
-                                    {{> stat_square label="WS" value=this.unit.ws improved=this.unit.advance.ws}}
-                                    {{> stat_square label="BS" value=this.unit.bs improved=this.unit.advance.bs}}
-                                    {{> stat_square label="S" value=this.unit.s improved=this.unit.advance.s}}
-                                    {{> stat_square label="T" value=this.unit.t improved=this.unit.advance.t}}
-                                    {{> stat_square label="W" value=this.unit.w improved=this.unit.advance.w}}
-                                    {{> stat_square label="I" value=this.unit.i improved=this.unit.advance.i}}
-                                    {{> stat_square label="A" value=this.unit.a improved=this.unit.advance.a}}
-                                    {{> stat_square label="LD" value=this.unit.ld improved=this.unit.advance.ld}}
-                                </div>
-                                {{#if this.items}}
-                                <div class="roster-member-section roster-member-section-divider">
-                                    <div class="roster-member-section-row">
-                                        <span class="roster-member-mini-label">Equipment</span><br />
-                                        {{#each this.items}}
-                                            <a class="tooltipped pill modal-trigger" href="#item-edit-modal" data-modal-target="#item-edit-modal" data-modal-url="/items/item/{{this._id}}"
-                                            data-tooltip="{{formatItemTooltip this ../unit.s}}" data-position="top">{{{formatItemPill this ../unit.s}}}</a>
-                                        {{/each}}
-                                    </div>
-                                    {{/if}}
-                                    {{#if this.hasSkillsOrInjuries}}
-                                    <div class="roster-member-section-row">
-                                        <span class="roster-member-mini-label">Skills & Injuries</span><br />
-                                        {{#each this.unit.traits}}
-                                        <a class="tooltipped pill" href="/items/item/{{this._id}}"
-                                            data-tooltip="{{formatTraitTooltip this}}" data-position="top">{{{formatTraitPill this}}}</a>
-                                        {{/each}}
-                                        {{#each this.traits}}
-                                        <a class="tooltipped pill" href="/items/item/{{this._id}}"
-                                            data-tooltip="{{formatTraitTooltip this}}" data-position="top">{{{formatTraitPill this}}}</a>
-                                        {{/each}}
-                                        {{#each this.injuries}}
-                                        <a class="tooltipped pill roster-pill-injury" href="/events/event/{{this._id}}"
-                                            data-tooltip="{{#if this.details}}{{this.details.description}}{{else}}{{this.name}}{{/if}}" data-position="top">{{#if this.details}}{{this.details.label}}{{else}}{{this.name}}{{/if}}</a>
-                                        {{/each}}
-                                    </div>
-                                    {{/if}}
-                                    {{#if this.items}}
-                                </div>
-                                {{/if}}
-                            </div>
+                <div id="roster-tabs"></div>
+            </div>
+        </div>
+
+        <div id="roster-tab-members">
+            <div class="card">
+                <div class="card-content">
+                    <div class="roster-members-header">
+                        <span class="card-title roster-card-title-tight">Members</span>
+                        <div id="reorder-controls">
+                            <button id="reorder-toggle" type="button" class="btn-small blue waves-effect waves-light"
+                                title="Reorder Members">
+                                <i class="fa fa-arrows-alt"></i>
+                            </button>
+                            <button id="reorder-save" type="button" class="btn-small green waves-effect waves-light"
+                                style="display:none;" title="Save Order">
+                                <i class="fa fa-save"></i>
+                            </button>
+                            <button id="reorder-cancel" type="button" class="btn-small grey waves-effect waves-light"
+                                style="display:none;" title="Cancel">
+                                <i class="fa fa-times"></i>
+                            </button>
                         </div>
                     </div>
-                    {{/each}}
+                    <div class="row roster-row-none" id="members-grid">
+                        {{#each members}}
+                        <div class="col s12 m12 l12 roster-member-col" data-member-id="{{this._id}}">
+                            <div class="card z-depth-1 roster-member-card">
+                                <div class="card-content roster-member-content">
+                                    <div class="roster-member-top">
+                                        <div class="roster-member-id">
+                                            <div class="reorder-handle roster-reorder-handle"
+                                                title="Drag to reorder">
+                                                <i class="fa fa-arrows-alt"></i>
+                                            </div>
+                                            <div>
+                                                <a href="#content-modal" class="modal-trigger roster-member-link"
+                                                    data-modal-url="/members/member/{{this._id}}">{{this.name}}</a>
+                                                <span class="grey-text text-darken-1 roster-member-subline">{{this.qty}}&times; {{this.unit.name}}</span>
+                                            </div>
+                                        </div>
+                                        <div class="roster-member-values">
+                                            <div class="roster-member-stack">
+                                                {{#if this.hasLevelUpsAvailable}}
+                                                <i class="fa fa-angles-up tooltipped roster-levelup-icon roster-highlight-icon" data-tooltip="{{this.levelUpsAvailableCount}} Level-up{{#ifCond this.levelUpsAvailableCount '>' 1}}s{{/ifCond}} Available" data-position="top"></i>
+                                                {{/if}}
+                                                {{> value_square label="Experience" value=this.wealth.experience}}
+                                            </div>
+                                            {{> value_square label="Gold" value=this.wealth.gold}}
+                                            <div class="roster-member-stack">
+                                                {{#if this.isTopRated}}
+                                                <i class="fa fa-crown tooltipped roster-highlight-icon" data-tooltip="Highest rated member" data-position="top"></i>
+                                                {{/if}}
+                                                {{> value_square label="Rating" value=this.wealth.rating}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="roster-stats-wrap">
+                                        {{> stat_square label="M" value=this.unit.m improved=this.unit.advance.m}}
+                                        {{> stat_square label="WS" value=this.unit.ws improved=this.unit.advance.ws}}
+                                        {{> stat_square label="BS" value=this.unit.bs improved=this.unit.advance.bs}}
+                                        {{> stat_square label="S" value=this.unit.s improved=this.unit.advance.s}}
+                                        {{> stat_square label="T" value=this.unit.t improved=this.unit.advance.t}}
+                                        {{> stat_square label="W" value=this.unit.w improved=this.unit.advance.w}}
+                                        {{> stat_square label="I" value=this.unit.i improved=this.unit.advance.i}}
+                                        {{> stat_square label="A" value=this.unit.a improved=this.unit.advance.a}}
+                                        {{> stat_square label="LD" value=this.unit.ld improved=this.unit.advance.ld}}
+                                    </div>
+                                    {{#if this.items}}
+                                    <div class="roster-member-section roster-member-section-divider">
+                                        <div class="roster-member-section-row">
+                                            <span class="roster-member-mini-label">Equipment</span><br />
+                                            {{#each this.items}}
+                                                <a class="tooltipped pill modal-trigger" href="#item-edit-modal" data-modal-target="#item-edit-modal" data-modal-url="/items/item/{{this._id}}"
+                                                data-tooltip="{{formatItemTooltip this ../unit.s}}" data-position="top">{{{formatItemPill this ../unit.s}}}</a>
+                                            {{/each}}
+                                        </div>
+                                        {{/if}}
+                                        {{#if this.hasSkillsOrInjuries}}
+                                        <div class="roster-member-section-row">
+                                            <span class="roster-member-mini-label">Skills & Injuries</span><br />
+                                            {{#each this.unit.traits}}
+                                            <a class="tooltipped pill" href="/items/item/{{this._id}}"
+                                                data-tooltip="{{formatTraitTooltip this}}" data-position="top">{{{formatTraitPill this}}}</a>
+                                            {{/each}}
+                                            {{#each this.traits}}
+                                            <a class="tooltipped pill" href="/items/item/{{this._id}}"
+                                                data-tooltip="{{formatTraitTooltip this}}" data-position="top">{{{formatTraitPill this}}}</a>
+                                            {{/each}}
+                                            {{#each this.injuryStacks}}
+                                            <a class="tooltipped pill roster-pill-injury" href="/events/event/{{this.firstEventId}}"
+                                                data-tooltip="{{#if this.details}}{{this.details.description}}{{else}}{{this.name}}{{/if}}" data-position="top">{{#if this.details}}{{#ifCond this.count '>' 1}}{{this.count}} x {{this.details.label}}{{else}}{{this.details.label}}{{/ifCond}}{{else}}{{this.name}}{{/if}}</a>
+                                            {{/each}}
+                                        </div>
+                                        {{/if}}
+                                        {{#if this.effects.length}}
+                                        <div class="roster-member-section-row">
+                                            <span class="roster-member-mini-label">Effects</span><br />
+                                            {{#each this.effects}}
+                                            <span class="tooltipped pill roster-pill-effect" data-tooltip="Duration: {{formatEffectDuration this.duration}}{{#if this.description}} | {{this.description}}{{/if}}" data-position="top">
+                                                {{#if this.icon}}<i class="{{this.icon}}" style="margin-right:4px;"></i>{{/if}}{{this.name}}
+                                            </span>
+                                            {{/each}}
+                                        </div>
+                                        {{/if}}
+                                        {{#if this.items}}
+                                    </div>
+                                    {{/if}}
+                                </div>
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-content">
-                <span class="card-title">Events</span>
-                <table class="striped tight-rows" id="roster-events-table">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Options</th>
-                            <th>Notes</th>
-                            <th>Date</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{#each rosterEvents}}
-                        <tr>
-                            <td>{{formatEventType type}}</td>
-                            <td>
-                                {{#ifEq type 3}}
-                                    {{#ifEq resource.type 1}}
-                                        Gold x{{resource.quantity}}
-                                    {{else}}
-                                        {{#ifEq resource.type 2}}
-                                            Wyrdstone x{{resource.quantity}}
+
+        <div id="roster-tab-events" style="display:none;">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Events</span>
+                    <table class="striped tight-rows" id="roster-events-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Options</th>
+                                <th>Notes</th>
+                                <th>Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each rosterEvents}}
+                            <tr>
+                                <td>{{formatEventType type}}</td>
+                                <td>
+                                    {{#ifEq type 3}}
+                                        {{#ifEq resource.type 1}}
+                                            Gold x{{resource.quantity}}
                                         {{else}}
-                                            {{name}}
+                                            {{#ifEq resource.type 2}}
+                                                Wyrdstone x{{resource.quantity}}
+                                            {{else}}
+                                                {{name}}
+                                            {{/ifEq}}
                                         {{/ifEq}}
+                                    {{else}}
+                                        {{name}}
                                     {{/ifEq}}
-                                {{else}}
-                                    {{name}}
-                                {{/ifEq}}
-                            </td>
-                            <td>{{description}}</td>
-                            <td>{{formatDateTime createdAt}}</td>
-                            <td class="center-align">
-                                {{#if ../canEdit}}
-                                <a href="/events/event/{{_id}}" class="tooltipped" data-method="delete"
-                                    data-tooltip="Delete event" data-position="top" title="Delete Event">
-                                    <i class="fa fa-trash red-text"></i>
-                                </a>
-                                {{/if}}
-                            </td>
-                        </tr>
-                        {{/each}}
-                    </tbody>
-                </table>
+                                </td>
+                                <td>{{description}}</td>
+                                <td>{{formatDateTime createdAt}}</td>
+                                <td class="center-align">
+                                    {{#if ../canEdit}}
+                                    <a href="/events/event/{{_id}}" class="tooltipped" data-method="delete"
+                                        data-tooltip="Delete event" data-position="top" title="Delete Event">
+                                        <i class="fa fa-trash red-text"></i>
+                                    </a>
+                                    {{/if}}
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="roster-tab-games" style="display:none;">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Games</span>
+                    <table class="striped tight-rows">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Winner</th>
+                                <th>Campaign</th>
+                                <th>Rosters</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#if games.length}}
+                            {{#each games}}
+                            <tr>
+                                <td><a href="/games/game/{{this._id}}">{{this.name}}</a></td>
+                                <td>{{this.resultWinnerLabel}}</td>
+                                <td>{{#if this.campaign}}{{this.campaign.name}}{{else}}-{{/if}}</td>
+                                <td>{{this.rosters.length}}</td>
+                                <td>{{formatDateTime this.createdAt}}</td>
+                            </tr>
+                            {{/each}}
+                            {{else}}
+                            <tr>
+                                <td colspan="5" class="center-align grey-text text-darken-1">No games include this roster yet.</td>
+                            </tr>
+                            {{/if}}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -378,6 +448,8 @@
 {{> member_create_inline_modal memberCreateSetup=memberCreateSetup}}
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
+<link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/23.2.6/css/dx.light.css">
+<script src="https://cdn3.devexpress.com/jslib/23.2.6/js/dx.all.js"></script>
 <script src="/js/member-create.js"></script>
 <script>
     (function () {
@@ -388,6 +460,36 @@
         var btnToggle = document.getElementById('reorder-toggle');
         var btnSave = document.getElementById('reorder-save');
         var btnCancel = document.getElementById('reorder-cancel');
+        var tabContainer = document.getElementById('roster-tabs');
+        var membersPanel = document.getElementById('roster-tab-members');
+        var eventsPanel = document.getElementById('roster-tab-events');
+        var gamesPanel = document.getElementById('roster-tab-games');
+
+        function showRosterTab(key) {
+            if (!membersPanel || !eventsPanel || !gamesPanel) return;
+            membersPanel.style.display = key === 'members' ? '' : 'none';
+            eventsPanel.style.display = key === 'events' ? '' : 'none';
+            gamesPanel.style.display = key === 'games' ? '' : 'none';
+        }
+
+        if (tabContainer && window.DevExpress && DevExpress.ui && DevExpress.ui.dxTabs) {
+            new DevExpress.ui.dxTabs(tabContainer, {
+                dataSource: [
+                    { text: 'Members', key: 'members' },
+                    { text: 'Events', key: 'events' },
+                    { text: 'Games', key: 'games' }
+                ],
+                selectedIndex: 0,
+                itemTemplate: function (itemData, itemIndex, itemElement) {
+                    itemElement.textContent = itemData.text;
+                },
+                onSelectionChanged: function (e) {
+                    if (!e || !e.addedItems || !e.addedItems.length) return;
+                    showRosterTab(e.addedItems[0].key);
+                }
+            });
+            showRosterTab('members');
+        }
 
         function enterReorderMode() {
             originalOrder = Array.from(grid.children).map(function (el) { return el.dataset.memberId; });

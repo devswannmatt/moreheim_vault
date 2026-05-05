@@ -243,6 +243,10 @@
                 <div class="value">{{rosters.length}}</div>
             </div>
             <div class="campaign-metric">
+                <div class="label">Games Logged</div>
+                <div class="value">{{games.length}}</div>
+            </div>
+            <div class="campaign-metric">
                 <div class="label">Top Heroes Tracked</div>
                 <div class="value">{{topHeroes.length}}</div>
             </div>
@@ -261,10 +265,9 @@
             <form id="create-campaign-form" data-method="PATCH" action="/campaigns/campaign/{{campaign._id}}">
                 <div class="campaign-add-row">
                     <div class="input-field" style="margin:0;">
-                        <select id="roster" name="roster" required>
-                            <option value="" disabled selected>Choose roster</option>
+                        <select id="roster" name="roster" multiple required>
                             {{#each rostersList}}
-                            <option value="{{this._id}}">{{this.name}}</option>
+                            <option value="{{this._id}}" {{#if (isInArray this._id @root.campaign.rosters)}}selected{{/if}}>{{this.name}}</option>
                             {{/each}}
                         </select>
                         <label for="roster">Roster</label>
@@ -333,6 +336,49 @@
     <section class="campaign-card">
         <div class="campaign-card-header">
             <div>
+                <h4 class="campaign-card-title">Campaign Games</h4>
+                <p class="campaign-card-subtitle">Games linked to this campaign, newest first.</p>
+            </div>
+        </div>
+        <div class="campaign-card-body" style="padding:0;">
+            <table class="striped responsive-table campaign-table" id="campaign-games-table">
+                <thead>
+                    <tr>
+                        <th>Game</th>
+                        <th>Rosters</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#if games.length}}
+                    {{#each games}}
+                    <tr>
+                        <td>{{{link this.name (concat '/games/game/' this._id)}}}</td>
+                        <td>
+                            {{#if this.rosters.length}}
+                                {{#each this.rosters}}
+                                    {{{link this.name (concat '/rosters/roster/' this._id)}}}{{#unless @last}}, {{/unless}}
+                                {{/each}}
+                            {{else}}
+                                -
+                            {{/if}}
+                        </td>
+                        <td>{{formatDateTime this.createdAt}}</td>
+                    </tr>
+                    {{/each}}
+                    {{else}}
+                    <tr>
+                        <td colspan="3" class="empty-row">No games have been linked to this campaign yet.</td>
+                    </tr>
+                    {{/if}}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="campaign-card">
+        <div class="campaign-card-header">
+            <div>
                 <h4 class="campaign-card-title">Top 10 Heroes</h4>
                 <p class="campaign-card-subtitle">Best active heroes in this campaign by rating.</p>
             </div>
@@ -377,6 +423,61 @@
     <section class="campaign-card">
         <div class="campaign-card-header">
             <div>
+                <h4 class="campaign-card-title">Campaign Players</h4>
+                <p class="campaign-card-subtitle">Players who are members of this campaign.</p>
+            </div>
+        </div>
+        <div class="campaign-card-body">
+            <form data-method="PATCH" action="/campaigns/campaign/{{campaign._id}}/player" data-redirect="self" style="margin-bottom:14px;">
+                <div class="campaign-add-row">
+                    <div class="input-field" style="margin:0;">
+                        <select name="player" multiple required>
+                            {{#each playersList}}
+                            <option value="{{this._id}}" {{#if (isInArray this._id @root.campaign.players)}}selected{{/if}}>{{playerDisplayName this}}</option>
+                            {{/each}}
+                        </select>
+                        <label>Player</label>
+                    </div>
+                    <button class="btn waves-effect waves-light" type="submit">
+                        <i class="fa fa-plus" style="margin-right:6px;"></i>Add Player
+                    </button>
+                </div>
+            </form>
+            {{#if campaignPlayers.length}}
+            <table class="striped responsive-table campaign-table" style="margin:0;">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each campaignPlayers}}
+                    <tr>
+                        <td>{{> player_name_badge fullName=this.name username=this.account.nickname}}</td>
+                        <td style="text-align:right;">
+                            <a href="/campaigns/campaign/{{@root.campaign._id}}/player/{{this._id}}"
+                               data-method="DELETE"
+                               data-redirect="self"
+                               class="btn btn-small red lighten-1 waves-effect waves-light"
+                               style="padding:0 10px;height:28px;line-height:28px;font-size:0.8rem;"
+                               title="Remove player">
+                                <i class="fa fa-times"></i> Remove
+                            </a>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            {{else}}
+            <p class="grey-text" style="margin:0;">No players added to this campaign yet.</p>
+            {{/if}}
+        </div>
+    </section>
+
+    <section class="campaign-card">
+        <div class="campaign-card-header">
+            <div>
                 <h4 class="campaign-card-title">Campaign Settings</h4>
                 <p class="campaign-card-subtitle">Only you, as the campaign creator, can change these settings.</p>
             </div>
@@ -396,6 +497,16 @@
                     </button>
                 </div>
             </form>
+            <div style="margin-top:16px;border-top:1px solid var(--campaign-edge);padding-top:14px;">
+                <p style="margin:0 0 8px;font-size:0.88rem;color:#a93226;font-weight:600;">Danger Zone</p>
+                <a href="/campaigns/campaign/{{campaign._id}}"
+                   data-method="DELETE"
+                   data-redirect="/campaigns"
+                   data-confirm="Are you sure you want to delete this campaign? This cannot be undone."
+                   class="btn red waves-effect waves-light">
+                    <i class="fa fa-trash" style="margin-right:6px;"></i>Delete Campaign
+                </a>
+            </div>
         </div>
     </section>
     {{/if}}

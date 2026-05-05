@@ -33,7 +33,9 @@ function fetchEventTypes(type) {
     2: { value: 2, label:'Injury' },
     3: { value: 3, label:'Gain Resource' },
     4: { value: 4, label:'Item Transaction' },
-    5: { value: 5, label:'Other' }
+    5: { value: 5, label:'Other' },
+    6: { value: 6, label:'Exploration' },
+    7: { value: 7, label:'Result' }
   }
   return type ? [eventTypes[type]] : eventTypes;
 }

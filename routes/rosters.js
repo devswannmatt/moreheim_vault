@@ -4,6 +4,7 @@ const campaign = require('../database/models/campaign');
 const player   = require('../database/models/player');
 const member   = require('../database/models/member');
 const warband = require('../database/models/warband');
+const game    = require('../database/models/game');
 const event   = require('../database/models/event');
 const item    = require('../database/models/item');
 const auth    = require('../system/auth');
@@ -11,9 +12,10 @@ const auth    = require('../system/auth');
 const calc = require('../js/calc');
 
 function renderView(req, res, view, data) {
+  const isModal = req.query && (req.query.modal === '1' || req.query.modal === 'true');
   return res.render(view, Object.assign({}, data, {
-    isModal: req.query && (req.query.modal === '1' || req.query.modal === 'true'),
-    layout: !(req.query && (req.query.modal === '1' || req.query.modal === 'true'))
+    isModal: isModal,
+    layout: isModal ? false : undefined
   }));
 }
 
@@ -59,8 +61,7 @@ function buildStockpileTypeSections(groups) {
 }
 
 function isOwnedByCurrentPlayer(req, playerId) {
-  if (!auth.isAuthEnabledForRequest(req)) return true;
-  return Boolean(req.currentPlayer && String(req.currentPlayer._id) === String(playerId));
+  return auth.canManagePlayer(req, playerId);
 }
 
 function createMemberReceiveItemEvent(memberRecord, itemRecord) {
@@ -119,21 +120,39 @@ router.get('/roster/:id', async (req, res) => {
       wealth.rating += m.wealth.rating;
       wealth.gold += m.wealth.gold;
 
-      m.injuries = events
-        .filter(ev => ev.type === 2)
-        .map(ev => {
-          const details = ev.injury ? calc.fetchInjuries(ev.injury) : null;
-          return {
-            _id: ev._id,
-            createdAt: ev.createdAt,
+      const injuryEvents = events.filter(function (ev) {
+        return Number(ev.type) === 2;
+      });
+      const injuryStacksMap = new Map();
+      injuryEvents.forEach(function (ev) {
+        const injuryId = Number(ev.injury);
+        const details = ev.injury ? calc.fetchInjuries(ev.injury) : null;
+        const key = Number.isNaN(injuryId)
+          ? String(details && details.label ? details.label : '').trim().toLowerCase()
+          : String(injuryId);
+        if (!key) return;
+
+        if (!injuryStacksMap.has(key)) {
+          injuryStacksMap.set(key, {
+            injury: Number.isNaN(injuryId) ? 999 : injuryId,
             details,
+            count: 0,
+            firstEventId: ev._id,
             name: ev.name
-          };
-        });
+          });
+        }
+
+        const stack = injuryStacksMap.get(key);
+        stack.count += 1;
+      });
+      m.injuryStacks = Array.from(injuryStacksMap.values()).sort(function (a, b) {
+        return (a.injury || 0) - (b.injury || 0);
+      });
+      m.injuries = m.injuryStacks;
       m.hasSkillsOrInjuries = Boolean(
         (m.unit && Array.isArray(m.unit.traits) && m.unit.traits.length)
         || (Array.isArray(m.traits) && m.traits.length)
-        || (Array.isArray(m.injuries) && m.injuries.length)
+        || (Array.isArray(m.injuryStacks) && m.injuryStacks.length)
       );
 
       const currentExp = calc.calcCurrentExp((m.unit.experience + m.experience), events);
@@ -166,6 +185,63 @@ router.get('/roster/:id', async (req, res) => {
     
     // Fetch campaigns containing this roster
     const campaigns = await campaign.findCampaigns({ rosters: req.params.id });
+    const games = await game.findGames({ rosters: req.params.id }, { sort: { createdAt: -1 } });
+    const gameRecord = { wins: 0, losses: 0, draws: 0 };
+
+    const gameIdList = games.map(g => String(g._id));
+    if (gameIdList.length) {
+      const resultEvents = await event.findEvents({ type: 7 }, { sort: { createdAt: -1 } });
+
+      const latestResultByGame = new Map();
+      resultEvents.forEach(function (ev) {
+        const entities = Array.isArray(ev.entities) ? ev.entities : [];
+        const gameEntity = entities.find(function (entity) {
+          if (!entity || entity.kind !== 'Game') return false;
+          const id = entity.id && entity.id._id ? entity.id._id : entity.id;
+          return id && gameIdList.includes(String(id));
+        });
+        if (!gameEntity) return;
+
+        const gameId = String(gameEntity.id && gameEntity.id._id ? gameEntity.id._id : gameEntity.id);
+        if (!latestResultByGame.has(gameId)) {
+          latestResultByGame.set(gameId, ev);
+        }
+      });
+
+      const currentRosterId = String(rosters._id);
+      games.forEach(function (g) {
+        const resultEvent = latestResultByGame.get(String(g._id));
+        g.resultWinnerLabel = '-';
+        if (!resultEvent || !resultEvent.result) return;
+
+        const isDraw = Boolean(resultEvent.result.draw);
+        const winners = Array.isArray(resultEvent.result.winners)
+          ? resultEvent.result.winners.map(function (id) { return String(id && id._id ? id._id : id); })
+          : [];
+        const losers = Array.isArray(resultEvent.result.losers)
+          ? resultEvent.result.losers.map(function (id) { return String(id && id._id ? id._id : id); })
+          : [];
+
+        if (isDraw) {
+          g.resultWinnerLabel = 'Draw';
+          gameRecord.draws += 1;
+          return;
+        }
+
+        if (winners.length) {
+          const winnerNames = (g.rosters || [])
+            .filter(function (r) { return winners.includes(String(r._id)); })
+            .map(function (r) { return r.name; });
+          g.resultWinnerLabel = winnerNames.length ? winnerNames.join(', ') : '-';
+        }
+
+        if (winners.includes(currentRosterId)) {
+          gameRecord.wins += 1;
+        } else if (losers.includes(currentRosterId)) {
+          gameRecord.losses += 1;
+        }
+      });
+    }
     
     // Build a map of current unit counts
     const unitCounts = new Map();
@@ -218,7 +294,7 @@ router.get('/roster/:id', async (req, res) => {
       }) : []
     };
 
-    res.render('roster', { roster: rosters, members: members, warbands: warbands, wealth: wealth, heroCount, henchmanCount, totalCount, stockpileGroups, stockpileTypeSections, stockpileValue, wyrdstoneCount, canEdit, memberCreateSetup, campaigns, rosterEvents });
+    res.render('roster', { roster: rosters, members: members, warbands: warbands, wealth: wealth, heroCount, henchmanCount, totalCount, stockpileGroups, stockpileTypeSections, stockpileValue, wyrdstoneCount, canEdit, memberCreateSetup, campaigns, games, gameRecord, rosterEvents });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
